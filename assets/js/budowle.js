@@ -31,7 +31,7 @@ function setL(v, fromSlider) {
   viewer && viewer.setLayer(L === Infinity ? Infinity : L);
   drawMap(shown); mats(shown);
 }
-function toLayerMode() { if (matMode !== 'layer') { matMode = 'layer'; document.querySelectorAll('.mat-tabs .tab').forEach(x => x.setAttribute('aria-selected', x.dataset.m === 'layer')); } }
+function toLayerMode() { if (matMode !== 'layer') { matMode = 'layer'; document.querySelectorAll('.mat-tabs .tab').forEach(x => x.setAttribute('aria-pressed', x.dataset.m === 'layer')); } }
 slider.addEventListener('input', () => { toLayerMode(); setL(+slider.value, true); });
 $('#up').addEventListener('click', () => toLayerMode() || setL((L === Infinity ? b.size[1] - 1 : L) + 1));
 $('#down').addEventListener('click', () => toLayerMode() || setL((L === Infinity ? b.size[1] - 1 : L) - 1));
@@ -65,7 +65,7 @@ const stacks = (n) => {
   return s ? `${s}×64${r ? ' + ' + r : ''}` : '';
 };
 document.querySelectorAll('.mat-tabs .tab').forEach(t => t.addEventListener('click', () => {
-  matMode = t.dataset.m; document.querySelectorAll('.mat-tabs .tab').forEach(x => x.setAttribute('aria-selected', x === t)); mats(L === Infinity ? b.size[1] - 1 : L);
+  matMode = t.dataset.m; document.querySelectorAll('.mat-tabs .tab').forEach(x => x.setAttribute('aria-pressed', x === t)); mats(L === Infinity ? b.size[1] - 1 : L);
 }));
 function mats(y) {
   const list = matMode === 'layer' ? layerOf(y) : b.blocks;
@@ -103,12 +103,14 @@ function build3d() {
   requestAnimationFrame(step);
 }
 $('#play').addEventListener('click', () => viewer && build3d());
-$('#all').addEventListener('click', () => { matMode = 'all'; document.querySelectorAll('.mat-tabs .tab').forEach(x => x.setAttribute('aria-selected', x.dataset.m === 'all')); setL(Infinity); });
+$('#all').addEventListener('click', () => { matMode = 'all'; document.querySelectorAll('.mat-tabs .tab').forEach(x => x.setAttribute('aria-pressed', x.dataset.m === 'all')); setL(Infinity); });
 
 load(false);
-const { webglOK, createViewer } = await import('./voxel.js');
-if (webglOK()) {
-  viewer = createViewer(host, b, { ghost: true, layerPlane: true });
+const { createViewer } = await import('./voxel.js');
+const initial = b;
+viewer = await createViewer(host, initial, { ghost: true, layerPlane: true });
+if (viewer) {
+  if (b !== initial) viewer.setBuild(b);
   $('#poster').remove();
   setL(Infinity);
   if (!reduced) build3d();

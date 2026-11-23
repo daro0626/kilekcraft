@@ -78,7 +78,7 @@ img,canvas,svg{display:block;max-width:100%}
 h1,h2,h3{font-family:var(--font-px);font-weight:400;font-synthesis:none;line-height:.95;letter-spacing:.01em;margin:0 0 .45em}
 h1{font-size:clamp(52px,9vw,112px)}
 h2{font-size:clamp(42px,5.6vw,72px)}
-h3{font-size:24px;font-family:var(--font);font-weight:700;letter-spacing:0}
+h3,.section-heading{font-size:24px;font-family:var(--font);font-weight:700;letter-spacing:0}
 p{margin:0 0 1em}
 .lead{font-size:clamp(18px,2vw,22px);color:var(--muted);max-width:640px}
 .eyebrow{font:700 13px var(--font);letter-spacing:.2em;text-transform:uppercase;color:var(--redstone);display:inline-flex;align-items:center;gap:10px;margin-bottom:14px}
@@ -283,7 +283,7 @@ table.tbl{width:100%;border-collapse:collapse;font-size:15px}
 .tab{display:inline-flex;align-items:center;gap:8px;background:var(--bg-2);border:1px solid var(--line-strong);color:var(--muted);font:700 16px var(--font);padding:10px 14px;cursor:pointer;border-radius:var(--radius);transition:all .2s}
 .tab .ti{width:26px;height:26px;display:grid;place-items:center;background:#070b16;color:var(--gold);font-size:14px}
 .tab:hover{color:var(--text)}
-.tab[aria-selected=true]{color:#fff;border-color:var(--redstone);background:rgba(255,61,61,.12);box-shadow:0 4px 0 var(--redstone-deep)}
+.tab[aria-selected=true],.tab[aria-pressed=true]{color:#fff;border-color:var(--redstone);background:rgba(255,61,61,.12);box-shadow:0 4px 0 var(--redstone-deep)}
 .cmd-grid{display:grid;grid-template-columns:1fr 1.1fr;gap:20px;align-items:start}
 @media (max-width:900px){.cmd-grid{grid-template-columns:1fr}}
 .cmd-right{position:sticky;top:84px}
@@ -471,7 +471,7 @@ table.tbl{width:100%;border-collapse:collapse;font-size:15px}
   .shorts-wrap{grid-template-columns:1fr;gap:14px;padding:16px 0 0}
   .shorts-side{position:static;padding:0 18px}
   .recipe-meta{margin:14px 0}
-  .shorts{height:auto;overflow:visible;border:0;border-radius:0;box-shadow:none;background:none}
+  .shorts{height:auto;min-height:calc(100svh - 64px);overflow:visible;border:0;border-radius:0;box-shadow:none;background:none}
   .short{height:auto;min-height:calc(100svh - 64px);border-top:1px solid var(--line-strong)}
   html:has(body.shorts-page){scroll-snap-type:y proximity}
   .dots{display:none}

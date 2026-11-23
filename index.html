@@ -134,10 +134,10 @@ flapBoard(document.getElementById('flap'), [
 const host = document.getElementById('hero3d');
 const io = new IntersectionObserver(async ([e]) => {
   if (!e.isIntersecting) return; io.disconnect();
-  const { webglOK, createViewer } = await import('./assets/js/voxel.js');
-  if (!webglOK()) { host.querySelector('.poster').textContent = 'Twoja przeglądarka nie pokazuje 3D. Budowle nadal zobaczysz jako mapę warstw.'; return; }
+  const { createViewer } = await import('./assets/js/voxel.js');
   const { getBuild } = await import('./assets/js/builds.js');
-  const v = createViewer(host, getBuild('wyspa'), { autoRotate: !reduced, ghost: false, layerPlane: false, motes: !reduced, noZoom: true, zoom: .9 });
+  const v = await createViewer(host, getBuild('wyspa'), { autoRotate: !reduced, ghost: false, layerPlane: false, motes: !reduced, noZoom: true, zoom: .9 });
+  if (!v) { host.querySelector('.poster').textContent = 'Twoja przeglądarka nie pokazuje 3D. Budowle nadal zobaczysz jako mapę warstw.'; return; }
   host.querySelector('.poster').remove();
   if (!reduced) v.animateBuild(3200);
 }, { rootMargin: '100px' });

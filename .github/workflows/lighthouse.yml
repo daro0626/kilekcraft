@@ -1,0 +1,35 @@
+name: Lighthouse mobile
+on: [pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  audyt:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Przygotuj Lighthouse
+        run: npm install --prefix "$RUNNER_TEMP/audyt" --no-audit --no-fund lighthouse@13.6.0
+      - name: Zmierz pięć stron
+        env:
+          CHROME_PATH: /usr/bin/google-chrome
+        run: |
+          python3 -m http.server 8000 --bind 127.0.0.1 &
+          mkdir -p "$RUNNER_TEMP/raporty"
+          for page in index serwer hosting komendy budowle; do
+            "$RUNNER_TEMP/audyt/node_modules/.bin/lighthouse" "http://127.0.0.1:8000/$page.html" \
+              --only-categories=performance,accessibility --chrome-flags="--headless --enable-unsafe-swiftshader" \
+              --quiet --output=json --output=html --output-path="$RUNNER_TEMP/raporty/$page"
+          done
+      - name: Sprawdź progi osobno dla każdej strony
+        shell: bash
+        run: python3 tools/progi_lighthouse.py "$RUNNER_TEMP/raporty" | tee -a "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lighthouse-mobile
+          path: ${{ runner.temp }}/raporty
+          if-no-files-found: error
