@@ -700,6 +700,51 @@ def cennik(page):
         assert rows.first.evaluate("r => getComputedStyle(r).display") == 'grid'
 
 
+def sezon_code(page):
+    from playwright.sync_api import expect
+
+    # Osobne konteksty naśladują dwóch graczy, z dostępem do schowka w przeglądarce testowej.
+    browser = page.context.browser
+    options = dict(viewport=page.viewport_size, reduced_motion='reduce')
+    with browser.new_context(permissions=['clipboard-read', 'clipboard-write'], **options) as local:
+        player = local.new_page()
+        player.goto(f'{BASE}/symulator.html')
+        player.evaluate("""async () => {
+          const M = await import('./assets/js/sezon-model.js');
+          localStorage.setItem('kc:sezon:stan', JSON.stringify(M.nowySezon(123)));
+        }""")
+        player.reload()
+        player.locator('[data-akcja="farma"]').click()
+        player.locator('[data-buy="jablko"]').click()
+        player.locator('[data-akcja="walka"]').click()
+        player.locator('.sz-target').first.click()
+        while player.locator('#szAgain').count() == 0:
+            player.locator('[data-akcja="baza"]').click()
+        player.locator('#szCopy').click()
+        expect(player.locator('#szCopyStatus')).to_have_text('Kod wyniku skopiowany.')
+        code = player.evaluate('navigator.clipboard.readText()')
+        assert code == player.locator('#szOwnCode').input_value()
+        score = player.locator('.sz-pts b').inner_text()
+        player.reload()
+        expect(player.locator('#szOwnCode')).to_have_value(code)
+    with browser.new_context(**options) as remote:
+        friend = remote.new_page()
+        friend.goto(f'{BASE}/symulator.html')
+        assert friend.evaluate("localStorage.getItem('kc:sezon:stan')") is None
+        field = friend.locator('#szFriendCode')
+        bad = code[:10] + ('A' if code[10] != 'A' else 'B') + code[11:]
+        field.fill(bad)
+        field.press('Enter')
+        expect(field).to_have_attribute('aria-invalid', 'true')
+        expect(friend.locator('#szFriendScore')).to_have_count(0)
+        field.fill(code)
+        field.press('Enter')
+        expect(friend.locator('#szFriendScore')).to_have_text(score)
+        assert friend.evaluate("localStorage.getItem('kc:sezon:rekord')") is None
+        friend.locator('#szSame').click()
+        assert friend.evaluate("JSON.parse(localStorage.getItem('kc:sezon:stan')).seed") == 123
+
+
 def run(browser, width, height):
     mobile = width == 390
     context = browser.new_context(viewport={'width': width, 'height': height},
@@ -730,6 +775,7 @@ def run(browser, width, height):
         if name == 'symulator':
             sezon(page)
             symulator_admin(page)
+            sezon_code(page)
         if name == 'edytor':
             export_parity(page)
         if name == 'lifesteal':

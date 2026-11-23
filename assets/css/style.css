@@ -915,3 +915,11 @@ body.touch .pk-keys div:not(.touch-only){display:none}
   .cennik-tabela tbody tr{display:grid;gap:4px;border:1px solid var(--line-strong);border-radius:8px;padding:10px}
   .cennik-tabela tbody :is(th,td){border:0;padding:0}
 }
+
+
+/* Kod wyniku Sezonu */
+.sz-share,.sz-compare{margin-top:16px}
+.sz-code-row{display:flex;flex-wrap:wrap;gap:8px}
+.sz-code-row input{flex:1 1 180px;min-width:0;width:100%;padding:8px 10px;border:1px solid var(--line-strong);border-radius:6px;background:var(--bg);color:var(--text);font:inherit}
+.sz-comparison{margin-top:8px}
+.sz-comparison button{margin-top:8px}

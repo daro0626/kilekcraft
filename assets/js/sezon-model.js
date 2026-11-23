@@ -38,7 +38,7 @@ const between = (st, a, b) => Math.round(a + rnd(st) * (b - a));
 export const cenaSprzetu = (gear) => 600 * gear;
 
 export function nowySezon(seed) {
-  const st = { seed, rs: seed, dzien: 1, koniec: false, log: [], wynik: null, statystyki: { walki: 0, wygrane: 0, ataki: 0, atakiW: 0, napady: 0, odparte: 0, zdrady: 0, smierc: null } };
+  const st = { seed, rs: seed, dzien: 1, koniec: false, log: [], ruchy: [], wynik: null, statystyki: { walki: 0, wygrane: 0, ataki: 0, atakiW: 0, napady: 0, odparte: 0, zdrady: 0, smierc: null } };
   const nicks = [...NICKS]; for (let i = nicks.length - 1; i > 0; i--) { const j = Math.floor(rnd(st) * (i + 1)); [nicks[i], nicks[j]] = [nicks[j], nicks[i]]; }
   const styles = Object.keys(STYLE);
   st.ja = { id: 'ja', nick: 'Ty', serca: START, kasa: 150, sprzet: 1, obrona: 0, jablko: 0, totem: 0, zabicia: 0, sojusz: null, zyje: true };
@@ -104,6 +104,7 @@ export function mozeKupic(st, rzecz) {
 }
 export function kup(st, rzecz) {
   if (!mozeKupic(st, rzecz)) return false;
+  st.ruchy?.push([st.dzien, 'kup', rzecz]);
   st.ja.kasa -= cena(st, rzecz);
   if (rzecz === 'sprzet') { st.ja.sprzet++; st.log.push({ d: st.dzien, t: `Kupujesz sprzęt: ${SPRZET[st.ja.sprzet]}.`, w: 'ok' }); }
   else if (rzecz === 'totem') { st.ja.totem++; st.log.push({ d: st.dzien, t: 'Kupujesz totem. Uratuje jedno serce w przegranej walce.', w: 'ok' }); }
@@ -117,6 +118,7 @@ export function dzien(st, akcja, cel) {
   const ja = st.ja, ev = WYDARZENIA[st.dzien]?.id;
   if ((akcja === 'walka' || akcja === 'sojusz') && !(bot(st, cel)?.zyje)) return false;
   if (akcja === 'sojusz' && ja.sojusz) return false;
+  st.ruchy?.push([st.dzien, akcja, cel ?? null]);
   if (akcja === 'kop') {
     const zysk = between(st, 150, 350); ja.kasa += zysk;
     let t = `Kopiesz: +${zysk} $.`;
