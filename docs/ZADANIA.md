@@ -23,8 +23,13 @@ Każde zadanie kończy się dopiero, gdy spełnia kryteria akceptacji **oraz** b
 - Test „Znajdź błąd” sprawdza 17 par komend. Pytania, które nie przejdą, same znikają z gry. Jeśli zniknie ich dużo, popraw `data/bledy.json`.
 - **Akceptacja:** `wyniki.motd.ok` i co najmniej 12 zweryfikowanych pytań.
 
+### A7 [Piotrek] Wyzwanie dnia: czy warto wracać codziennie?
+- Sprawdź z kolegą w tym samym dniu, czy macie dokładnie ten sam kod komnaty (strona liczy dzień z zegara urządzenia, nie z serwera — teoretycznie ktoś z innej strefy czasowej mógłby dostać inny dzień, ale dla was to nie powinien być problem).
+- Spróbuj przycisku „Skopiuj wynik” i wklej go gdzieś, żeby sprawdzić, czy tekst wygląda dobrze.
+
 ### A6 [Piotrek] Wyścig parkour: czy da się przejść?
 - Przejdź w przeglądarce P3, P6, P8 i L4. Zapisz czas i miejsca, gdzie fizyka różni się od gry.
+- Przejdź tę samą komnatę drugi raz i sprawdź ducha (najlepszy przejazd biegnie obok): czy jest widoczny, czy nie przeszkadza, czy tempo wygląda tak samo jak twój zapamiętany przejazd.
 
 ### C2 [Codex] Testy przeglądarkowe
 - Playwright: każda z 5 stron otwiera się bez błędów konsoli (desktop i mobile), kreator generuje oczekiwane komendy (porównanie z `commands()` z Pythona), doradca zwraca 3 wyniki dla każdej kombinacji odpowiedzi.
@@ -44,7 +49,7 @@ Każde zadanie kończy się dopiero, gdy spełnia kryteria akceptacji **oraz** b
 - **Akceptacja:** każda cena ma datę z ostatnich 30 dni i link do strony hosta.
 
 ### A4 [Piotrek] Przejście komnat w grze
-- Wygeneruj P3, P6, P8, P10 i L5, wgraj na świat testowy i przejdź je.
+- Wygeneruj P3, P6, P8, P10, G3, G7 i L5, wgraj na świat testowy i przejdź je. Na górze (G) sprawdź też, czy zbocza naprawdę nie dają się obejść skokami.
 - Zapisz kody komnat, w których któryś skok jest niemożliwy albo za łatwy. Poprawimy wtedy zasady skoków w `assets/js/komnaty-gen.js`.
 - **Akceptacja:** każdy poziom trudności ma co najmniej jedną komnatę przejdzioną przez Piotrka.
 
@@ -52,9 +57,19 @@ Każde zadanie kończy się dopiero, gdy spełnia kryteria akceptacji **oraz** b
 - Porównaj wynik symulatora z tym, co działo się na serwerze LifeSteal (kto odpadł i kiedy). Jeśli model się myli, opisz jak.
 
 ### A3 [Claude] Przepis „LifeSteal z ekonomią” w szortach
-- Najpierw wybór konkretnych pluginów (LifeSteal, ekonomia, `/sell` z GUI, aukcje) z wersjami pod Paper 26.x. Każdy plugin z linkiem do Hangar/Modrinth i datą.
-- Nether i End włączone.
-- **Akceptacja:** przepis przetestowany na serwerze testowym, potem przez Piotrka.
+- **Część 1 gotowa (`lifesteal.html`):** zasady z symulatora, serca ręcznie komendą `attribute` (kreator, zakładka „Serca”), plugin LifeStealZ ze źródłami i datą, ekonomia serc (wypłata serca jako przedmiot, ożywienie), próba przed startem. Nether i End włączone.
+- **Część 2 do zrobienia:** ekonomia za monety (`/sell` z GUI, aukcje). Wymaga wyboru pluginów pod Paper 26.x z linkiem do Hangar/Modrinth i datą.
+- Komendy pluginu (`/hearts`, `/revive`, `lifestealz hearts add`) mają na stronie odznakę „nie testowaliśmy”. Zostaje, dopóki plugin nie przejdzie próby na serwerze testowym (C6).
+- **Akceptacja:** przepis przetestowany na serwerze testowym, potem przez Piotrka (A8).
+
+### A8 [Piotrek] Przepis LifeSteal w grze
+- Na serwerze testowym (albo z kolegą) ustaw serca komendą z kroku 3 i 4. Sprawdź, czy pasek serc się zmienia i kiedy (patrz znany błąd w kroku 4).
+- Jeśli instalujesz LifeStealZ: zapisz wersję pluginu i serwera, sprawdź `/hearts`, zabójstwo z kolegą i wypłatę serca. Nazwę komendy do wypłaty dopisz do przepisu.
+
+### C6 [Codex] Serca w teście komend i próba pluginu
+- Pierwsze uruchomienie szablonu `attribute` (7 komend, `minecraft:max_health`). Jeśli serwer odrzuci nazwę, sprawdź na minecraft.wiki aktualny identyfikator i popraw go w `komendy.js` i `test_commands.py` naraz.
+- Opcjonalnie: workflow, który wgrywa LifeStealZ na Paper i sprawdza przez RCON `lifestealz hearts add`. Plik pluginu pobieraj tylko z Modrinth albo Hangar.
+- **Akceptacja:** `wyniki.attribute.ok` w `data/testy.json`.
 
 ## B: budowle
 
