@@ -154,12 +154,13 @@ async function load(animate) {
   if (animate && viewer && !reduced) build3d();
 }
 function build3d() {
-  viewer.animateBuild(Math.min(4200, 900 + b.size[1] * 55));
-  // suwak goni animację
-  const t0 = performance.now(), dur = Math.min(4200, 900 + b.size[1] * 55);
-  const step = (n) => { const p = Math.min(1, (n - t0) / dur), e = 1 - Math.pow(1 - p, 2.2), y = Math.floor(e * b.size[1]) - 1;
-    if (p < 1) { slider.value = Math.max(0, y); $('#lNum').textContent = Math.max(1, y + 1); requestAnimationFrame(step); } else setL(Infinity); };
-  requestAnimationFrame(step);
+  const duration = Math.min(4200, 900 + b.size[1] * 55);
+  viewer.animateBuild(duration, () => setL(Infinity), layer => {
+    if (layer === Infinity) return;
+    const shown = Math.max(0, layer);
+    slider.value = shown;
+    $('#lNum').textContent = shown + 1;
+  });
 }
 // ---------- datapack: postaw na serwerze ----------
 const fnOf = () => safeName(b.short);
