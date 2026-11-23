@@ -38,7 +38,8 @@ body{
   background-size:32px 32px,32px 32px,auto,auto;
   min-height:100vh;overflow-x:hidden;
 }
-@view-transition{navigation:auto}
+/* Zmiana wysokości widoku przy nawigacji na telefonie przerywa animację Chromium. */
+@media (min-width:701px) and (prefers-reduced-motion:no-preference){@view-transition{navigation:auto}}
 ::view-transition-old(root){animation:.25s ease both vt-out}
 ::view-transition-new(root){animation:.35s ease both vt-in}
 @keyframes vt-out{to{opacity:0;transform:translateY(-8px)}}
