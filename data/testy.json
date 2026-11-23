@@ -51,6 +51,131 @@
       "przetestowano": 6,
       "bledy": []
     },
+    "attribute": {
+      "ok": false,
+      "wersja": "26.3",
+      "silnik": "vanilla 26.3",
+      "data": "2026-11-23",
+      "przetestowano": 7,
+      "bledy": [
+        {
+          "komenda": "attribute @a minecraft:max_health base set 2",
+          "odpowiedz": "Only one entity is allowed, but the provided selector allows more than oneattribute @a minecraft:max_health base set 2<--[HERE]"
+        },
+        {
+          "komenda": "attribute @a minecraft:max_health base set 7",
+          "odpowiedz": "Only one entity is allowed, but the provided selector allows more than oneattribute @a minecraft:max_health base set 7<--[HERE]"
+        },
+        {
+          "komenda": "attribute @a minecraft:max_health base set 16",
+          "odpowiedz": "Only one entity is allowed, but the provided selector allows more than oneattribute @a minecraft:max_health base set 16<--[HERE]"
+        },
+        {
+          "komenda": "attribute @a minecraft:max_health base set 18",
+          "odpowiedz": "Only one entity is allowed, but the provided selector allows more than oneattribute @a minecraft:max_health base set 18<--[HERE]"
+        },
+        {
+          "komenda": "attribute @a minecraft:max_health base set 20",
+          "odpowiedz": "Only one entity is allowed, but the provided selector allows more than oneattribute @a minecraft:max_health base set 20<--[HERE]"
+        },
+        {
+          "komenda": "attribute @a minecraft:max_health base set 40",
+          "odpowiedz": "Only one entity is allowed, but the provided selector allows more than oneattribute @a minecraft:max_health base set 40<--[HERE]"
+        },
+        {
+          "komenda": "attribute @a minecraft:max_health base reset",
+          "odpowiedz": "Only one entity is allowed, but the provided selector allows more than oneattribute @a minecraft:max_health base reset<--[HERE]"
+        }
+      ]
+    },
+    "gamemode": {
+      "ok": true,
+      "wersja": "26.3",
+      "silnik": "vanilla 26.3",
+      "data": "2026-11-23",
+      "przetestowano": 4,
+      "bledy": []
+    },
+    "time": {
+      "ok": true,
+      "wersja": "26.3",
+      "silnik": "vanilla 26.3",
+      "data": "2026-11-23",
+      "przetestowano": 4,
+      "bledy": []
+    },
+    "weather": {
+      "ok": true,
+      "wersja": "26.3",
+      "silnik": "vanilla 26.3",
+      "data": "2026-11-23",
+      "przetestowano": 4,
+      "bledy": []
+    },
+    "difficulty": {
+      "ok": true,
+      "wersja": "26.3",
+      "silnik": "vanilla 26.3",
+      "data": "2026-11-23",
+      "przetestowano": 4,
+      "bledy": []
+    },
+    "summon": {
+      "ok": true,
+      "wersja": "26.3",
+      "silnik": "vanilla 26.3",
+      "data": "2026-11-23",
+      "przetestowano": 14,
+      "bledy": []
+    },
+    "enchant": {
+      "ok": true,
+      "wersja": "26.3",
+      "silnik": "vanilla 26.3",
+      "data": "2026-11-23",
+      "przetestowano": 22,
+      "bledy": []
+    },
+    "xp": {
+      "ok": true,
+      "wersja": "26.3",
+      "silnik": "vanilla 26.3",
+      "data": "2026-11-23",
+      "przetestowano": 3,
+      "bledy": []
+    },
+    "kill": {
+      "ok": true,
+      "wersja": "26.3",
+      "silnik": "vanilla 26.3",
+      "data": "2026-11-23",
+      "przetestowano": 5,
+      "bledy": []
+    },
+    "clear": {
+      "ok": true,
+      "wersja": "26.3",
+      "silnik": "vanilla 26.3",
+      "data": "2026-11-23",
+      "przetestowano": 2,
+      "bledy": []
+    },
+    "worldborder": {
+      "ok": true,
+      "wersja": "26.3",
+      "silnik": "vanilla 26.3",
+      "data": "2026-11-23",
+      "przetestowano": 4,
+      "bledy": []
+    },
+    "spawnpoint": {
+      "ok": true,
+      "wersja": "26.3",
+      "silnik": "vanilla 26.3",
+      "data": "2026-11-23",
+      "przetestowano": 2,
+      "bledy": []
+    },
     "motd": {
       "ok": true,
       "wersja": "26.3",
@@ -592,6 +717,456 @@
       "szablon": "whitelist",
       "komenda": "whitelist remove Test_Gracz",
       "odpowiedz": "Removed test_gracz from the whitelist",
+      "ok": true
+    },
+    {
+      "szablon": "attribute",
+      "komenda": "attribute @a minecraft:max_health base set 2",
+      "odpowiedz": "Only one entity is allowed, but the provided selector allows more than oneattribute @a minecraft:max_health base set 2<--[HERE]",
+      "ok": false
+    },
+    {
+      "szablon": "attribute",
+      "komenda": "attribute @a minecraft:max_health base set 7",
+      "odpowiedz": "Only one entity is allowed, but the provided selector allows more than oneattribute @a minecraft:max_health base set 7<--[HERE]",
+      "ok": false
+    },
+    {
+      "szablon": "attribute",
+      "komenda": "attribute @a minecraft:max_health base set 16",
+      "odpowiedz": "Only one entity is allowed, but the provided selector allows more than oneattribute @a minecraft:max_health base set 16<--[HERE]",
+      "ok": false
+    },
+    {
+      "szablon": "attribute",
+      "komenda": "attribute @a minecraft:max_health base set 18",
+      "odpowiedz": "Only one entity is allowed, but the provided selector allows more than oneattribute @a minecraft:max_health base set 18<--[HERE]",
+      "ok": false
+    },
+    {
+      "szablon": "attribute",
+      "komenda": "attribute @a minecraft:max_health base set 20",
+      "odpowiedz": "Only one entity is allowed, but the provided selector allows more than oneattribute @a minecraft:max_health base set 20<--[HERE]",
+      "ok": false
+    },
+    {
+      "szablon": "attribute",
+      "komenda": "attribute @a minecraft:max_health base set 40",
+      "odpowiedz": "Only one entity is allowed, but the provided selector allows more than oneattribute @a minecraft:max_health base set 40<--[HERE]",
+      "ok": false
+    },
+    {
+      "szablon": "attribute",
+      "komenda": "attribute @a minecraft:max_health base reset",
+      "odpowiedz": "Only one entity is allowed, but the provided selector allows more than oneattribute @a minecraft:max_health base reset<--[HERE]",
+      "ok": false
+    },
+    {
+      "szablon": "gamemode",
+      "komenda": "gamemode survival @a",
+      "odpowiedz": "No player was found",
+      "ok": true
+    },
+    {
+      "szablon": "gamemode",
+      "komenda": "gamemode creative @a",
+      "odpowiedz": "No player was found",
+      "ok": true
+    },
+    {
+      "szablon": "gamemode",
+      "komenda": "gamemode adventure @a",
+      "odpowiedz": "No player was found",
+      "ok": true
+    },
+    {
+      "szablon": "gamemode",
+      "komenda": "gamemode spectator @a",
+      "odpowiedz": "No player was found",
+      "ok": true
+    },
+    {
+      "szablon": "time",
+      "komenda": "time set day",
+      "odpowiedz": "Set minecraft:overworld to time marker minecraft:day",
+      "ok": true
+    },
+    {
+      "szablon": "time",
+      "komenda": "time set noon",
+      "odpowiedz": "Set minecraft:overworld to time marker minecraft:noon",
+      "ok": true
+    },
+    {
+      "szablon": "time",
+      "komenda": "time set night",
+      "odpowiedz": "Set minecraft:overworld to time marker minecraft:night",
+      "ok": true
+    },
+    {
+      "szablon": "time",
+      "komenda": "time set midnight",
+      "odpowiedz": "Set minecraft:overworld to time marker minecraft:midnight",
+      "ok": true
+    },
+    {
+      "szablon": "weather",
+      "komenda": "weather clear",
+      "odpowiedz": "Set the weather to clear",
+      "ok": true
+    },
+    {
+      "szablon": "weather",
+      "komenda": "weather rain",
+      "odpowiedz": "Set the weather to rain",
+      "ok": true
+    },
+    {
+      "szablon": "weather",
+      "komenda": "weather thunder",
+      "odpowiedz": "Set the weather to rain and thunder",
+      "ok": true
+    },
+    {
+      "szablon": "weather",
+      "komenda": "weather rain 300s",
+      "odpowiedz": "Set the weather to rain",
+      "ok": true
+    },
+    {
+      "szablon": "difficulty",
+      "komenda": "difficulty peaceful",
+      "odpowiedz": "The difficulty has been set to Peaceful",
+      "ok": true
+    },
+    {
+      "szablon": "difficulty",
+      "komenda": "difficulty easy",
+      "odpowiedz": "The difficulty has been set to Easy",
+      "ok": true
+    },
+    {
+      "szablon": "difficulty",
+      "komenda": "difficulty normal",
+      "odpowiedz": "The difficulty has been set to Normal",
+      "ok": true
+    },
+    {
+      "szablon": "difficulty",
+      "komenda": "difficulty hard",
+      "odpowiedz": "The difficulty has been set to Hard",
+      "ok": true
+    },
+    {
+      "szablon": "summon",
+      "komenda": "summon minecraft:zombie ~ ~ ~",
+      "odpowiedz": "Summoned new Zombie",
+      "ok": true
+    },
+    {
+      "szablon": "summon",
+      "komenda": "summon minecraft:skeleton ~ ~ ~",
+      "odpowiedz": "Summoned new Skeleton",
+      "ok": true
+    },
+    {
+      "szablon": "summon",
+      "komenda": "summon minecraft:creeper ~ ~ ~",
+      "odpowiedz": "Summoned new Creeper",
+      "ok": true
+    },
+    {
+      "szablon": "summon",
+      "komenda": "summon minecraft:spider ~ ~ ~",
+      "odpowiedz": "Summoned new Spider",
+      "ok": true
+    },
+    {
+      "szablon": "summon",
+      "komenda": "summon minecraft:cow ~ ~ ~",
+      "odpowiedz": "Summoned new Cow",
+      "ok": true
+    },
+    {
+      "szablon": "summon",
+      "komenda": "summon minecraft:pig ~ ~ ~",
+      "odpowiedz": "Summoned new Pig",
+      "ok": true
+    },
+    {
+      "szablon": "summon",
+      "komenda": "summon minecraft:sheep ~ ~ ~",
+      "odpowiedz": "Summoned new Sheep",
+      "ok": true
+    },
+    {
+      "szablon": "summon",
+      "komenda": "summon minecraft:chicken ~ ~ ~",
+      "odpowiedz": "Summoned new Chicken",
+      "ok": true
+    },
+    {
+      "szablon": "summon",
+      "komenda": "summon minecraft:wolf ~ ~ ~",
+      "odpowiedz": "Summoned new Wolf",
+      "ok": true
+    },
+    {
+      "szablon": "summon",
+      "komenda": "summon minecraft:cat ~ ~ ~",
+      "odpowiedz": "Summoned new Cat",
+      "ok": true
+    },
+    {
+      "szablon": "summon",
+      "komenda": "summon minecraft:horse ~ ~ ~",
+      "odpowiedz": "Summoned new Horse",
+      "ok": true
+    },
+    {
+      "szablon": "summon",
+      "komenda": "summon minecraft:villager ~ ~ ~",
+      "odpowiedz": "Summoned new Villager",
+      "ok": true
+    },
+    {
+      "szablon": "summon",
+      "komenda": "summon minecraft:iron_golem ~ ~ ~",
+      "odpowiedz": "Summoned new Iron Golem",
+      "ok": true
+    },
+    {
+      "szablon": "summon",
+      "komenda": "summon minecraft:wolf ~ ~ ~ {CustomName:\"Żółw Burek\"}",
+      "odpowiedz": "Summoned new Żółw Burek",
+      "ok": true
+    },
+    {
+      "szablon": "enchant",
+      "komenda": "enchant @a minecraft:sharpness 1",
+      "odpowiedz": "No entity was found",
+      "ok": true
+    },
+    {
+      "szablon": "enchant",
+      "komenda": "enchant @a minecraft:sharpness 5",
+      "odpowiedz": "No entity was found",
+      "ok": true
+    },
+    {
+      "szablon": "enchant",
+      "komenda": "enchant @a minecraft:protection 1",
+      "odpowiedz": "No entity was found",
+      "ok": true
+    },
+    {
+      "szablon": "enchant",
+      "komenda": "enchant @a minecraft:protection 4",
+      "odpowiedz": "No entity was found",
+      "ok": true
+    },
+    {
+      "szablon": "enchant",
+      "komenda": "enchant @a minecraft:efficiency 1",
+      "odpowiedz": "No entity was found",
+      "ok": true
+    },
+    {
+      "szablon": "enchant",
+      "komenda": "enchant @a minecraft:efficiency 5",
+      "odpowiedz": "No entity was found",
+      "ok": true
+    },
+    {
+      "szablon": "enchant",
+      "komenda": "enchant @a minecraft:unbreaking 1",
+      "odpowiedz": "No entity was found",
+      "ok": true
+    },
+    {
+      "szablon": "enchant",
+      "komenda": "enchant @a minecraft:unbreaking 3",
+      "odpowiedz": "No entity was found",
+      "ok": true
+    },
+    {
+      "szablon": "enchant",
+      "komenda": "enchant @a minecraft:fortune 1",
+      "odpowiedz": "No entity was found",
+      "ok": true
+    },
+    {
+      "szablon": "enchant",
+      "komenda": "enchant @a minecraft:fortune 3",
+      "odpowiedz": "No entity was found",
+      "ok": true
+    },
+    {
+      "szablon": "enchant",
+      "komenda": "enchant @a minecraft:looting 1",
+      "odpowiedz": "No entity was found",
+      "ok": true
+    },
+    {
+      "szablon": "enchant",
+      "komenda": "enchant @a minecraft:looting 3",
+      "odpowiedz": "No entity was found",
+      "ok": true
+    },
+    {
+      "szablon": "enchant",
+      "komenda": "enchant @a minecraft:mending 1",
+      "odpowiedz": "No entity was found",
+      "ok": true
+    },
+    {
+      "szablon": "enchant",
+      "komenda": "enchant @a minecraft:mending 1",
+      "odpowiedz": "No entity was found",
+      "ok": true
+    },
+    {
+      "szablon": "enchant",
+      "komenda": "enchant @a minecraft:silk_touch 1",
+      "odpowiedz": "No entity was found",
+      "ok": true
+    },
+    {
+      "szablon": "enchant",
+      "komenda": "enchant @a minecraft:silk_touch 1",
+      "odpowiedz": "No entity was found",
+      "ok": true
+    },
+    {
+      "szablon": "enchant",
+      "komenda": "enchant @a minecraft:fire_aspect 1",
+      "odpowiedz": "No entity was found",
+      "ok": true
+    },
+    {
+      "szablon": "enchant",
+      "komenda": "enchant @a minecraft:fire_aspect 2",
+      "odpowiedz": "No entity was found",
+      "ok": true
+    },
+    {
+      "szablon": "enchant",
+      "komenda": "enchant @a minecraft:power 1",
+      "odpowiedz": "No entity was found",
+      "ok": true
+    },
+    {
+      "szablon": "enchant",
+      "komenda": "enchant @a minecraft:power 5",
+      "odpowiedz": "No entity was found",
+      "ok": true
+    },
+    {
+      "szablon": "enchant",
+      "komenda": "enchant @a minecraft:feather_falling 1",
+      "odpowiedz": "No entity was found",
+      "ok": true
+    },
+    {
+      "szablon": "enchant",
+      "komenda": "enchant @a minecraft:feather_falling 4",
+      "odpowiedz": "No entity was found",
+      "ok": true
+    },
+    {
+      "szablon": "xp",
+      "komenda": "xp add @a 5 levels",
+      "odpowiedz": "No player was found",
+      "ok": true
+    },
+    {
+      "szablon": "xp",
+      "komenda": "xp add @a 100 points",
+      "odpowiedz": "No player was found",
+      "ok": true
+    },
+    {
+      "szablon": "xp",
+      "komenda": "xp set @a 0 levels",
+      "odpowiedz": "No player was found",
+      "ok": true
+    },
+    {
+      "szablon": "kill",
+      "komenda": "kill @e[type=minecraft:item]",
+      "odpowiedz": "No entity was found",
+      "ok": true
+    },
+    {
+      "szablon": "kill",
+      "komenda": "kill @e[type=minecraft:arrow]",
+      "odpowiedz": "No entity was found",
+      "ok": true
+    },
+    {
+      "szablon": "kill",
+      "komenda": "kill @e[type=minecraft:zombie]",
+      "odpowiedz": "No entity was found",
+      "ok": true
+    },
+    {
+      "szablon": "kill",
+      "komenda": "kill @e[type=minecraft:creeper]",
+      "odpowiedz": "No entity was found",
+      "ok": true
+    },
+    {
+      "szablon": "kill",
+      "komenda": "kill @e[type=!minecraft:player]",
+      "odpowiedz": "No entity was found",
+      "ok": true
+    },
+    {
+      "szablon": "clear",
+      "komenda": "clear @a",
+      "odpowiedz": "No player was found",
+      "ok": true
+    },
+    {
+      "szablon": "clear",
+      "komenda": "clear @a minecraft:diamond",
+      "odpowiedz": "No player was found",
+      "ok": true
+    },
+    {
+      "szablon": "worldborder",
+      "komenda": "worldborder center 0 0",
+      "odpowiedz": "Set the center of the world border to 0.50, 0.50",
+      "ok": true
+    },
+    {
+      "szablon": "worldborder",
+      "komenda": "worldborder set 1000",
+      "odpowiedz": "Set the world border to 1000.0 block(s) wide",
+      "ok": true
+    },
+    {
+      "szablon": "worldborder",
+      "komenda": "worldborder center -100 200",
+      "odpowiedz": "Set the center of the world border to -99.50, 200.50",
+      "ok": true
+    },
+    {
+      "szablon": "worldborder",
+      "komenda": "worldborder set 2500",
+      "odpowiedz": "Set the world border to 2500.0 block(s) wide",
+      "ok": true
+    },
+    {
+      "szablon": "spawnpoint",
+      "komenda": "spawnpoint @a 0 64 0",
+      "odpowiedz": "No player was found",
+      "ok": true
+    },
+    {
+      "szablon": "spawnpoint",
+      "komenda": "setworldspawn 0 64 0",
+      "odpowiedz": "Set the world spawn point to 0, 64, 0 [0.0, 0.0] in minecraft:overworld",
       "ok": true
     }
   ]
