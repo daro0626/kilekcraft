@@ -13,7 +13,7 @@ jobs:
           node-version: '24'
       - name: Przygotuj Lighthouse
         run: npm install --prefix "$RUNNER_TEMP/audyt" --no-audit --no-fund lighthouse@13.6.0
-      - name: Zmierz pięć stron
+      - name: Zmierz 13 stron
         env:
           CHROME_PATH: /usr/bin/google-chrome
         run: |

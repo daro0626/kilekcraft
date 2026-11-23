@@ -98,7 +98,7 @@ function maze(diff, theme, seed) {
     g.set(x, 0, z, T.floor);
     if (wall[x][z]) for (let h = 1; h <= H; h++) g.set(x, h, z, h === H && (x + z) % 6 === 0 ? T.light : T.wall);
   }
-  g.set(0, 0, 1, 'emerald'); g.set(W - 1, 0, W - 2, 'diamond'); g.set(W - 1, 1, W - 2, 'lantern');
+  g.set(0, 0, 1, 'emerald'); g.set(W - 1, 0, W - 2, 'diamond'); g.set(W - 1, H + 1, W - 1, 'lantern');
   return { ...g.out(), info: { komorki: n * n, wysokosc: H } };
 }
 

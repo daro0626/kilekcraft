@@ -32,7 +32,10 @@ jobs:
         with:
           python-version: "3.12"
       - name: Test komend
-        run: python3 tools/test_commands.py --version "${{ inputs.version || 'latest' }}" --engine "${{ inputs.engine || 'vanilla' }}"
+        env:
+          TEST_VERSION: ${{ inputs.version || 'latest' }}
+          TEST_ENGINE: ${{ inputs.engine || 'vanilla' }}
+        run: python3 tools/test_commands.py --version "$TEST_VERSION" --engine "$TEST_ENGINE"
       - name: Zapisz wyniki
         if: always()
         run: |

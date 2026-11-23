@@ -9,12 +9,13 @@ const esc = (s) => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;
 const D = await (await fetch('data/bledy.json')).json();
 let T = {}; try { const r = await fetch('data/testy.json', { cache: 'no-store' }); if (r.ok) T = await r.json(); } catch { /* brak */ }
 const ver = T?.wyniki?.bledy;
-let POOL = D.pytania;
+let POOL = [];
 if (ver && ver.zweryfikowane?.length) {
   POOL = D.pytania.filter(q => ver.zweryfikowane.includes(q.id));
   $('#vStatus').innerHTML = `<span class="badge ok">${POOL.length} pytań sprawdzonych · ${esc(ver.wersja)}</span>`;
 } else $('#vStatus').innerHTML = '<span class="badge wait">pytania czekają na test</span>';
 
+$('#start').disabled = !POOL.length;
 const ROUNDS = Math.min(10, POOL.length), TIME = 15;
 let qs = [], i = 0, score = 0, streak = 0, t0 = 0, raf = 0, answered = false;
 let best = store.get('bledy:rekord', 0);
@@ -32,6 +33,7 @@ function show() {
   $('#qNum').textContent = `${i + 1}/${ROUNDS}`; $('#score').textContent = score; $('#streak').textContent = '×' + (1 + Math.min(streak, 4) * .5).toString().replace('.', ',');
   $('#res').innerHTML = ''; $('#next').hidden = true;
   $('#cmd').innerHTML = q.tokeny.map((t, k) => `<button type="button" class="tok" data-k="${k}" style="--i:${k}">${esc(t)}</button>`).join('');
+  $('#cmd').firstElementChild.focus();
   t0 = performance.now(); tick();
 }
 function tick() {
@@ -66,6 +68,7 @@ function answer(k) {
 function end() {
   const rec = score > best; if (rec) { best = score; store.set('bledy:rekord', best); $('#best').textContent = best; }
   $('#cmd').innerHTML = ''; $('#next').hidden = true; $('#start').hidden = false; $('#start').textContent = '↻ Jeszcze raz';
+  $('#start').focus();
   $('#timeBar').style.width = '0%';
   $('#res').innerHTML = `<div class="bq-end"><span>Twój wynik</span><b>${score}</b>${rec ? '<em>Nowy rekord!</em>' : ''}</div>`;
   sfx(rec ? 'win' : 'checkpoint');

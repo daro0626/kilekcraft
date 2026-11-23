@@ -49,7 +49,7 @@
   </div>
 
   <div class="pk-game panel corner" id="wrapG">
-    <canvas id="gl" aria-label="Gra parkour"></canvas>
+    <canvas id="gl" aria-label="Gra parkour" aria-describedby="keys"></canvas>
     <div class="pk-hud">
       <div><span>Czas</span><b id="time">0,00</b></div>
       <div><span>Śmierci</span><b id="deaths">0</b></div>
@@ -59,7 +59,7 @@
     <div class="pk-over" id="over">
       <div class="pk-card">
         <h2 id="ovTitle">Gotowy?</h2>
-        <p id="ovText">Kliknij albo dotknij, żeby zacząć.</p>
+        <p id="ovText" role="status">Kliknij albo dotknij, żeby zacząć.</p>
         <div class="pk-keys" id="keys">
           <div><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> albo strzałki: ruch</div>
           <div><kbd>Spacja</kbd>: skok · przeciągnij myszą: obrót kamery</div>
@@ -69,12 +69,13 @@
         <div class="pk-ovbtns"><button type="button" class="btn" id="play">▶ Graj</button><button type="button" class="btn ghost" id="nextLvl" hidden>Trudniej →</button></div>
       </div>
     </div>
-    <div class="pk-touch" id="touch" aria-hidden="true">
-      <div class="pk-stick" id="stick"><i id="knob"></i></div>
-      <button type="button" class="pk-jump" id="jumpBtn" tabindex="-1">SKOK</button>
+    <div class="pk-touch" id="touch">
+      <div class="pk-stick" id="stick" aria-hidden="true"><i id="knob"></i></div>
+      <button type="button" class="pk-jump" id="jumpBtn">SKOK</button>
     </div>
   </div>
 
+  <p id="pkFallback" class="note" hidden>Gra parkour wymaga WebGL 2. Możesz otworzyć plan komnaty w generatorze poniżej.</p>
   <p class="note small" style="margin-top:16px">Fizyka w przeglądarce jest podobna do gry, ale nie identyczna. Jeśli coś przechodzisz tutaj, a w Minecrafcie nie (albo odwrotnie), zapisz kod komnaty i daj znać.</p>
   <p><a href="komnaty.html">← Wróć do generatora komnat</a> · <a href="gry.html">Wszystkie gry</a></p>
 </main>
