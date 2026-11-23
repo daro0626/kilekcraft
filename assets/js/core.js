@@ -69,10 +69,16 @@ export function flapBoard(el, messages, every = 4200) {
       c.classList.toggle('sp', target === ' ');
       if (reduced) { c.textContent = target; return; }
       let steps = 4 + Math.floor(Math.random() * 6) + i % 5;
+      let flip;
       const tick = () => {
         if (steps-- <= 0) { c.textContent = target; return; }
         c.textContent = FLAP_CHARS[Math.floor(Math.random() * FLAP_CHARS.length)];
-        c.classList.remove('flip'); void c.offsetWidth; c.classList.add('flip');
+        flip?.cancel();
+        flip = c.animate([
+          { transform: 'rotateX(0deg)' },
+          { transform: 'rotateX(-90deg)' },
+          { transform: 'rotateX(0deg)' },
+        ], { duration: 90, easing: 'linear' });
         setTimeout(tick, 55);
       };
       setTimeout(tick, i * 22);

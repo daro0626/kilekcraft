@@ -144,8 +144,6 @@ code,.code{font-family:var(--mono)}
 .flap .c{width:26px;height:40px;background:#070b16;border:1px solid #232f4d;border-radius:2px;display:grid;place-items:center;font:400 30px var(--font-px);color:var(--gold);position:relative;overflow:hidden}
 .flap .c::after{content:"";position:absolute;left:0;right:0;top:50%;height:1px;background:rgba(0,0,0,.7)}
 .flap .c.sp{background:transparent;border-color:transparent;width:12px}
-.flap .c.flip{animation:flip .09s linear}
-@keyframes flip{0%{transform:rotateX(0)}50%{transform:rotateX(-90deg)}100%{transform:rotateX(0)}}
 @media (max-width:600px){.flap{display:grid;grid-template-columns:repeat(var(--n,22),1fr);gap:2px}.flap .c,.flap .c.sp{width:auto;height:30px;font-size:20px}.flap .c.sp{background:transparent;border-color:transparent}}
 @media (max-width:600px){.v-info b{font-size:16px}.v-info{font-size:13px}}
 
