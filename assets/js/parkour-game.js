@@ -105,7 +105,8 @@ export function initGame(onNext) {
     minY = Math.min(...room.blocks.map(b => b[1]));
     best = store.get('pk:best:' + code, null);
     $('#best').textContent = best ? fmt(best) : '—';
-    ghostData = store.get('pk:ghost:' + code, null);
+    const savedGhost = store.get('pk:ghost:' + code, null);
+    ghostData = Array.isArray(savedGhost) && savedGhost.length ? savedGhost : null;
     $('#ghostTile').hidden = !ghostData;
     if (ghostData) $('#ghost').textContent = fmt(ghostData[ghostData.length - 1][0]);
     // labirynt: jasne niebo i mocniejsze światło, żeby ściany i droga były czytelne
@@ -141,8 +142,8 @@ export function initGame(onNext) {
   let fp = store.get('pk:widok', 'trzecia') === 'pierwsza';
   const fmt = (s) => s.toFixed(2).replace('.', ',');
   // duch: [czas, x, y, z, kąt] co REC_DT sekund z najlepszego zapisanego przejazdu
-  const REC_DT = .08;
-  let ghostData = null, ghostIdx = 0, recording = [], recTimer = 0;
+  const REC_DT = .08, MAX_SAMPLES = 2048;
+  let ghostData = null, ghostIdx = 0, recording = [], recTimer = 0, recInterval = REC_DT;
   function ghostPoseAt(t) {
     const data = ghostData;
     if (!data || !data.length) return null;
@@ -155,7 +156,7 @@ export function initGame(onNext) {
   }
 
   function reset(full) {
-    if (full) { checkpoint = spawn.clone(); deaths = 0; started = false; finished = false; tNow = 0; recording = []; recTimer = 0; ghostIdx = 0; }
+    if (full) { checkpoint = spawn.clone(); deaths = 0; started = false; finished = false; tNow = 0; recording = []; recTimer = 0; recInterval = REC_DT; ghostIdx = 0; }
     pos.copy(checkpoint || spawn); vel.set(0, 0, 0); onGround = true;
     jumpBuffer = 0;
     $('#deaths').textContent = deaths; $('#time').textContent = fmt(tNow);
@@ -233,7 +234,14 @@ export function initGame(onNext) {
     if (started) {
       if (!recording.length) recording.push([0, pos.x, pos.y, pos.z, faceYaw]);
       recTimer -= dt;
-      if (recTimer <= 0) { recording.push([tNow, pos.x, pos.y, pos.z, faceYaw]); recTimer = REC_DT; }
+      if (recTimer <= 0) {
+        if (recording.length >= MAX_SAMPLES - 1) {
+          recording = recording.filter((_, i) => i % 2 === 0);
+          recInterval *= 2;
+        }
+        recording.push([tNow, pos.x, pos.y, pos.z, faceYaw]);
+        recTimer += recInterval;
+      }
     }
     if (fb === 'diamond' && started && !finished) win();
   }
@@ -266,7 +274,11 @@ export function initGame(onNext) {
     keys.clear();
     jumpBuffer = 0;
     drag = null;
-    if (locked()) document.exitPointerLock();
+    if (locked()) {
+      retryLockAt = performance.now() + 1100;
+      wasLocked = false;
+      document.exitPointerLock();
+    }
     endTouch({ pointerId: stickId });
     endTouch({ pointerId: lookId });
     hint();
@@ -296,6 +308,7 @@ export function initGame(onNext) {
     if (!running || (e.target instanceof Element && e.target.closest('input,textarea,select'))) return;
     const c = e.code;
     if (c === 'Escape') { showOver('Pauza', 'Odpocznij chwilę.', false, true); return; }
+    if (e.getModifierState('AltGraph') || e.altKey || e.ctrlKey || e.metaKey) return;
     if (c === 'KeyV') { e.preventDefault(); if (!e.repeat) toggleView(); return; }
     if (c === 'KeyR') { e.preventDefault(); reset(false); return; }
     if (c === 'Space') { e.preventDefault(); if (!e.repeat) jumpBuffer = .12; return; }
@@ -313,19 +326,29 @@ export function initGame(onNext) {
   document.addEventListener('pointerdown', (e) => { if (running && !$('#wrapG').contains(e.target)) pause(); });
   addEventListener('blur', pause);
   document.addEventListener('visibilitychange', () => { if (document.hidden) pause(); });
+  addEventListener('pagehide', pause);
 
   // Mysz jak w grze: klik w planszę „łapie” kursor i ruch myszy obraca kamerę bez trzymania przycisku.
   // Esc oddaje kursor i włącza pauzę. Gdy przeglądarka nie pozwala złapać kursora, działa przeciąganie.
-  const canLock = !coarse && typeof canvas.requestPointerLock === 'function';
+  const frame = window.frameElement;
+  const blockedByFrame = frame?.hasAttribute('sandbox') && !frame.sandbox.contains('allow-pointer-lock');
+  const canLock = !coarse && !blockedByFrame && typeof canvas.requestPointerLock === 'function';
   const locked = () => document.pointerLockElement === canvas;
-  let wasLocked = false;
+  let wasLocked = false, retryLockAt = 0;
   function lock() {
-    if (!canLock || locked()) return;
+    if (!running || !canLock || locked() || performance.now() < retryLockAt) return;
     try { const p = canvas.requestPointerLock(); if (p && p.catch) p.catch(() => hint()); } catch { hint(); }
   }
   document.addEventListener('pointerlockchange', () => {
-    if (wasLocked && !locked()) pause();
-    wasLocked = locked(); hint();
+    const active = locked();
+    if (active && !running) { document.exitPointerLock(); return; }
+    if (wasLocked && !active) {
+      retryLockAt = performance.now() + 1100;
+      pause();
+    }
+    wasLocked = active;
+    drag = null;
+    hint();
   });
   document.addEventListener('pointerlockerror', () => hint());
   const clampPitch = () => { pitch = fp ? Math.max(-1.45, Math.min(1.45, pitch)) : Math.max(.05, Math.min(1.35, pitch)); };
@@ -336,18 +359,24 @@ export function initGame(onNext) {
     look(mx * .0026, my * .0022);
   });
   let drag = null;
-  canvas.addEventListener('pointerdown', (e) => { if (running && e.pointerType === 'mouse') {
-    lock();
-    if (locked()) return;
+  canvas.addEventListener('pointerdown', (e) => {
+    if (!running || locked() || e.pointerType !== 'mouse' || e.button !== 0) return;
     canvas.setPointerCapture(e.pointerId);
-    drag = { x: e.clientX, y: e.clientY };
-  } });
+    drag = { id: e.pointerId, x: e.clientX, y: e.clientY, moved: false };
+  });
+  canvas.addEventListener('pointerup', (e) => {
+    if (drag?.id === e.pointerId && !drag.moved) lock();
+    drag = null;
+  });
   canvas.addEventListener('contextmenu', (e) => e.preventDefault());
   canvas.addEventListener('lostpointercapture', () => (drag = null));
-  addEventListener('pointermove', (e) => {
-    if (!drag || locked()) return;
-    look((e.clientX - drag.x) * .006, (e.clientY - drag.y) * .004);
-    drag = { x: e.clientX, y: e.clientY };
+  canvas.addEventListener('pointermove', (e) => {
+    if (drag?.id !== e.pointerId || locked()) return;
+    const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+    if (dx || dy) drag.moved = true;
+    look(dx * .006, dy * .004);
+    drag.x = e.clientX;
+    drag.y = e.clientY;
   });
   canvas.addEventListener('wheel', (e) => { e.preventDefault(); if (!fp) dist = Math.max(3, Math.min(12, dist + e.deltaY * .01)); }, { passive: false });
 
@@ -356,12 +385,16 @@ export function initGame(onNext) {
   const viewBtn = document.createElement('button');
   viewBtn.type = 'button'; viewBtn.className = 'pk-view';
   const hintEl = document.createElement('div');
-  hintEl.className = 'pk-hint'; hintEl.textContent = 'Kliknij w planszę, a mysz obróci kamerę. Esc oddaje kursor.';
+  hintEl.className = 'pk-hint'; hintEl.textContent = canLock
+    ? 'Przeciągnij myszą, aby obrócić kamerę. Kliknij planszę, aby spróbować zablokować kursor.'
+    : 'Przeciągnij myszą, aby obrócić kamerę.';
   wrap.append(viewBtn, hintEl);
   function viewLabel() {
     viewBtn.textContent = fp ? '👁 1. osoba' : '👁 3. osoba';
     viewBtn.setAttribute('aria-label', fp ? 'Widok z pierwszej osoby. Zmień na widok zza postaci (V)' : 'Widok zza postaci. Zmień na pierwszą osobę (V)');
-    camera.fov = fp ? 78 : 65; camera.updateProjectionMatrix();
+    camera.fov = fp ? 78 : 65;
+    camera.near = fp ? .05 : .1;
+    camera.updateProjectionMatrix();
   }
   function toggleView() {
     fp = !fp; store.set('pk:widok', fp ? 'pierwsza' : 'trzecia');
@@ -369,7 +402,7 @@ export function initGame(onNext) {
     clampPitch(); viewLabel(); draw(performance.now(), true);
   }
   viewBtn.addEventListener('click', () => { toggleView(); if (running) { canvas.focus(); } });
-  function hint() { hintEl.hidden = !(running && canLock && !locked()); }
+  function hint() { hintEl.hidden = !(running && !coarse && !locked()); }
   viewLabel(); hint();
   // pomoc o sterowaniu: jedna wersja dla każdej strony z grą
   $('#keys').innerHTML = `<div><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> albo strzałki: ruch · <kbd>Spacja</kbd>: skok</div>
