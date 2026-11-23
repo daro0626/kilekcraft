@@ -21,10 +21,10 @@
 | Kreator komend z podglądem (18 rodzajów) | `komendy.html` | gotowe, nowe komendy czekają na test CI |
 | Wielkie budowle 3D warstwa po warstwie | `budowle.html` | gotowe (4 budowle generowane kodem + 2 filmy) |
 | Edytor budowli 3D z eksportem do datapacka | `edytor.html` | gotowe, datapack czeka na test CI |
-| Generator komnat-wyzwań (parkour, labirynt) | `komnaty.html` | gotowe, skoki do sprawdzenia w grze |
+| Generator komnat-wyzwań (parkour, góra, labirynt) | `komnaty.html` | gotowe, skoki do sprawdzenia w grze |
 | Symulator LifeSteal | `symulator.html` | gotowe (model uproszczony) |
 | Poziom gracza: XP i 17 odznak | wszystkie strony | gotowe |
-| Wyścig parkour w przeglądarce (klawiatura i dotyk) | `parkour.html` | gotowe, fizyka do porównania z grą |
+| Wyścig parkour w przeglądarce (klawiatura, mysz bez trzymania przycisku, dotyk, widok 1. i 3. osoby) | `parkour.html` | gotowe, fizyka do porównania z grą |
 | Gra „Znajdź błąd” (17 pytań) | `bledy.html` | gotowe, pytania czekają na test CI |
 | Koło wyzwań budowlanych ze stoperem | `kolo.html` | gotowe |
 | Wygląd serwera: MOTD i ikona 64×64 | `motd.html` | gotowe, MOTD czeka na test CI |

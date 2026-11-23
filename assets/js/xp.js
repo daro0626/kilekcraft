@@ -26,6 +26,7 @@ export const BADGES = [
   { id: 'lowca', name: 'Łowca błędów', desc: 'Zdobądź 1500 punktów w grze Znajdź błąd', ico: '!' },
   { id: 'parkour', name: 'Skoczek', desc: 'Ukończ wyścig parkour w przeglądarce', ico: '↗' },
   { id: 'speedrun', name: 'Speedrunner', desc: 'Ukończ wyścig o trudności 7 lub więcej', ico: '⏱' },
+  { id: 'rywal', name: 'Rywal z przeszłości', desc: 'Pobij własny rekord, kiedy biegnie przy tobie duch', ico: '◈' },
   { id: 'kolo', name: 'Szczęśliwy los', desc: 'Zakręć kołem wyzwań', ico: '◎' },
   { id: 'odkrywca', name: 'Odkrywca', desc: 'Odwiedź wszystkie strony KILEKCRAFT', ico: '✦' },
 ];

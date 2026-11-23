@@ -25,6 +25,7 @@ Każde zadanie kończy się dopiero, gdy spełnia kryteria akceptacji **oraz** b
 
 ### A6 [Piotrek] Wyścig parkour: czy da się przejść?
 - Przejdź w przeglądarce P3, P6, P8 i L4. Zapisz czas i miejsca, gdzie fizyka różni się od gry.
+- Przejdź tę samą komnatę drugi raz i sprawdź ducha (najlepszy przejazd biegnie obok): czy jest widoczny, czy nie przeszkadza, czy tempo wygląda tak samo jak twój zapamiętany przejazd.
 
 ### C2 [Codex] Testy przeglądarkowe
 - Playwright: każda z 5 stron otwiera się bez błędów konsoli (desktop i mobile), kreator generuje oczekiwane komendy (porównanie z `commands()` z Pythona), doradca zwraca 3 wyniki dla każdej kombinacji odpowiedzi.
@@ -44,7 +45,7 @@ Każde zadanie kończy się dopiero, gdy spełnia kryteria akceptacji **oraz** b
 - **Akceptacja:** każda cena ma datę z ostatnich 30 dni i link do strony hosta.
 
 ### A4 [Piotrek] Przejście komnat w grze
-- Wygeneruj P3, P6, P8, P10 i L5, wgraj na świat testowy i przejdź je.
+- Wygeneruj P3, P6, P8, P10, G3, G7 i L5, wgraj na świat testowy i przejdź je. Na górze (G) sprawdź też, czy zbocza naprawdę nie dają się obejść skokami.
 - Zapisz kody komnat, w których któryś skok jest niemożliwy albo za łatwy. Poprawimy wtedy zasady skoków w `assets/js/komnaty-gen.js`.
 - **Akceptacja:** każdy poziom trudności ma co najmniej jedną komnatę przejdzioną przez Piotrka.
 

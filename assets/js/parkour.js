@@ -1,6 +1,6 @@
 // Ekran startowy jest dostępny przed pobraniem silnika 3D.
 import { store, toast } from './core.js';
-import { encode, decode } from './komnaty-gen.js';
+import { encode, decode, kindName } from './komnaty-gen.js';
 
 const codeIn = document.getElementById('code');
 const play = document.getElementById('play');
@@ -17,8 +17,7 @@ function loadLevel(next) {
   store.set('komnata', state);
   if (game) game.loadLevel(state);
   else {
-    const kind = state.type === 'labirynt' ? 'Labirynt' : 'Parkour';
-    document.getElementById('ovText').textContent = `${kind} · trudność ${state.diff} · kod ${code}`;
+    document.getElementById('ovText').textContent = `${kindName(state.type)} · trudność ${state.diff} · kod ${code}`;
   }
 }
 document.querySelectorAll('[data-q]').forEach(button => button.addEventListener('click', () => {
@@ -27,13 +26,13 @@ document.querySelectorAll('[data-q]').forEach(button => button.addEventListener(
   if (choice === 'rand') {
     const themes = ['kamien', 'nether', 'lod', 'neon'];
     loadLevel({
-      type: Math.random() < .25 ? 'labirynt' : 'parkour',
+      type: ['parkour', 'parkour', 'gora', 'labirynt'][Math.floor(Math.random() * 4)],
       diff: 1 + Math.floor(Math.random() * 10),
       theme: themes[Math.floor(Math.random() * themes.length)],
       seed,
     });
   } else {
-    loadLevel({ type: choice[0] === 'L' ? 'labirynt' : 'parkour', diff: +choice.slice(1), theme: state.theme, seed });
+    loadLevel({ ...decode(`${choice}-K-1`), theme: state.theme, seed });
   }
 }));
 const loadCode = () => {
