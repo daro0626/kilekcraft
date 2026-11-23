@@ -179,6 +179,87 @@ def browser_commands(page, modern):
     collect('attribute')
     chip('cel', '@p')
     collect('attribute')
+
+    def slider(selector, value):
+        page.locator(selector).evaluate(
+            '(el, v) => { el.value = v; el.dispatchEvent(new Event("input", { bubbles: true })); }', value)
+
+    tab('gamemode')
+    chip('cel', '@a')
+    for mode in DATA['tryby']:
+        chip('mode', mode['id'])
+        collect('gamemode')
+
+    tab('time')
+    for pora in DATA['pory']:
+        chip('pora', pora['id'])
+        collect('time')
+
+    tab('weather')
+    for weather in DATA['pogoda']:
+        chip('pog', weather['id'])
+        collect('weather')
+    chip('pog', 'rain')
+    page.locator('[name="dur"] + span').click()
+    collect('weather')
+
+    tab('difficulty')
+    for level in DATA['trudnosci']:
+        chip('diff', level['id'])
+        collect('difficulty')
+
+    tab('summon')
+    for mob in DATA['moby']:
+        page.locator('#mob').select_option(mob['id'])
+        collect('summon')
+    page.locator('#mob').select_option('wolf')
+    page.locator('#mname').fill('Żółw Burek')
+    collect('summon')
+
+    tab('enchant')
+    chip('cel', '@a')
+    for ench in DATA['zaklecia']:
+        page.locator('#ench').select_option(ench['id'])
+        slider('#elvl', '1')
+        collect('enchant')
+        slider('#elvl', str(ench['max']))
+        collect('enchant')
+
+    tab('xp')
+    chip('cel', '@a')
+    page.locator('#xn').fill('5')
+    collect('xp')
+    chip('xu', 'points')
+    page.locator('#xn').fill('100')
+    collect('xp')
+    chip('xop', 'set')
+    chip('xu', 'levels')
+    page.locator('#xn').fill('0')
+    collect('xp')
+
+    tab('kill')
+    for index, _ in enumerate(DATA['kill_cele']):
+        chip('kc', str(index))
+        collect('kill')
+
+    tab('clear')
+    chip('cel', '@a')
+    collect('clear')
+    page.locator('#citem').select_option('diamond')
+    collect('clear')
+
+    tab('worldborder')
+    collect('worldborder')
+    page.locator('#wx').fill('-100')
+    page.locator('#wz').fill('200')
+    slider('#wb', '2500')
+    collect('worldborder')
+
+    tab('spawnpoint')
+    chip('cel', '@a')
+    collect('spawnpoint')
+    chip('sp', 'swiat')
+    collect('spawnpoint')
     return result
 
 
