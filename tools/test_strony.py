@@ -585,6 +585,22 @@ def sezon(page):
 M_DNI = 14
 
 
+def symulator_admin(page):
+    form = page.locator('#form')
+    form.scroll_into_view_if_needed()
+    expect(page.locator('#kpis .kpi')).to_have_count(4)
+    expect(page.locator('#dayNum')).to_have_text('14')
+    field = form.locator('#gracze')
+    field.press('End')
+    expect(form.locator('[data-v=gracze]')).to_have_text('30')
+    form.locator('#run').press('Enter')
+    expect(page.locator('#dayNum')).to_have_text('1')
+    form.locator('#run').press('Enter')
+    form.locator('#skip').press('Enter')
+    expect(page.locator('#dayNum')).to_have_text('14')
+    expect(page.locator('#rank li')).to_have_count(8)
+
+
 def run(browser, width, height):
     mobile = width == 390
     context = browser.new_context(viewport={'width': width, 'height': height},
@@ -614,6 +630,7 @@ def run(browser, width, height):
             budowle(page)
         if name == 'symulator':
             sezon(page)
+            symulator_admin(page)
         if name == 'edytor':
             export_parity(page)
         if name == 'motd':

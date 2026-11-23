@@ -8,6 +8,10 @@
 <link rel="icon" href="data:,">
 <meta name="theme-color" content="#0b1020">
 <link rel="preload" href="assets/fonts/jersey-10-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/atkinson-hyperlegible-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/atkinson-hyperlegible-latin-ext-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/atkinson-hyperlegible-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/atkinson-hyperlegible-latin-ext-700-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
@@ -36,7 +40,23 @@
     <p class="lead">Przetrwaj 14 dni przeciwko 7 botom. Codziennie jedna decyzja, a w nocy rywale ruszają sami. Niżej, w części dla admina, sprawdzisz zasady własnego serwera.</p>
   </div>
 
-  <section class="panel pad corner sz" id="sezon" aria-label="Gra Sezon LifeSteal"><p class="muted">Ładowanie gry…</p></section>
+  <section class="panel pad corner sz" id="sezon" aria-label="Gra Sezon LifeSteal">
+    <div class="sz-intro">
+      <div>
+        <h2 class="section-heading">Sezon LifeSteal: przetrwaj 14 dni</h2>
+        <p>Grasz z 7 botami. Każdy dzień to jedna decyzja: kopiesz, farmisz, wzmacniasz bazę, polujesz na rywala albo zawierasz sojusz. W nocy boty ruszają same i napadają na siebie i na ciebie.</p>
+        <ul class="sz-rules">
+          <li>Startujesz z 5 sercami, możesz mieć najwyżej <span id="szLimit">15</span>.</li>
+          <li>Wygrana walka zabiera rywalowi jedno serce. Kto straci ostatnie, odpada z sezonu.</li>
+          <li>W tym sezonie potwory w jaskini też zabierają serce.</li>
+          <li>Za pieniądze kupisz sprzęt, totem i złote jabłko.</li>
+        </ul>
+        <p class="muted small">To gra z uproszczonymi zasadami. Na prawdziwym serwerze zasady ustawia plugin i admin.</p>
+        <button type="button" class="btn" id="szStart" disabled>▶ Zacznij sezon</button>
+        <p class="sz-rec" hidden></p>
+      </div>
+    </div>
+  </section>
 
   <div class="page-head sz-admin-head" id="zasady">
     <div class="eyebrow">Dla admina</div>

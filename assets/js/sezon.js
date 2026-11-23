@@ -24,24 +24,18 @@ function start() {
 }
 
 function intro() {
+  $('#szLimit').textContent = M.MAX;
   const rek = store.get('sezon:rekord', null);
-  root.innerHTML = `
-    <div class="sz-intro">
-      <div>
-        <h2 class="section-heading">Sezon LifeSteal: przetrwaj 14 dni</h2>
-        <p>Grasz z 7 botami. Każdy dzień to jedna decyzja: kopiesz, farmisz, wzmacniasz bazę, polujesz na rywala albo zawierasz sojusz. W nocy boty ruszają same i napadają na siebie i na ciebie.</p>
-        <ul class="sz-rules">
-          <li>Startujesz z 5 sercami, możesz mieć najwyżej ${M.MAX}.</li>
-          <li>Wygrana walka zabiera rywalowi jedno serce. Kto straci ostatnie, odpada z sezonu.</li>
-          <li>W tym sezonie potwory w jaskini też zabierają serce.</li>
-          <li>Za pieniądze kupisz sprzęt, totem i złote jabłko.</li>
-        </ul>
-        <p class="muted small">To gra z uproszczonymi zasadami. Na prawdziwym serwerze zasady ustawia plugin i admin.</p>
-        <button type="button" class="btn" id="szStart">▶ Zacznij sezon</button>
-        ${rek ? `<p class="sz-rec">Twój rekord: <b>${rek.pkt.toLocaleString('pl-PL')} pkt</b> (${rek.przetrwal ? 'miejsce ' + rek.miejsce : 'odpadłeś w dniu ' + rek.dzien})</p>` : ''}
-      </div>
-    </div>`;
-  $('#szStart').addEventListener('click', start);
+  if (rek) {
+    const record = $('.sz-rec', root);
+    const score = document.createElement('b');
+    score.textContent = rek.pkt.toLocaleString('pl-PL') + ' pkt';
+    record.append('Twój rekord: ', score, rek.przetrwal ? ` (miejsce ${rek.miejsce})` : ` (odpadłeś w dniu ${rek.dzien})`);
+    record.hidden = false;
+  }
+  const button = $('#szStart');
+  button.addEventListener('click', start);
+  button.disabled = false;
 }
 
 function statsHTML() {

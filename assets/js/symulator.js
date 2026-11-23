@@ -94,6 +94,7 @@ function showDay(i, animate) {
     if (ev.bought.length) say(`$ Ktoś kupił serce w sklepie (${ev.bought.length}×)`);
   }
   drawArena(d.snapshot);
+  if (fx.length && !frame) frame = requestAnimationFrame(drawEffects);
   chart(i);
 }
 function run() {
@@ -110,7 +111,12 @@ function run() {
 }
 function stop() { playing = false; clearTimeout(timer); $('#run').textContent = '▶ Puść symulację'; }
 function finish() { showDay(shown.days.length - 1, false); rank(); }
-(function loop() { requestAnimationFrame(loop); if (fx.length && shown) drawArena(shown.days[Math.max(0, dayIdx - 1)].snapshot); })();
+function drawEffects() {
+  frame = 0;
+  if (!fx.length || !shown) return;
+  drawArena(shown.days[Math.max(0, dayIdx - 1)].snapshot);
+  if (fx.length) frame = requestAnimationFrame(drawEffects);
+}
 
 // ---------- wykres ----------
 const ch = $('#chart'), cc = ch.getContext('2d');
@@ -152,12 +158,29 @@ function rank() {
   $('#rank').innerHTML = list.map(p => `<li class="${p.active ? '' : 'out'}"><i style="background:${COLORS[p.id % COLORS.length]}"></i><b>${p.nick}</b><span>${p.active ? '♥ ' + p.hearts : 'odpadł'}</span><span class="muted">${p.kills} zab. · ${p.deaths} śm.</span></li>`).join('');
 }
 
-let tA;
+let analysisTimer, adminVisible = false, needsAnalysis = true;
+function scheduleAnalysis() {
+  if (!adminVisible || !needsAnalysis) return;
+  clearTimeout(analysisTimer);
+  analysisTimer = setTimeout(() => {
+    needsAnalysis = false;
+    const result = analyze(P);
+    kpis(result);
+    verdicts(result);
+  }, 120);
+}
+new IntersectionObserver(([entry]) => {
+  adminVisible = entry.isIntersecting;
+  if (adminVisible) scheduleAnalysis();
+  else clearTimeout(analysisTimer);
+}, { rootMargin: '160px' }).observe($('.sim'));
+
 function recompute() {
   stop(); fromForm(); labels();
   shown = simulate(P, 1, true);
   dayIdx = shown.days.length; fx = [];
-  clearTimeout(tA); tA = setTimeout(() => { const a = analyze(P); kpis(a); verdicts(a); }, 120);
+  needsAnalysis = true;
+  scheduleAnalysis();
   $('#dayNum').textContent = shown.days.length; drawArena(shown.days[shown.days.length - 1].snapshot); chart(); rank();
 }
 form.addEventListener('input', recompute);
