@@ -19,6 +19,20 @@ picker.addEventListener('click', (e) => {
   b = getBuild(id); load(true);
 });
 
+const clips = $('#filmy');
+clips.addEventListener('play', ({ target }) => {
+  clips.querySelectorAll('video').forEach(video => { if (video !== target) video.pause(); });
+}, true);
+clips.addEventListener('click', event => {
+  const button = event.target.closest('button[data-model]');
+  if (!button) return;
+  const tab = picker.querySelector(`[data-id="${button.dataset.model}"]`);
+  clips.querySelectorAll('video').forEach(video => video.pause());
+  tab.click();
+  tab.focus({ preventScroll: true });
+  tab.scrollIntoView({ block: 'center', behavior: reduced ? 'instant' : 'smooth' });
+});
+
 // ---------- warstwy ----------
 const slider = $('#layer');
 const layerOf = (y) => b.blocks.filter(bl => bl[1] === y);
