@@ -7,6 +7,11 @@ KILEKCRAFT to polska, fanowska strona o Minecraft Java z narzędziami i grami: p
 
 Szczegóły: `docs/WIZJA.md`, styl: `docs/STYL.md`, dane: `docs/DANE.md`, zadania: `docs/ZADANIA.md`.
 
+## Obowiązkowy rejestr uwag właściciela
+- **Przed rozpoczęciem każdej pracy przeczytaj `docs/BRAKI_I_UWAGI.md`.** Jest to stały rejestr zgłoszonych braków UX, ustaleń i kryteriów odbioru, obok planu `docs/ZADANIA.md`.
+- Po realizacji zgłoszenia zaktualizuj jego status, wynik testów, PR/commit i ograniczenia. Nie usuwaj zgłoszeń; zachowuj ich historię. Jeśli prace są częściowe, nie oznaczaj jako ukończone.
+- Nie dodawaj nowych funkcji zamiast rozwiązywania zgłoszonych problemów. Nie przystępuj automatycznie do wdrożenia wyłącznie na podstawie rejestru.
+
 ## Zasady nienegocjowalne
 
 1. **Żadnych faktów z pamięci modelu.** Wersje gry, nazwy komend, nazwy gamerule, ceny, limity hostingów: tylko z testu na serwerze albo ze źródła z datą, wpisanego do `docs/ZRODLA.md`. Jeśli nie masz źródła, oznacz rzecz jako niepewną (`"pewnosc": "niska"` albo badge „do sprawdzenia”).
