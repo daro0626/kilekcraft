@@ -7,10 +7,10 @@
 // =========================================================
 
 export const THEMES = {
-  kamien: { name: 'Kamienna twierdza', plat: 'stone_bricks', alt: 'smooth_stone', wall: 'stone_bricks', floor: 'cobble', danger: 'lava', light: 'lantern' },
-  nether: { name: 'Nether', plat: 'obsidian', alt: 'red_concrete', wall: 'obsidian', floor: 'black_concrete', danger: 'lava', light: 'lantern' },
-  lod: { name: 'Lodowa kraina', plat: 'quartz', alt: 'blue_concrete', wall: 'white_wool', floor: 'blue_concrete', danger: 'lava', light: 'lantern' },
-  neon: { name: 'Neon', plat: 'black_concrete', alt: 'amethyst', wall: 'black_concrete', floor: 'black_concrete', danger: 'lava', light: 'lantern' },
+  kamien: { name: 'Kamienna twierdza', plat: 'stone_bricks', alt: 'smooth_stone', wall: 'stone_bricks', floor: 'cobble', path: 'smooth_stone', danger: 'lava', light: 'lantern' },
+  nether: { name: 'Nether', plat: 'obsidian', alt: 'red_concrete', wall: 'obsidian', floor: 'black_concrete', path: 'red_concrete', danger: 'lava', light: 'lantern' },
+  lod: { name: 'Lodowa kraina', plat: 'quartz', alt: 'blue_concrete', wall: 'white_wool', floor: 'blue_concrete', path: 'quartz', danger: 'lava', light: 'lantern' },
+  neon: { name: 'Neon', plat: 'black_concrete', alt: 'amethyst', wall: 'black_concrete', floor: 'black_concrete', path: 'blue_concrete', stripe: 'amethyst', danger: 'lava', light: 'lantern' },
 };
 
 function rng(seed) {
@@ -95,8 +95,9 @@ function maze(diff, theme, seed) {
   for (let i = 0; i < loops; i++) { const a = 1 + Math.floor(R() * (W - 2)), b = 1 + Math.floor(R() * (W - 2)); if ((a + b) % 2 === 1) wall[a][b] = false; }
   wall[0][1] = false; wall[W - 1][W - 2] = false; // wejście i wyjście
   for (let x = 0; x < W; x++) for (let z = 0; z < W; z++) {
-    g.set(x, 0, z, T.floor);
-    if (wall[x][z]) for (let h = 1; h <= H; h++) g.set(x, h, z, h === H && (x + z) % 6 === 0 ? T.light : T.wall);
+    // droga jaśniejsza od ścian, a co kilka bloków światło na szczycie muru: w labiryncie dobrze widać, gdzie iść
+    g.set(x, 0, z, wall[x][z] ? T.floor : T.path);
+    if (wall[x][z]) for (let h = 1; h <= H; h++) g.set(x, h, z, h === H && (x + z) % 4 === 0 ? T.light : h === 1 && T.stripe ? T.stripe : T.wall);
   }
   g.set(0, 0, 1, 'emerald'); g.set(W - 1, 0, W - 2, 'diamond'); g.set(W - 1, H + 1, W - 1, 'lantern');
   return { ...g.out(), info: { komorki: n * n, wysokosc: H } };

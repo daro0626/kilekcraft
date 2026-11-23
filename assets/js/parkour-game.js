@@ -26,7 +26,7 @@ export function initGame(onNext) {
   scene.background = new THREE.Color(0x0d1428);
   scene.fog = new THREE.Fog(0x0d1428, 30, 90);
   const camera = new THREE.PerspectiveCamera(65, 1, .1, 300);
-  scene.add(new THREE.HemisphereLight(0xc8d8ff, 0x3a2550, 2.0));
+  const hemi = new THREE.HemisphereLight(0xc8d8ff, 0x3a2550, 2.0); scene.add(hemi);
   const sun = new THREE.DirectionalLight(0xfff0dc, 2.4); sun.position.set(.8, 2, .5); scene.add(sun);
   const level = new THREE.Group(); scene.add(level);
   const box = new THREE.BoxGeometry(1, 1, 1);
@@ -108,7 +108,12 @@ export function initGame(onNext) {
     ghostData = store.get('pk:ghost:' + code, null);
     $('#ghostTile').hidden = !ghostData;
     if (ghostData) $('#ghost').textContent = fmt(ghostData[ghostData.length - 1][0]);
-    yaw = -Math.PI / 2; pitch = state.type === 'labirynt' ? .85 : .38;
+    // labirynt: jasne niebo i mocniejsze światło, żeby ściany i droga były czytelne
+    const mz = state.type === 'labirynt';
+    scene.background.set(mz ? 0x4a6fa5 : 0x0d1428); scene.fog.color.copy(scene.background);
+    scene.fog.near = mz ? 40 : 30; scene.fog.far = mz ? 140 : 90;
+    hemi.intensity = mz ? 3.2 : 2.0; sun.intensity = mz ? 3.0 : 2.4;
+    yaw = -Math.PI / 2; pitch = fp ? .15 : mz ? .85 : .38;
     reset(true);
     const ghostTxt = ghostData ? ` · 👻 obok pobiegnie twój duch (${fmt(ghostData[ghostData.length - 1][0])} s)` : '';
     showOver('Gotowy?', `${state.type === 'labirynt' ? 'Labirynt' : 'Parkour'} · trudność ${state.diff} · kod ${code}${ghostTxt}`, false);
@@ -119,7 +124,12 @@ export function initGame(onNext) {
   const pos = new THREE.Vector3(), vel = new THREE.Vector3();
   let onGround = false, yaw = -Math.PI / 2, pitch = .38, running = false, started = false, finished = false;
   let tNow = 0, deaths = 0, best = null, checkpoint = null, walkPhase = 0, faceYaw = 0;
+  // klawisze po kodzie fizycznym: Shift, Caps Lock ani polski Alt (ą, ę, ś) nie zmieniają ich nazwy,
+  // więc puszczony klawisz zawsze znika z listy i postać nie „idzie sama”
+  const KEYMAP = { KeyW: 'f', ArrowUp: 'f', KeyS: 'b', ArrowDown: 'b', KeyA: 'l', ArrowLeft: 'l', KeyD: 'r', ArrowRight: 'r', KeyQ: 'tl', KeyE: 'tr' };
   const keys = new Set(); let joy = { x: 0, y: 0 }, jumpBuffer = 0;
+  const held = (action) => { for (const c of keys) if (KEYMAP[c] === action) return true; return false; };
+  let fp = store.get('pk:widok', 'trzecia') === 'pierwsza';
   const fmt = (s) => s.toFixed(2).replace('.', ',');
   // duch: [czas, x, y, z, kąt] co REC_DT sekund z najlepszego zapisanego przejazdu
   const REC_DT = .08;
@@ -178,10 +188,10 @@ export function initGame(onNext) {
 
   function step(dt) {
     // wejście
-    let ix = (keys.has('d') || keys.has('arrowright') ? 1 : 0) - (keys.has('a') || keys.has('arrowleft') ? 1 : 0) + joy.x;
-    let iz = (keys.has('w') || keys.has('arrowup') ? 1 : 0) - (keys.has('s') || keys.has('arrowdown') ? 1 : 0) + joy.y;
+    let ix = (held('r') ? 1 : 0) - (held('l') ? 1 : 0) + joy.x;
+    let iz = (held('f') ? 1 : 0) - (held('b') ? 1 : 0) + joy.y;
     const len = Math.hypot(ix, iz); if (len > 1) { ix /= len; iz /= len; }
-    if (keys.has('q')) yaw += dt * 2.2; if (keys.has('e')) yaw -= dt * 2.2;
+    if (held('tl')) yaw += dt * 2.2; if (held('tr')) yaw -= dt * 2.2;
     const fx = Math.sin(yaw + Math.PI), fz = Math.cos(yaw + Math.PI); // kierunek „do przodu” od kamery
     const rx = -fz, rz = fx;
     const tx = (fx * iz + rx * ix) * SPEED, tz = (fz * iz + rz * ix) * SPEED;
@@ -245,15 +255,21 @@ export function initGame(onNext) {
     keys.clear();
     jumpBuffer = 0;
     drag = null;
+    if (locked()) document.exitPointerLock();
     endTouch({ pointerId: stickId });
     endTouch({ pointerId: lookId });
+    hint();
     if (focus) $('#play').focus();
   }
   function play() {
     if (finished) reset(true);
     over.hidden = true; running = true;
     canvas.tabIndex = 0;
-    canvas.focus();
+    // cała plansza na ekranie, nie pod górnym menu
+    canvas.focus({ preventScroll: true });
+    $('#wrapG').scrollIntoView({ block: 'nearest', behavior: reduced ? 'auto' : 'smooth' });
+    lock();
+    hint();
     last = performance.now();
     accumulator = 0;
     cancelAnimationFrame(frameId);
@@ -263,38 +279,94 @@ export function initGame(onNext) {
     onNext(next); play(); });
 
   // ---------- sterowanie ----------
-  canvas.addEventListener('keydown', (e) => {
-    const k = e.key.toLowerCase();
-    if (!running) return;
-    if (k === 'escape') { showOver('Pauza', 'Odpocznij chwilę.', false, true); return; }
-    if (![' ', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright', 'w', 'a', 's', 'd', 'q', 'e', 'r'].includes(k)) return;
-    e.preventDefault();
-    if (k === 'r') { reset(false); return; }
-    if (k === ' ' && !e.repeat) jumpBuffer = .12;
-    keys.add(k);
+  // Klawiatura słucha całego okna, gdy gra trwa. Kliknięcie w licznik czy przycisk widoku
+  // nie wyłącza już sterowania (wcześniej klawisze działały tylko przy fokusie na płótnie).
+  addEventListener('keydown', (e) => {
+    if (!running || (e.target instanceof Element && e.target.closest('input,textarea,select'))) return;
+    const c = e.code;
+    if (c === 'Escape') { showOver('Pauza', 'Odpocznij chwilę.', false, true); return; }
+    if (c === 'KeyV') { e.preventDefault(); if (!e.repeat) toggleView(); return; }
+    if (c === 'KeyR') { e.preventDefault(); reset(false); return; }
+    if (c === 'Space') { e.preventDefault(); if (!e.repeat) jumpBuffer = .12; return; }
+    if (!KEYMAP[c]) return;
+    e.preventDefault(); keys.add(c);
   });
-  addEventListener('keyup', (e) => keys.delete(e.key.toLowerCase()));
+  addEventListener('keyup', (e) => keys.delete(e.code));
   const pause = () => {
     if (running) showOver('Pauza', 'Gra czeka na ciebie.', false);
   };
+  // pauza tylko wtedy, gdy fokus naprawdę wyszedł z gry do innego elementu strony
   canvas.addEventListener('blur', (event) => {
-    if (!$('#wrapG').contains(event.relatedTarget)) pause();
+    if (event.relatedTarget && !$('#wrapG').contains(event.relatedTarget)) pause();
   });
+  document.addEventListener('pointerdown', (e) => { if (running && !$('#wrapG').contains(e.target)) pause(); });
   addEventListener('blur', pause);
   document.addEventListener('visibilitychange', () => { if (document.hidden) pause(); });
-  // obrót kamery przeciąganiem
+
+  // Mysz jak w grze: klik w planszę „łapie” kursor i ruch myszy obraca kamerę bez trzymania przycisku.
+  // Esc oddaje kursor i włącza pauzę. Gdy przeglądarka nie pozwala złapać kursora, działa przeciąganie.
+  const canLock = !coarse && typeof canvas.requestPointerLock === 'function';
+  const locked = () => document.pointerLockElement === canvas;
+  let wasLocked = false;
+  function lock() {
+    if (!canLock || locked()) return;
+    try { const p = canvas.requestPointerLock(); if (p && p.catch) p.catch(() => hint()); } catch { hint(); }
+  }
+  document.addEventListener('pointerlockchange', () => {
+    if (wasLocked && !locked()) pause();
+    wasLocked = locked(); hint();
+  });
+  document.addEventListener('pointerlockerror', () => hint());
+  const clampPitch = () => { pitch = fp ? Math.max(-1.45, Math.min(1.45, pitch)) : Math.max(.05, Math.min(1.35, pitch)); };
+  const look = (mx, my) => { yaw -= mx; pitch += my; clampPitch(); };
+  document.addEventListener('mousemove', (e) => {
+    if (!running || !locked()) return;
+    const mx = Math.max(-150, Math.min(150, e.movementX)), my = Math.max(-150, Math.min(150, e.movementY));
+    look(mx * .0026, my * .0022);
+  });
   let drag = null;
   canvas.addEventListener('pointerdown', (e) => { if (running && e.pointerType === 'mouse') {
+    lock();
+    if (locked()) return;
     canvas.setPointerCapture(e.pointerId);
     drag = { x: e.clientX, y: e.clientY };
   } });
+  canvas.addEventListener('contextmenu', (e) => e.preventDefault());
   canvas.addEventListener('lostpointercapture', () => (drag = null));
   addEventListener('pointermove', (e) => {
-    if (!drag) return;
-    yaw -= (e.clientX - drag.x) * .006; pitch = Math.max(.05, Math.min(1.35, pitch + (e.clientY - drag.y) * .004));
+    if (!drag || locked()) return;
+    look((e.clientX - drag.x) * .006, (e.clientY - drag.y) * .004);
     drag = { x: e.clientX, y: e.clientY };
   });
-  canvas.addEventListener('wheel', (e) => { e.preventDefault(); dist = Math.max(3, Math.min(12, dist + e.deltaY * .01)); }, { passive: false });
+  canvas.addEventListener('wheel', (e) => { e.preventDefault(); if (!fp) dist = Math.max(3, Math.min(12, dist + e.deltaY * .01)); }, { passive: false });
+
+  // Widok z pierwszej albo trzeciej osoby (V albo przycisk), zapamiętany w przeglądarce.
+  const wrap = $('#wrapG');
+  const viewBtn = document.createElement('button');
+  viewBtn.type = 'button'; viewBtn.className = 'pk-view';
+  const hintEl = document.createElement('div');
+  hintEl.className = 'pk-hint'; hintEl.textContent = 'Kliknij w planszę, a mysz obróci kamerę. Esc oddaje kursor.';
+  wrap.append(viewBtn, hintEl);
+  function viewLabel() {
+    viewBtn.textContent = fp ? '👁 1. osoba' : '👁 3. osoba';
+    viewBtn.setAttribute('aria-label', fp ? 'Widok z pierwszej osoby. Zmień na widok zza postaci (V)' : 'Widok zza postaci. Zmień na pierwszą osobę (V)');
+    camera.fov = fp ? 78 : 65; camera.updateProjectionMatrix();
+  }
+  function toggleView() {
+    fp = !fp; store.set('pk:widok', fp ? 'pierwsza' : 'trzecia');
+    if (fp) pitch = Math.min(pitch, .35); else pitch = Math.max(pitch, .3);
+    clampPitch(); viewLabel(); draw(performance.now(), true);
+  }
+  viewBtn.addEventListener('click', () => { toggleView(); if (running) { canvas.focus(); } });
+  function hint() { hintEl.hidden = !(running && canLock && !locked()); }
+  viewLabel(); hint();
+  // pomoc o sterowaniu: jedna wersja dla każdej strony z grą
+  $('#keys').innerHTML = `<div><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> albo strzałki: ruch · <kbd>Spacja</kbd>: skok</div>
+    <div>${canLock ? 'Ruch myszy: obrót kamery (bez trzymania przycisku)' : 'Przeciągnij myszą: obrót kamery'} · <kbd>Q</kbd><kbd>E</kbd>: obrót</div>
+    <div><kbd>V</kbd>: pierwsza albo trzecia osoba · <kbd>R</kbd>: punkt kontrolny · <kbd>Esc</kbd>: pauza</div>
+    <div class="touch-only">Na telefonie: lewy kciuk to ruch, prawy kciuk obraca, przycisk to skok</div>
+    <div>Masz już rekord na tej trasie? Obok pobiegnie półprzezroczysty duch twojego najlepszego przejazdu.</div>`;
+
   // dotyk: joystick + skok + obrót prawym kciukiem
   const stick = $('#stick'), knob = $('#knob');
   let stickId = null, stickO = null, lookId = null, lookP = null;
@@ -302,7 +374,7 @@ export function initGame(onNext) {
   touchArea.addEventListener('pointerdown', (e) => {
     if (e.pointerType !== 'touch' || !running) return;
     const r = touchArea.getBoundingClientRect();
-    if (e.target === $('#jumpBtn')) return;
+    if (e.target.closest('button')) return;
     touchArea.setPointerCapture(e.pointerId);
     if (e.clientX - r.left < r.width * .45 && stickId === null) { stickId = e.pointerId; stickO = { x: e.clientX, y: e.clientY }; stick.style.left = (e.clientX - r.left - 60) + 'px'; stick.style.top = (e.clientY - r.top - 60) + 'px'; stick.classList.add('on'); }
     else if (lookId === null) { lookId = e.pointerId; lookP = { x: e.clientX, y: e.clientY }; }
@@ -313,7 +385,7 @@ export function initGame(onNext) {
       if (l > m) { dx *= m / l; dy *= m / l; }
       knob.style.transform = `translate(${dx}px,${dy}px)`; joy = { x: dx / m, y: -dy / m };
     } else if (e.pointerId === lookId) {
-      yaw -= (e.clientX - lookP.x) * .008; pitch = Math.max(.05, Math.min(1.35, pitch + (e.clientY - lookP.y) * .005)); lookP = { x: e.clientX, y: e.clientY };
+      look((e.clientX - lookP.x) * .008, (e.clientY - lookP.y) * .005); lookP = { x: e.clientX, y: e.clientY };
     }
   });
   const endTouch = (e) => { if (e.pointerId === stickId) { stickId = null; joy = { x: 0, y: 0 }; knob.style.transform = ''; stick.classList.remove('on'); } if (e.pointerId === lookId) lookId = null; };
@@ -364,18 +436,26 @@ export function initGame(onNext) {
     // cień na podłożu
     let sy = Math.floor(pos.y); while (sy > minY - 2 && !isSolid(Math.floor(pos.x), sy - 1, Math.floor(pos.z))) sy--;
     shadow.position.set(pos.x, sy + .02, pos.z); shadow.material.opacity = Math.max(.08, .4 - (pos.y - sy) * .06);
-    // kamera za graczem
-    camT.set(pos.x, pos.y + 1.3, pos.z);
     const dx = Math.sin(yaw) * Math.cos(pitch), dyCam = Math.sin(pitch), dz = Math.cos(yaw) * Math.cos(pitch);
-    let available = dist;
-    for (let d = .2; d <= dist; d += .2) {
-      if (isSolid(Math.floor(camT.x + dx * d), Math.floor(camT.y + dyCam * d), Math.floor(camT.z + dz * d))) {
-        available = Math.max(.08, d - .22); break;
+    player.visible = !fp; shadow.visible = !fp;
+    if (fp) {
+      // pierwsza osoba: oczy na wysokości 1,62 bloku, patrzymy w stronę przeciwną do kamery zza pleców
+      camera.position.set(pos.x, pos.y + 1.62, pos.z);
+      camT.set(pos.x - dx, pos.y + 1.62 - dyCam, pos.z - dz);
+      camera.lookAt(camT);
+    } else {
+      // kamera za graczem
+      camT.set(pos.x, pos.y + 1.3, pos.z);
+      let available = dist;
+      for (let d = .2; d <= dist; d += .2) {
+        if (isSolid(Math.floor(camT.x + dx * d), Math.floor(camT.y + dyCam * d), Math.floor(camT.z + dz * d))) {
+          available = Math.max(.08, d - .22); break;
+        }
       }
+      targetCamera.set(camT.x + dx * available, camT.y + dyCam * available, camT.z + dz * available);
+      camera.position.lerp(targetCamera, snap || reduced || available < dist ? 1 : .2);
+      camera.lookAt(camT);
     }
-    targetCamera.set(camT.x + dx * available, camT.y + dyCam * available, camT.z + dz * available);
-    camera.position.lerp(targetCamera, snap || reduced || available < dist ? 1 : .2);
-    camera.lookAt(camT);
     if (!reduced) for (const m of lavaMats) m.emissiveIntensity = .7 + Math.sin(now / 300) * .25;
     renderer.render(scene, camera);
   }
