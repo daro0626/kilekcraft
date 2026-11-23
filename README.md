@@ -12,7 +12,7 @@ Polska, fanowska akademia serwerowców Minecraft Java. Animowana, ale przede wsz
 | `lifesteal.html` | Przepis „LifeSteal z ekonomią serc” w 9 szortach: serca komendą albo pluginem |
 | `hosting.html` | Doradca: 4 pytania → 3 najlepsze hostingi z kosztem miesięcznym |
 | `komendy.html` | Kreator komend z podglądem w „grze”: 18 rodzajów (przedmioty, efekty, napisy, teleport, zasady, biała lista, serca, tryb gry, pora dnia, pogoda, trudność, moby, zaklęcia, XP, usuwanie bytów, czyszczenie ekwipunku, granica świata, spawn) |
-| `budowle.html` | 20 budowli 3D w 6 kategoriach (Średniowiecze, Natura, Fantasy, Przetrwanie, Miasto i kosmos, LifeSteal), warstwa po warstwie, z mapą i listą bloków, 2 filmy i datapack do każdej budowli |
+| `budowle.html` | 23 budowle 3D w 6 kategoriach (Średniowiecze, Natura, Fantasy, Przetrwanie, Miasto i kosmos, LifeSteal), warstwa po warstwie, z mapą i listą bloków, 2 filmy i datapack do każdej budowli |
 | `edytor.html` | Edytor 3D z symetrią i cofaniem, eksport do datapacka (całość, animacja albo warstwa po warstwie) |
 | `komnaty.html` | Generator parkourów, gór do wspinaczki i labiryntów 1–10 z kodem komnaty |
 | `gry.html` | Zbiór gier: wyścig parkour, Znajdź błąd, koło wyzwań, wygląd serwera |
