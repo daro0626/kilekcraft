@@ -1,0 +1,68 @@
+{
+  "_opis": "Dane kreatora komend. Wersja docelowa: Minecraft Java 26.x (oraz 1.21.11). Wszystkie szablony mają status 'czeka' do czasu, aż tools/test_commands.py wykona je na serwerze testowym i zapisze wynik w data/testy.json.",
+  "wersje": [
+    { "id": "nowa", "nazwa": "Java 1.21.11 i nowsze (26.x)", "domyslna": true },
+    { "id": "stara", "nazwa": "Java 1.21 – 1.21.10" }
+  ],
+  "szablony": [
+    { "id": "give", "nazwa": "Daj przedmiot", "ikona": "◆", "opis": "Wrzuca przedmiot prosto do ekwipunku.", "zrodlo": "https://minecraft.wiki/w/Commands/give" },
+    { "id": "effect", "nazwa": "Efekt", "ikona": "✦", "opis": "Daje graczowi efekt, np. szybkość albo widzenie w ciemności.", "zrodlo": "https://minecraft.wiki/w/Commands/effect" },
+    { "id": "title", "nazwa": "Napis na ekranie", "ikona": "T", "opis": "Wielki napis na środku ekranu, idealny na start eventu.", "zrodlo": "https://minecraft.wiki/w/Commands/title" },
+    { "id": "tp", "nazwa": "Teleport", "ikona": "➜", "opis": "Przenosi gracza na podane współrzędne.", "zrodlo": "https://minecraft.wiki/w/Commands/teleport" },
+    { "id": "gamerule", "nazwa": "Zasady gry", "ikona": "⚙", "opis": "Zmienia zasady świata. Od 1.21.11 mają nowe nazwy!", "zrodlo": "https://minecraft.wiki/w/Game_rule" },
+    { "id": "whitelist", "nazwa": "Biała lista", "ikona": "✓", "opis": "Wpuszcza na serwer tylko twoich kolegów.", "zrodlo": "https://minecraft.wiki/w/Commands/whitelist" }
+  ],
+  "przedmioty": [
+    { "id": "diamond", "nazwa": "Diament", "kolor": "#5fe3e0", "max": 64 },
+    { "id": "netherite_ingot", "nazwa": "Sztabka netherytu", "kolor": "#4a3f45", "max": 64 },
+    { "id": "golden_apple", "nazwa": "Złote jabłko", "kolor": "#f2c230", "max": 64 },
+    { "id": "enchanted_golden_apple", "nazwa": "Zaklęte złote jabłko", "kolor": "#ffd84a", "max": 64 },
+    { "id": "totem_of_undying", "nazwa": "Totem nieśmiertelności", "kolor": "#e8c35a", "max": 1 },
+    { "id": "ender_pearl", "nazwa": "Perła Kresu", "kolor": "#1f8a7a", "max": 16 },
+    { "id": "diamond_sword", "nazwa": "Diamentowy miecz", "kolor": "#5fe3e0", "max": 1 },
+    { "id": "elytra", "nazwa": "Elytra", "kolor": "#9a8fb8", "max": 1 },
+    { "id": "firework_rocket", "nazwa": "Fajerwerk", "kolor": "#e0473f", "max": 64 },
+    { "id": "torch", "nazwa": "Pochodnia", "kolor": "#ffb347", "max": 64 },
+    { "id": "cooked_beef", "nazwa": "Stek", "kolor": "#8b4a2b", "max": 64 },
+    { "id": "experience_bottle", "nazwa": "Butelka z doświadczeniem", "kolor": "#9cff5a", "max": 64 },
+    { "id": "obsidian", "nazwa": "Obsydian", "kolor": "#2a1d40", "max": 64 },
+    { "id": "flint_and_steel", "nazwa": "Krzesiwo", "kolor": "#9a9ca3", "max": 1 }
+  ],
+  "efekty": [
+    { "id": "speed", "nazwa": "Szybkość", "kolor": "#7cd0ff" },
+    { "id": "jump_boost", "nazwa": "Zwiększony skok", "kolor": "#8cff6b" },
+    { "id": "night_vision", "nazwa": "Widzenie w ciemności", "kolor": "#3f5dff" },
+    { "id": "regeneration", "nazwa": "Regeneracja", "kolor": "#ff7fd1" },
+    { "id": "strength", "nazwa": "Siła", "kolor": "#ff9d2e" },
+    { "id": "resistance", "nazwa": "Odporność", "kolor": "#9aa6c2" },
+    { "id": "fire_resistance", "nazwa": "Odporność na ogień", "kolor": "#ff8a3d" },
+    { "id": "haste", "nazwa": "Pośpiech", "kolor": "#ffe14a" },
+    { "id": "slow_falling", "nazwa": "Powolne opadanie", "kolor": "#f3f0ff" },
+    { "id": "water_breathing", "nazwa": "Oddychanie pod wodą", "kolor": "#2ea3ff" },
+    { "id": "invisibility", "nazwa": "Niewidzialność", "kolor": "#c9d2e6" },
+    { "id": "glowing", "nazwa": "Świecenie", "kolor": "#fff6b0" }
+  ],
+  "kolory_tekstu": [
+    { "id": "white", "nazwa": "biały", "hex": "#FFFFFF" },
+    { "id": "yellow", "nazwa": "żółty", "hex": "#FFFF55" },
+    { "id": "gold", "nazwa": "złoty", "hex": "#FFAA00" },
+    { "id": "red", "nazwa": "czerwony", "hex": "#FF5555" },
+    { "id": "dark_red", "nazwa": "ciemnoczerwony", "hex": "#AA0000" },
+    { "id": "light_purple", "nazwa": "różowy", "hex": "#FF55FF" },
+    { "id": "dark_purple", "nazwa": "fioletowy", "hex": "#AA00AA" },
+    { "id": "blue", "nazwa": "niebieski", "hex": "#5555FF" },
+    { "id": "aqua", "nazwa": "błękitny", "hex": "#55FFFF" },
+    { "id": "green", "nazwa": "zielony", "hex": "#55FF55" },
+    { "id": "dark_green", "nazwa": "ciemnozielony", "hex": "#00AA00" },
+    { "id": "gray", "nazwa": "szary", "hex": "#AAAAAA" }
+  ],
+  "zasady": [
+    { "nowa": "keep_inventory", "stara": "keepInventory", "typ": "bool", "opis": "Po śmierci zatrzymujesz ekwipunek i doświadczenie.", "uwaga": "Na serwerze LifeSteal zastanów się, czy na pewno. Część zabawy to strata przedmiotów." },
+    { "nowa": "mob_griefing", "stara": "mobGriefing", "typ": "bool", "opis": "Czy moby mogą niszczyć bloki, np. creeper wybuchający przy domu." },
+    { "nowa": "advance_time", "stara": "doDaylightCycle", "typ": "bool", "opis": "Czy płynie czas. Wartość false zatrzymuje dzień i noc." },
+    { "nowa": "spawn_mobs", "stara": "doMobSpawning", "typ": "bool", "opis": "Czy moby same się pojawiają." },
+    { "nowa": "players_sleeping_percentage", "stara": "playersSleepingPercentage", "typ": "int", "min": 0, "max": 100, "opis": "Ile procent graczy musi spać, żeby przeskoczyć noc. Przy 0 wystarczy jeden śpiący gracz." },
+    { "nowa": "natural_health_regeneration", "stara": "naturalRegeneration", "typ": "bool", "opis": "Czy zdrowie samo się odnawia, gdy jesteś najedzony." },
+    { "nowa": "fire_spread_radius_around_player", "stara": null, "stara_uwaga": "Zastępuje dawne doFireTick (true/false)", "typ": "int", "min": -1, "max": 256, "opis": "Promień rozprzestrzeniania ognia wokół gracza. 0 wyłącza rozprzestrzenianie, -1 oznacza wszędzie." }
+  ]
+}

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Doradca hostingu — KILEKCRAFT</title>
+<meta name="description" content="Gdzie postawić serwer Minecraft Java? Odpowiedz na 4 pytania i porównaj Aternos, exaroton i polskie hostingi z cenami i datą sprawdzenia.">
+<meta name="theme-color" content="#0b1020">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<a class="skip" href="#main">Przejdź do treści</a>
+<header class="top">
+  <div class="wrap">
+    <a class="logo" href="index.html" aria-label="KILEKCRAFT — strona główna"><span class="cube"></span><span>KILEK<b>CRAFT</b></span></a>
+    <button class="menu-btn" aria-expanded="false" aria-controls="nav">Menu</button>
+    <nav class="nav" id="nav" aria-label="Główne">
+      <a href="serwer.html">Serwer</a>
+      <a href="hosting.html" aria-current="page">Hosting</a>
+      <a href="komendy.html">Komendy</a>
+      <a href="budowle.html">Budowle</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+  <div class="page-head">
+    <div class="eyebrow">02 · Doradca hostingu</div>
+    <h1 data-anim="drop">Gdzie postawić serwer?</h1>
+    <p class="lead">Odpowiedz na cztery pytania, a pokażę najlepsze miejsca i koszt miesięczny. Ceny mają datę sprawdzenia, bo hostingi często je zmieniają.</p>
+  </div>
+
+  <div class="adv">
+    <form class="panel pad corner" id="quiz" aria-label="Pytania doradcy">
+      <div class="field">
+        <span class="lbl">1. Ile osób gra naraz?</span>
+        <div class="chips" role="radiogroup">
+          <label class="chip"><input type="radio" name="gracze" value="5" checked><span>do 5</span></label>
+          <label class="chip"><input type="radio" name="gracze" value="10"><span>6–10</span></label>
+          <label class="chip"><input type="radio" name="gracze" value="20"><span>11–20</span></label>
+          <label class="chip"><input type="radio" name="gracze" value="40"><span>ponad 20</span></label>
+        </div>
+      </div>
+      <div class="field">
+        <span class="lbl">2. Jak często serwer ma działać?</span>
+        <div class="chips">
+          <label class="chip"><input type="radio" name="czas" value="24"><span>weekendy (ok. 6 h/tydz.)</span></label>
+          <label class="chip"><input type="radio" name="czas" value="75" checked><span>codziennie po szkole (2–3 h)</span></label>
+          <label class="chip"><input type="radio" name="czas" value="180"><span>codziennie długo (ok. 6 h)</span></label>
+          <label class="chip"><input type="radio" name="czas" value="720"><span>cały czas 24/7</span></label>
+        </div>
+      </div>
+      <div class="field">
+        <span class="lbl">3. Co będzie na serwerze?</span>
+        <div class="chips">
+          <label class="chip"><input type="radio" name="dodatki" value="0"><span>czysty Minecraft</span></label>
+          <label class="chip"><input type="radio" name="dodatki" value="1"><span>kilka pluginów</span></label>
+          <label class="chip"><input type="radio" name="dodatki" value="2" checked><span>LifeSteal + ekonomia + sklep</span></label>
+          <label class="chip"><input type="radio" name="dodatki" value="3"><span>duży modpack</span></label>
+        </div>
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <span class="lbl">4. Ile można wydać miesięcznie?</span>
+        <div class="chips">
+          <label class="chip"><input type="radio" name="budzet" value="0"><span>0 zł</span></label>
+          <label class="chip"><input type="radio" name="budzet" value="20" checked><span>do 20 zł</span></label>
+          <label class="chip"><input type="radio" name="budzet" value="50"><span>do 50 zł</span></label>
+          <label class="chip"><input type="radio" name="budzet" value="999"><span>więcej</span></label>
+        </div>
+      </div>
+    </form>
+
+    <aside class="panel pad corner ram" aria-live="polite">
+      <div class="eyebrow" style="color:var(--emerald)">Potrzebny RAM</div>
+      <div class="ram-big"><span id="ramNum">4</span> GB</div>
+      <div class="ram-bar" id="ramBar" aria-hidden="true"></div>
+      <p class="muted" id="ramWhy" style="font-size:15px;margin-top:12px"></p>
+      <p class="note" style="font-size:14px;margin:0">To szacunek na oko, a nie gwarancja. Jeśli serwer się tnie, najpierw sprawdź pluginy, a dopiero potem dokładaj RAM.</p>
+    </aside>
+  </div>
+
+  <h2 data-anim style="margin-top:56px">Twoje najlepsze opcje</h2>
+  <div class="results" id="results"></div>
+
+  <section style="margin-top:64px">
+    <h2 data-anim="slide">Wszystkie opcje</h2>
+    <p class="muted">Abonamenty porównane na planie 8 GB, bo tylko takie zestawienie było dostępne. Mniejsze plany zwykle są tańsze, więc sprawdź je u hosta.</p>
+    <div class="tbl-wrap panel"><table class="tbl" id="allTbl"></table></div>
+    <p class="note" style="margin-top:18px">Ceny abonamentów pochodzą z porównania z 10 listopada 2026, które przygotował jeden z hostów (Space-Node). Przed zakupem otwórz stronę hosta i sprawdź cenę w koszyku, razem z VAT.</p>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="disc">NOT AN OFFICIAL MINECRAFT SERVICE. NOT APPROVED BY OR ASSOCIATED WITH MOJANG OR MICROSOFT.</div>
+    <p>KILEKCRAFT to fanowski projekt edukacyjny. Nie zarabiamy na linkach do hostingów. Strona nie zbiera danych. © <span data-year></span></p>
+  </div>
+</footer>
+<script type="module" src="assets/js/hosting.js"></script>
+</body>
+</html>

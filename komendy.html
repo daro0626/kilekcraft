@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kreator komend Minecraft Java — KILEKCRAFT</title>
+<meta name="description" content="Twórz komendy Minecraft Java z podglądem: /give, /effect, /title, /tp, /gamerule (nowe nazwy od 1.21.11) i biała lista.">
+<meta name="theme-color" content="#0b1020">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<a class="skip" href="#main">Przejdź do treści</a>
+<header class="top">
+  <div class="wrap">
+    <a class="logo" href="index.html" aria-label="KILEKCRAFT — strona główna"><span class="cube"></span><span>KILEK<b>CRAFT</b></span></a>
+    <button class="menu-btn" aria-expanded="false" aria-controls="nav">Menu</button>
+    <nav class="nav" id="nav" aria-label="Główne">
+      <a href="serwer.html">Serwer</a>
+      <a href="hosting.html">Hosting</a>
+      <a href="komendy.html" aria-current="page">Komendy</a>
+      <a href="budowle.html">Budowle</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+  <div class="page-head">
+    <div class="eyebrow">03 · Kreator komend</div>
+    <h1 data-anim="drop">Komenda z podglądem</h1>
+    <p class="lead">Wybierz, co ma się stać, a zobaczysz, jak to wygląda w grze. Potem skopiuj komendę i wklej ją w czacie (klawisz T) albo w konsoli serwera.</p>
+  </div>
+
+  <div class="ver-row">
+    <label class="lbl-inline" for="ver">Twoja wersja gry:</label>
+    <select id="ver" style="max-width:300px"></select>
+    <a class="muted small" href="#jak-sprawdzic">Jak sprawdzić wersję?</a>
+  </div>
+
+  <div class="tabs" id="tabs" role="tablist" aria-label="Rodzaj komendy"></div>
+
+  <div class="cmd-grid">
+    <form class="panel pad corner" id="form" aria-label="Ustawienia komendy" onsubmit="return false"></form>
+    <div class="cmd-right">
+      <div class="screen" id="screen" aria-hidden="true">
+        <canvas id="land" width="160" height="90"></canvas>
+        <div class="scr-layer" id="scr"></div>
+      </div>
+      <div class="console" id="out" aria-live="polite"></div>
+      <div class="copy-row">
+        <button class="btn em" id="copy" type="button">Kopiuj komendę</button>
+        <button class="btn ghost sm" id="ai" type="button">Zapytaj AI</button>
+        <span id="status"></span>
+      </div>
+      <p class="muted small" id="desc" style="margin-top:12px"></p>
+    </div>
+  </div>
+
+  <section class="panel pad" id="jak-sprawdzic" style="margin-top:48px">
+    <h3>Jak sprawdzić wersję i co oznacza status?</h3>
+    <p class="muted">Wersję widzisz w launcherze, w lewym dolnym rogu ekranu tytułowego gry albo w panelu hostingu. Komenda musi pasować do wersji <b>serwera</b>.</p>
+    <p><span class="badge wait">czeka na test</span> Komendę ułożyliśmy według dokumentacji, ale jeszcze nie przeszła automatycznego testu na serwerze.<br>
+    <span class="badge ok">sprawdzone</span> Komenda zadziałała na serwerze testowym. Obok jest wersja i data testu.</p>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="disc">NOT AN OFFICIAL MINECRAFT SERVICE. NOT APPROVED BY OR ASSOCIATED WITH MOJANG OR MICROSOFT.</div>
+    <p>KILEKCRAFT to fanowski projekt edukacyjny. Komendy działają tylko tam, gdzie masz uprawnienia (OP albo konsola). © <span data-year></span></p>
+  </div>
+</footer>
+<script type="module" src="assets/js/komendy.js"></script>
+</body>
+</html>

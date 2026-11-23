@@ -1,0 +1,4 @@
+{
+  "_opis": "Wyniki automatycznego testu komend. Plik nadpisuje tools/test_commands.py (GitHub Actions). Pusty = nic jeszcze nie przetestowano.",
+  "wyniki": {}
+}

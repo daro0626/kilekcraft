@@ -1,0 +1,47 @@
+# KILEKCRAFT
+
+Polska, fanowska akademia serwerowców Minecraft Java. Animowana, ale przede wszystkim użyteczna.
+
+> NOT AN OFFICIAL MINECRAFT SERVICE. NOT APPROVED BY OR ASSOCIATED WITH MOJANG OR MICROSOFT.
+
+## Co jest w środku
+| Strona | Co robi |
+|---|---|
+| `index.html` | Napis z bloków, które spadają i reagują na kursor, tablica split-flap i obracająca się wyspa 3D |
+| `serwer.html` | Przepis „Pierwszy serwer z kolegami” w 9 szortach |
+| `hosting.html` | Doradca: 4 pytania → 3 najlepsze hostingi z kosztem miesięcznym |
+| `komendy.html` | Kreator komend z podglądem w „grze” i nowymi nazwami gamerule |
+| `budowle.html` | 4 wielkie budowle 3D warstwa po warstwie, z mapą i listą bloków |
+
+## Uruchomienie lokalnie
+```bash
+python3 -m http.server 8000
+# otwórz http://localhost:8000
+```
+Nie ma żadnej instalacji ani budowania. Wszystko (Three.js, czcionki) leży w repozytorium.
+
+## Publikacja
+GitHub Pages: Settings → Pages → Source: **GitHub Actions**. Workflow `pages.yml` zrobi resztę.
+
+## Weryfikacja komend
+`tools/test_commands.py` uruchamia prawdziwy serwer i sprawdza każdą komendę z kreatora. W GitHub Actions: zakładka Actions → „Test komend na serwerze” → Run workflow.
+
+## Dla AI (Codex, Claude)
+Najpierw przeczytaj **`AGENTS.md`**, a potem `docs/ZADANIA.md`.
+
+## Struktura
+```
+assets/css/style.css     cały styl (tokeny w :root)
+assets/js/core.js        animacje liter, split-flap, kopiowanie, XP
+assets/js/blocktitle.js  napis z bloków (własny font 5×7)
+assets/js/voxel.js       silnik 3D (Three.js) z własnymi teksturami
+assets/js/builds.js      generatory budowli
+assets/js/*.js           logika poszczególnych stron
+data/*.json              treść, która się starzeje (ceny, komendy, wyniki testów)
+docs/                    wizja, styl, dane, zadania, źródła
+tools/test_commands.py   test komend na prawdziwym serwerze
+vendor/                  Three.js 0.187.0 (licencja MIT)
+```
+
+## Licencje
+Three.js: MIT (`vendor/THREE-LICENSE`). Czcionki Jersey 10 i Atkinson Hyperlegible: SIL OFL (`assets/fonts/`).

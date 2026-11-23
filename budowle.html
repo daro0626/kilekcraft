@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wielkie budowle warstwa po warstwie — KILEKCRAFT</title>
+<meta name="description" content="Gigantyczny miecz, latająca wyspa, wieża i arena LifeSteal w 3D. Oglądaj warstwa po warstwie i zbieraj bloki z listą materiałów.">
+<meta name="theme-color" content="#0b1020">
+<link rel="stylesheet" href="assets/css/style.css">
+<script type="importmap">{"imports":{"three":"./vendor/three.module.js","three/addons/":"./vendor/addons/"}}</script>
+</head>
+<body>
+<a class="skip" href="#main">Przejdź do treści</a>
+<header class="top">
+  <div class="wrap">
+    <a class="logo" href="index.html" aria-label="KILEKCRAFT — strona główna"><span class="cube"></span><span>KILEK<b>CRAFT</b></span></a>
+    <button class="menu-btn" aria-expanded="false" aria-controls="nav">Menu</button>
+    <nav class="nav" id="nav" aria-label="Główne">
+      <a href="serwer.html">Serwer</a>
+      <a href="hosting.html">Hosting</a>
+      <a href="komendy.html">Komendy</a>
+      <a href="budowle.html" aria-current="page">Budowle</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+  <div class="page-head">
+    <div class="eyebrow">04 · Wielkie budowle</div>
+    <h1 data-anim="drop">Buduj warstwa po warstwie</h1>
+    <p class="lead">Obracaj palcem albo myszką. Suwakiem wybierasz warstwę, a mapa i lista bloków pokazują, co postawić. Najlepiej mieć tę stronę na telefonie obok komputera.</p>
+  </div>
+
+  <div class="picker" id="picker" role="tablist" aria-label="Wybór budowli"></div>
+
+  <div class="bld">
+    <div class="viewer panel corner" id="viewer">
+      <div class="v-info"><b id="bName"></b><span id="bSize" class="muted"></span></div>
+      <div class="v-poster" id="poster">Ładowanie 3D…</div>
+      <div class="v-ctrl">
+        <button class="btn sm" id="play" type="button">▶ Zbuduj animacją</button>
+        <button class="btn sm ghost" id="all" type="button">Pokaż całość</button>
+      </div>
+    </div>
+
+    <aside class="side">
+      <div class="panel pad">
+        <div class="layer-head">
+          <button class="btn sm ghost" id="down" type="button" aria-label="Warstwa niżej">▼</button>
+          <div class="layer-num"><span class="muted">Warstwa</span><b id="lNum">—</b><span class="muted" id="lMax"></span></div>
+          <button class="btn sm ghost" id="up" type="button" aria-label="Warstwa wyżej">▲</button>
+        </div>
+        <input type="range" id="layer" min="0" max="10" value="10" aria-label="Wybór warstwy">
+        <canvas id="map" class="map" aria-label="Mapa bieżącej warstwy z góry"></canvas>
+        <p class="muted small" style="margin:8px 0 0">Mapa z góry. Jasne kratki to ta warstwa, ciemne to warstwa niżej.</p>
+      </div>
+      <div class="panel pad" style="margin-top:14px">
+        <div class="mat-tabs"><button class="tab" data-m="layer" aria-selected="false">Ta warstwa</button><button class="tab" data-m="all" aria-selected="true">Cała budowla</button></div>
+        <ul class="mats" id="mats"></ul>
+      </div>
+    </aside>
+  </div>
+
+  <section class="panel pad note-soon" style="margin-top:40px">
+    <h3>Wkrótce: twoje budowle z Kilek World</h3>
+    <p class="muted">Zapiszesz budowlę w grze do pliku <code>.schem</code> (np. WorldEdit), a ona pojawi się tutaj razem z komnatami i spawnem. Ta funkcja jest w planie, jeszcze nie działa.</p>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="disc">NOT AN OFFICIAL MINECRAFT SERVICE. NOT APPROVED BY OR ASSOCIATED WITH MOJANG OR MICROSOFT.</div>
+    <p>Budowle i tekstury bloków są własnym projektem KILEKCRAFT. Kolory tylko przypominają bloki z gry. © <span data-year></span></p>
+  </div>
+</footer>
+<script type="module" src="assets/js/budowle.js"></script>
+</body>
+</html>

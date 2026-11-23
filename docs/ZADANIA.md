@@ -1,0 +1,70 @@
+# Zadania: co dalej
+
+Oznaczenia: **[Codex]** kod, testy, wydajność · **[Claude]** UX, treść, styl, przegląd · **[Piotrek]** test w grze · **[Tata]** decyzja lub zakup.
+
+Każde zadanie kończy się dopiero, gdy spełnia kryteria akceptacji **oraz** budżety z `AGENTS.md`.
+
+---
+
+## C: weryfikacja (najpierw!)
+
+### C1 [Codex] Pierwsze uruchomienie testu komend w CI
+- Uruchom workflow „Test komend na serwerze” ręcznie: `version=latest`, `engine=vanilla`, potem `version=26.3`, `engine=paper`.
+- Skrypt był pisany bez dostępu do sieci Mojang i PaperMC. Sprawdź pobieranie (szczególnie strukturę API `fill.papermc.io/v3`) i popraw je, jeśli trzeba.
+- **Akceptacja:** `data/testy.json` zawiera wyniki dla 6 szablonów, a kreator pokazuje „sprawdzone · 26.3” (albo konkretną listę błędów do poprawy).
+
+### C2 [Codex] Testy przeglądarkowe
+- Playwright: każda z 5 stron otwiera się bez błędów konsoli (desktop i mobile), kreator generuje oczekiwane komendy (porównanie z `commands()` z Pythona), doradca zwraca 3 wyniki dla każdej kombinacji odpowiedzi.
+- **Akceptacja:** workflow `test-strony.yml` zielony.
+
+### C3 [Codex] Lighthouse w CI
+- **Akceptacja:** raport dla 5 stron, progi z AGENTS.md spełnione albo lista poprawek.
+
+## A: treść
+
+### A1 [Piotrek + Tata] Test przepisu „Pierwszy serwer”
+- Piotrek przechodzi 9 szortów i stawia serwer sam (dorosły tylko przy koncie i EULA).
+- Zapisz, gdzie się zaciął. **Akceptacja:** status w `serwer.html` zmieniony na „sprawdzone przez Piotrka · data · wersja”.
+
+### A2 [Claude] Odświeżenie cen hostingów
+- Sprawdź każdą pozycję w `data/hostingi.json` na stronie hosta (z VAT, w koszyku). Uzupełnij mniejsze plany (2–4 GB), bo dziś są tylko plany 8 GB. Wyjaśnij limity Minehut.
+- **Akceptacja:** każda cena ma datę z ostatnich 30 dni i link do strony hosta.
+
+### A3 [Claude] Przepis „LifeSteal z ekonomią” w szortach
+- Najpierw wybór konkretnych pluginów (LifeSteal, ekonomia, `/sell` z GUI, aukcje) z wersjami pod Paper 26.x. Każdy plugin z linkiem do Hangar/Modrinth i datą.
+- Nether i End włączone.
+- **Akceptacja:** przepis przetestowany na serwerze testowym, potem przez Piotrka.
+
+## B: budowle
+
+### B1 [Claude] Więcej wielkich budowli
+- Pomysły dla Piotrka: smok z kamienia oplatający górę, statek na wodospadzie, zamek z mostem zwodzonym, wulkan z lawą.
+- Bez postaci i mobów z gry (np. Creepera) na stronie. To elementy marki.
+- **Akceptacja:** każda budowla < 15 000 bloków, płynna na telefonie, z opisem.
+
+### B2 [Codex] Wydajność przeglądarki
+- Ukrywanie niewidocznych ścian (bloki otoczone z 6 stron nie muszą być rysowane), mniej instancji przy dużych budowlach.
+- **Akceptacja:** 60 kl./s na średnim Androidzie dla budowli 15 000 bloków.
+
+### B3 [Codex] Import `.schem` z Kilek World
+- Odczyt formatu Sponge Schematic v2/v3 (NBT, gzip) w przeglądarce, mapowanie nieznanych bloków na najbliższy kolor.
+- Budowle z Kilek World (spawn, lobby, komnaty) jako pliki w `data/budowle/`.
+- **Akceptacja:** spawn Kilek World wyświetla się poprawnie, a lista materiałów zgadza się z grą.
+
+### B4 [Claude] Komnaty-wyzwania z Kilek World
+- Komnaty V1/V2 były za łatwe (około 20 sekund). Zaprojektować 10 trudniejszych na papierze, z rosnącą trudnością, a potem pokazać je w przeglądarce.
+
+## D: oprawa
+
+### D1 [Claude] Ikony przedmiotów w kreatorze
+- Własne pikselowe ikony 16×16 (nie z gry) zamiast kolorowych kwadratów.
+
+### D2 [Codex] Tryb offline (PWA)
+- Strona działa bez internetu na telefonie obok komputera.
+
+---
+
+## Decyzje dla właściciela (gdy przyjdzie czas)
+1. Domena i hosting strony: GitHub Pages wystarczy na start (darmowy, workflow jest gotowy).
+2. Czy pokazywać publicznie budowle z Kilek World (bez nicków i adresu serwera)?
+3. Kiedy otworzyć stronę dla innych graczy: po A1 i C1, nie wcześniej.
