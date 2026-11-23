@@ -1,4 +1,549 @@
 {
-  "_opis": "Wyniki automatycznego testu komend. Plik nadpisuje tools/test_commands.py (GitHub Actions). Pusty = nic jeszcze nie przetestowano.",
-  "wyniki": {}
+  "_opis": "Wyniki automatycznego testu komend. Plik nadpisuje tools/test_commands.py.",
+  "serwer": "vanilla 26.3",
+  "data": "2026-11-23",
+  "wyniki": {
+    "give": {
+      "ok": true,
+      "wersja": "26.3",
+      "silnik": "vanilla 26.3",
+      "data": "2026-11-23",
+      "przetestowano": 28,
+      "bledy": []
+    },
+    "effect": {
+      "ok": true,
+      "wersja": "26.3",
+      "silnik": "vanilla 26.3",
+      "data": "2026-11-23",
+      "przetestowano": 24,
+      "bledy": []
+    },
+    "title": {
+      "ok": true,
+      "wersja": "26.3",
+      "silnik": "vanilla 26.3",
+      "data": "2026-11-23",
+      "przetestowano": 14,
+      "bledy": []
+    },
+    "tp": {
+      "ok": true,
+      "wersja": "26.3",
+      "silnik": "vanilla 26.3",
+      "data": "2026-11-23",
+      "przetestowano": 3,
+      "bledy": []
+    },
+    "gamerule": {
+      "ok": true,
+      "wersja": "26.3",
+      "silnik": "vanilla 26.3",
+      "data": "2026-11-23",
+      "przetestowano": 7,
+      "bledy": []
+    },
+    "whitelist": {
+      "ok": true,
+      "wersja": "26.3",
+      "silnik": "vanilla 26.3",
+      "data": "2026-11-23",
+      "przetestowano": 6,
+      "bledy": []
+    }
+  },
+  "szczegoly": [
+    {
+      "szablon": "give",
+      "komenda": "give @a minecraft:diamond 1",
+      "odpowiedz": "No player was found",
+      "ok": true
+    },
+    {
+      "szablon": "give",
+      "komenda": "give @a minecraft:diamond 64",
+      "odpowiedz": "No player was found",
+      "ok": true
+    },
+    {
+      "szablon": "give",
+      "komenda": "give @a minecraft:netherite_ingot 1",
+      "odpowiedz": "No player was found",
+      "ok": true
+    },
+    {
+      "szablon": "give",
+      "komenda": "give @a minecraft:netherite_ingot 64",
+      "odpowiedz": "No player was found",
+      "ok": true
+    },
+    {
+      "szablon": "give",
+      "komenda": "give @a minecraft:golden_apple 1",
+      "odpowiedz": "No player was found",
+      "ok": true
+    },
+    {
+      "szablon": "give",
+      "komenda": "give @a minecraft:golden_apple 64",
+      "odpowiedz": "No player was found",
+      "ok": true
+    },
+    {
+      "szablon": "give",
+      "komenda": "give @a minecraft:enchanted_golden_apple 1",
+      "odpowiedz": "No player was found",
+      "ok": true
+    },
+    {
+      "szablon": "give",
+      "komenda": "give @a minecraft:enchanted_golden_apple 64",
+      "odpowiedz": "No player was found",
+      "ok": true
+    },
+    {
+      "szablon": "give",
+      "komenda": "give @a minecraft:totem_of_undying 1",
+      "odpowiedz": "No player was found",
+      "ok": true
+    },
+    {
+      "szablon": "give",
+      "komenda": "give @a minecraft:totem_of_undying 64",
+      "odpowiedz": "No player was found",
+      "ok": true
+    },
+    {
+      "szablon": "give",
+      "komenda": "give @a minecraft:ender_pearl 1",
+      "odpowiedz": "No player was found",
+      "ok": true
+    },
+    {
+      "szablon": "give",
+      "komenda": "give @a minecraft:ender_pearl 64",
+      "odpowiedz": "No player was found",
+      "ok": true
+    },
+    {
+      "szablon": "give",
+      "komenda": "give @a minecraft:diamond_sword 1",
+      "odpowiedz": "No player was found",
+      "ok": true
+    },
+    {
+      "szablon": "give",
+      "komenda": "give @a minecraft:diamond_sword 64",
+      "odpowiedz": "No player was found",
+      "ok": true
+    },
+    {
+      "szablon": "give",
+      "komenda": "give @a minecraft:elytra 1",
+      "odpowiedz": "No player was found",
+      "ok": true
+    },
+    {
+      "szablon": "give",
+      "komenda": "give @a minecraft:elytra 64",
+      "odpowiedz": "No player was found",
+      "ok": true
+    },
+    {
+      "szablon": "give",
+      "komenda": "give @a minecraft:firework_rocket 1",
+      "odpowiedz": "No player was found",
+      "ok": true
+    },
+    {
+      "szablon": "give",
+      "komenda": "give @a minecraft:firework_rocket 64",
+      "odpowiedz": "No player was found",
+      "ok": true
+    },
+    {
+      "szablon": "give",
+      "komenda": "give @a minecraft:torch 1",
+      "odpowiedz": "No player was found",
+      "ok": true
+    },
+    {
+      "szablon": "give",
+      "komenda": "give @a minecraft:torch 64",
+      "odpowiedz": "No player was found",
+      "ok": true
+    },
+    {
+      "szablon": "give",
+      "komenda": "give @a minecraft:cooked_beef 1",
+      "odpowiedz": "No player was found",
+      "ok": true
+    },
+    {
+      "szablon": "give",
+      "komenda": "give @a minecraft:cooked_beef 64",
+      "odpowiedz": "No player was found",
+      "ok": true
+    },
+    {
+      "szablon": "give",
+      "komenda": "give @a minecraft:experience_bottle 1",
+      "odpowiedz": "No player was found",
+      "ok": true
+    },
+    {
+      "szablon": "give",
+      "komenda": "give @a minecraft:experience_bottle 64",
+      "odpowiedz": "No player was found",
+      "ok": true
+    },
+    {
+      "szablon": "give",
+      "komenda": "give @a minecraft:obsidian 1",
+      "odpowiedz": "No player was found",
+      "ok": true
+    },
+    {
+      "szablon": "give",
+      "komenda": "give @a minecraft:obsidian 64",
+      "odpowiedz": "No player was found",
+      "ok": true
+    },
+    {
+      "szablon": "give",
+      "komenda": "give @a minecraft:flint_and_steel 1",
+      "odpowiedz": "No player was found",
+      "ok": true
+    },
+    {
+      "szablon": "give",
+      "komenda": "give @a minecraft:flint_and_steel 64",
+      "odpowiedz": "No player was found",
+      "ok": true
+    },
+    {
+      "szablon": "effect",
+      "komenda": "effect give @a minecraft:speed 30 0",
+      "odpowiedz": "No entity was found",
+      "ok": true
+    },
+    {
+      "szablon": "effect",
+      "komenda": "effect give @a minecraft:speed infinite 4 true",
+      "odpowiedz": "No entity was found",
+      "ok": true
+    },
+    {
+      "szablon": "effect",
+      "komenda": "effect give @a minecraft:jump_boost 30 0",
+      "odpowiedz": "No entity was found",
+      "ok": true
+    },
+    {
+      "szablon": "effect",
+      "komenda": "effect give @a minecraft:jump_boost infinite 4 true",
+      "odpowiedz": "No entity was found",
+      "ok": true
+    },
+    {
+      "szablon": "effect",
+      "komenda": "effect give @a minecraft:night_vision 30 0",
+      "odpowiedz": "No entity was found",
+      "ok": true
+    },
+    {
+      "szablon": "effect",
+      "komenda": "effect give @a minecraft:night_vision infinite 4 true",
+      "odpowiedz": "No entity was found",
+      "ok": true
+    },
+    {
+      "szablon": "effect",
+      "komenda": "effect give @a minecraft:regeneration 30 0",
+      "odpowiedz": "No entity was found",
+      "ok": true
+    },
+    {
+      "szablon": "effect",
+      "komenda": "effect give @a minecraft:regeneration infinite 4 true",
+      "odpowiedz": "No entity was found",
+      "ok": true
+    },
+    {
+      "szablon": "effect",
+      "komenda": "effect give @a minecraft:strength 30 0",
+      "odpowiedz": "No entity was found",
+      "ok": true
+    },
+    {
+      "szablon": "effect",
+      "komenda": "effect give @a minecraft:strength infinite 4 true",
+      "odpowiedz": "No entity was found",
+      "ok": true
+    },
+    {
+      "szablon": "effect",
+      "komenda": "effect give @a minecraft:resistance 30 0",
+      "odpowiedz": "No entity was found",
+      "ok": true
+    },
+    {
+      "szablon": "effect",
+      "komenda": "effect give @a minecraft:resistance infinite 4 true",
+      "odpowiedz": "No entity was found",
+      "ok": true
+    },
+    {
+      "szablon": "effect",
+      "komenda": "effect give @a minecraft:fire_resistance 30 0",
+      "odpowiedz": "No entity was found",
+      "ok": true
+    },
+    {
+      "szablon": "effect",
+      "komenda": "effect give @a minecraft:fire_resistance infinite 4 true",
+      "odpowiedz": "No entity was found",
+      "ok": true
+    },
+    {
+      "szablon": "effect",
+      "komenda": "effect give @a minecraft:haste 30 0",
+      "odpowiedz": "No entity was found",
+      "ok": true
+    },
+    {
+      "szablon": "effect",
+      "komenda": "effect give @a minecraft:haste infinite 4 true",
+      "odpowiedz": "No entity was found",
+      "ok": true
+    },
+    {
+      "szablon": "effect",
+      "komenda": "effect give @a minecraft:slow_falling 30 0",
+      "odpowiedz": "No entity was found",
+      "ok": true
+    },
+    {
+      "szablon": "effect",
+      "komenda": "effect give @a minecraft:slow_falling infinite 4 true",
+      "odpowiedz": "No entity was found",
+      "ok": true
+    },
+    {
+      "szablon": "effect",
+      "komenda": "effect give @a minecraft:water_breathing 30 0",
+      "odpowiedz": "No entity was found",
+      "ok": true
+    },
+    {
+      "szablon": "effect",
+      "komenda": "effect give @a minecraft:water_breathing infinite 4 true",
+      "odpowiedz": "No entity was found",
+      "ok": true
+    },
+    {
+      "szablon": "effect",
+      "komenda": "effect give @a minecraft:invisibility 30 0",
+      "odpowiedz": "No entity was found",
+      "ok": true
+    },
+    {
+      "szablon": "effect",
+      "komenda": "effect give @a minecraft:invisibility infinite 4 true",
+      "odpowiedz": "No entity was found",
+      "ok": true
+    },
+    {
+      "szablon": "effect",
+      "komenda": "effect give @a minecraft:glowing 30 0",
+      "odpowiedz": "No entity was found",
+      "ok": true
+    },
+    {
+      "szablon": "effect",
+      "komenda": "effect give @a minecraft:glowing infinite 4 true",
+      "odpowiedz": "No entity was found",
+      "ok": true
+    },
+    {
+      "szablon": "title",
+      "komenda": "title @a title {\"text\":\"Test ąęł\",\"color\":\"white\",\"bold\":true}",
+      "odpowiedz": "No player was found",
+      "ok": true
+    },
+    {
+      "szablon": "title",
+      "komenda": "title @a title {\"text\":\"Test ąęł\",\"color\":\"yellow\",\"bold\":true}",
+      "odpowiedz": "No player was found",
+      "ok": true
+    },
+    {
+      "szablon": "title",
+      "komenda": "title @a title {\"text\":\"Test ąęł\",\"color\":\"gold\",\"bold\":true}",
+      "odpowiedz": "No player was found",
+      "ok": true
+    },
+    {
+      "szablon": "title",
+      "komenda": "title @a title {\"text\":\"Test ąęł\",\"color\":\"red\",\"bold\":true}",
+      "odpowiedz": "No player was found",
+      "ok": true
+    },
+    {
+      "szablon": "title",
+      "komenda": "title @a title {\"text\":\"Test ąęł\",\"color\":\"dark_red\",\"bold\":true}",
+      "odpowiedz": "No player was found",
+      "ok": true
+    },
+    {
+      "szablon": "title",
+      "komenda": "title @a title {\"text\":\"Test ąęł\",\"color\":\"light_purple\",\"bold\":true}",
+      "odpowiedz": "No player was found",
+      "ok": true
+    },
+    {
+      "szablon": "title",
+      "komenda": "title @a title {\"text\":\"Test ąęł\",\"color\":\"dark_purple\",\"bold\":true}",
+      "odpowiedz": "No player was found",
+      "ok": true
+    },
+    {
+      "szablon": "title",
+      "komenda": "title @a title {\"text\":\"Test ąęł\",\"color\":\"blue\",\"bold\":true}",
+      "odpowiedz": "No player was found",
+      "ok": true
+    },
+    {
+      "szablon": "title",
+      "komenda": "title @a title {\"text\":\"Test ąęł\",\"color\":\"aqua\",\"bold\":true}",
+      "odpowiedz": "No player was found",
+      "ok": true
+    },
+    {
+      "szablon": "title",
+      "komenda": "title @a title {\"text\":\"Test ąęł\",\"color\":\"green\",\"bold\":true}",
+      "odpowiedz": "No player was found",
+      "ok": true
+    },
+    {
+      "szablon": "title",
+      "komenda": "title @a title {\"text\":\"Test ąęł\",\"color\":\"dark_green\",\"bold\":true}",
+      "odpowiedz": "No player was found",
+      "ok": true
+    },
+    {
+      "szablon": "title",
+      "komenda": "title @a title {\"text\":\"Test ąęł\",\"color\":\"gray\",\"bold\":true}",
+      "odpowiedz": "No player was found",
+      "ok": true
+    },
+    {
+      "szablon": "title",
+      "komenda": "title @a times 10 70 20",
+      "odpowiedz": "No player was found",
+      "ok": true
+    },
+    {
+      "szablon": "title",
+      "komenda": "title @a subtitle {\"text\":\"Mały napis\",\"color\":\"gold\"}",
+      "odpowiedz": "No player was found",
+      "ok": true
+    },
+    {
+      "szablon": "tp",
+      "komenda": "tp @a 0 100 0",
+      "odpowiedz": "No entity was found",
+      "ok": true
+    },
+    {
+      "szablon": "tp",
+      "komenda": "tp @a ~ ~10 ~",
+      "odpowiedz": "No entity was found",
+      "ok": true
+    },
+    {
+      "szablon": "tp",
+      "komenda": "tp @a -20 64 15",
+      "odpowiedz": "No entity was found",
+      "ok": true
+    },
+    {
+      "szablon": "gamerule",
+      "komenda": "gamerule keep_inventory true",
+      "odpowiedz": "Game rule keep_inventory is now set to true",
+      "ok": true
+    },
+    {
+      "szablon": "gamerule",
+      "komenda": "gamerule mob_griefing true",
+      "odpowiedz": "Game rule mob_griefing is already set to true",
+      "ok": true
+    },
+    {
+      "szablon": "gamerule",
+      "komenda": "gamerule advance_time true",
+      "odpowiedz": "Game rule advance_time is already set to true",
+      "ok": true
+    },
+    {
+      "szablon": "gamerule",
+      "komenda": "gamerule spawn_mobs true",
+      "odpowiedz": "Game rule spawn_mobs is already set to true",
+      "ok": true
+    },
+    {
+      "szablon": "gamerule",
+      "komenda": "gamerule players_sleeping_percentage 0",
+      "odpowiedz": "Game rule players_sleeping_percentage is now set to 0",
+      "ok": true
+    },
+    {
+      "szablon": "gamerule",
+      "komenda": "gamerule natural_health_regeneration true",
+      "odpowiedz": "Game rule natural_health_regeneration is already set to true",
+      "ok": true
+    },
+    {
+      "szablon": "gamerule",
+      "komenda": "gamerule fire_spread_radius_around_player 0",
+      "odpowiedz": "Game rule fire_spread_radius_around_player is now set to 0",
+      "ok": true
+    },
+    {
+      "szablon": "whitelist",
+      "komenda": "whitelist on",
+      "odpowiedz": "Whitelist is already turned on",
+      "ok": true
+    },
+    {
+      "szablon": "whitelist",
+      "komenda": "whitelist add Test_Gracz",
+      "odpowiedz": "Added test_gracz to the whitelist",
+      "ok": true
+    },
+    {
+      "szablon": "whitelist",
+      "komenda": "whitelist list",
+      "odpowiedz": "There are 1 whitelisted player(s): test_gracz",
+      "ok": true
+    },
+    {
+      "szablon": "whitelist",
+      "komenda": "op Test_Gracz",
+      "odpowiedz": "Made test_gracz a server operator",
+      "ok": true
+    },
+    {
+      "szablon": "whitelist",
+      "komenda": "deop Test_Gracz",
+      "odpowiedz": "Made test_gracz no longer a server operator",
+      "ok": true
+    },
+    {
+      "szablon": "whitelist",
+      "komenda": "whitelist remove Test_Gracz",
+      "odpowiedz": "Removed test_gracz from the whitelist",
+      "ok": true
+    }
+  ]
 }
