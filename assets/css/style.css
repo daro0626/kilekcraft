@@ -789,12 +789,13 @@ body.touch .pk-touch{display:block}
 .pk-stick i{position:absolute;left:35px;top:35px;width:50px;height:50px;border-radius:50%;background:rgba(255,255,255,.35)}
 .pk-jump{position:absolute;right:22px;bottom:28px;width:96px;height:96px;border-radius:50%;border:3px solid var(--redstone);background:rgba(255,61,61,.25);color:#fff;font:700 16px var(--font);touch-action:none}
 .pk-jump:active{background:rgba(255,61,61,.55)}
-.pk-view{position:absolute;right:12px;top:12px;background:rgba(7,11,22,.82);border:1px solid var(--line-strong);color:var(--text);font:600 14px var(--font);padding:8px 12px;cursor:pointer;min-height:40px}
-.pk-view:hover{border-color:var(--gold)}
-.pk-view:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.pk-controls{position:absolute;right:12px;top:12px;display:flex;gap:6px}
+.pk-view,.pk-pause{background:rgba(7,11,22,.82);border:1px solid var(--line-strong);color:var(--text);font:600 14px var(--font);padding:8px 12px;cursor:pointer;min-height:40px}
+.pk-view:hover,.pk-pause:hover{border-color:var(--gold)}
+.pk-view:focus-visible,.pk-pause:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 .pk-hint{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);background:rgba(7,11,22,.85);border:1px solid var(--line-strong);padding:6px 12px;font-size:14px;color:var(--text);pointer-events:none;width:max-content;max-width:calc(100% - 24px);text-align:center}
-.pk-over:not([hidden]) ~ .pk-view,.pk-over:not([hidden]) ~ .pk-hint{display:none}
-@media (max-width:480px){.pk-view{top:auto;bottom:140px;right:22px;font-size:13px;padding:6px 10px}}
+.pk-over:not([hidden]) ~ .pk-controls,.pk-over:not([hidden]) ~ .pk-hint{display:none}
+@media (max-width:620px){.pk-controls{top:auto;bottom:140px;right:22px}.pk-view,.pk-pause{font-size:13px;padding:6px 10px}}
 
 /* =========== KOŁO WYZWAŃ =========== */
 .slot{padding:22px}
