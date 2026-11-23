@@ -1,22 +1,780 @@
 {
-  "_opis": "Pytania do gry „Znajdź błąd”. 'tokeny' to komenda podzielona na części, 'zly' to indeks błędnej części, 'dobra' to poprawiona komenda. tools/test_commands.py sprawdza na serwerze, że zła komenda daje błąd, a dobra przechodzi. Strona pokazuje tylko pytania, które przeszły ten test (gdy wyniki już są).",
+  "_opis": "Pytania do gry „Znajdź błąd”. 'tokeny' to komenda podzielona na części, 'zly' to indeks błędnej części, 'dobra' to poprawiona komenda. tools/test_commands.py sprawdza na serwerze, że zła komenda daje błąd, a dobra przechodzi. Strona pokazuje tylko pytania, które przeszły ten test (gdy wyniki już są). Błąd ma być prawdziwą pułapką po angielsku (literówka, stara nazwa, zły format). Pytania z polskimi słowami w komendzie usunęliśmy, bo były za łatwe.",
   "pytania": [
-    { "id": "gamerule-stara", "tokeny": ["/gamerule", "keepInventory", "true"], "zly": 1, "dobra": "/gamerule keep_inventory true", "wyjasnienie": "Od wersji 1.21.11 zasady gry piszemy małymi literami z podkreślnikiem: keep_inventory." },
-    { "id": "item-literowka", "tokeny": ["/give", "@p", "minecraft:diamon", "64"], "zly": 2, "dobra": "/give @p minecraft:diamond 64", "wyjasnienie": "Literówka w nazwie przedmiotu. Diament to minecraft:diamond." },
-    { "id": "effect-dodaj", "tokeny": ["/effect", "dodaj", "@p", "minecraft:speed", "30"], "zly": 1, "dobra": "/effect give @p minecraft:speed 30", "wyjasnienie": "Komendy są po angielsku. Efekt dajesz przez give, a zabierasz przez clear." },
-    { "id": "title-cudzyslow", "tokeny": ["/title", "@a", "title", "{\"text\":\"Start!}"], "zly": 3, "dobra": "/title @a title {\"text\":\"Start!\"}", "wyjasnienie": "Brakuje cudzysłowu zamykającego tekst. Każdy cudzysłów musi mieć parę." },
-    { "id": "gamerule-tak", "tokeny": ["/gamerule", "keep_inventory", "tak"], "zly": 2, "dobra": "/gamerule keep_inventory true", "wyjasnienie": "Zasady typu włącz/wyłącz przyjmują tylko true albo false." },
-    { "id": "give-ujemne", "tokeny": ["/give", "@p", "minecraft:torch", "-5"], "zly": 3, "dobra": "/give @p minecraft:torch 5", "wyjasnienie": "Nie da się dać ujemnej liczby przedmiotów. Liczba musi wynosić co najmniej 1." },
-    { "id": "selektor-x", "tokeny": ["/give", "@x", "minecraft:apple", "3"], "zly": 1, "dobra": "/give @p minecraft:apple 3", "wyjasnienie": "Selektor @x nie istnieje. Możesz użyć @p (najbliższy gracz), @a (wszyscy), @s (ja), @r (losowy gracz) albo @e (wszystkie byty)." },
-    { "id": "whitelist-dodaj", "tokeny": ["/whitelist", "dodaj", "Kolega123"], "zly": 1, "dobra": "/whitelist add Kolega123", "wyjasnienie": "Gracza dopisujesz do białej listy przez add, a usuwasz przez remove." },
-    { "id": "time-dzien", "tokeny": ["/time", "set", "dzien"], "zly": 2, "dobra": "/time set day", "wyjasnienie": "Pory dnia są po angielsku: day, noon, night albo midnight." },
-    { "id": "effect-poziom", "tokeny": ["/effect", "give", "@p", "minecraft:speed", "30", "300"], "zly": 5, "dobra": "/effect give @p minecraft:speed 30 3", "wyjasnienie": "Poziom efektu może wynosić najwyżej 255. 300 to za dużo." },
-    { "id": "weather-deszcz", "tokeny": ["/weather", "deszcz"], "zly": 1, "dobra": "/weather rain", "wyjasnienie": "Pogoda też jest po angielsku: clear, rain albo thunder." },
-    { "id": "blok-literowka", "tokeny": ["/setblock", "~", "~1", "~", "minecraft:stone_brick"], "zly": 4, "dobra": "/setblock ~ ~1 ~ minecraft:stone_bricks", "wyjasnienie": "Kamienne cegły to stone_bricks, z literą s na końcu." },
-    { "id": "procent-pol", "tokeny": ["/gamerule", "players_sleeping_percentage", "pół"], "zly": 2, "dobra": "/gamerule players_sleeping_percentage 50", "wyjasnienie": "Ta zasada przyjmuje liczbę. Połowa graczy to 50." },
-    { "id": "item-polski", "tokeny": ["/give", "@p", "diament", "1"], "zly": 2, "dobra": "/give @p minecraft:diamond 1", "wyjasnienie": "Nazwy przedmiotów w komendach są po angielsku, nawet gdy grasz po polsku." },
-    { "id": "difficulty-trudny", "tokeny": ["/difficulty", "trudny"], "zly": 1, "dobra": "/difficulty hard", "wyjasnienie": "Poziomy trudności to peaceful, easy, normal i hard." },
-    { "id": "efekt-polski", "tokeny": ["/effect", "give", "@p", "minecraft:szybkosc", "30"], "zly": 3, "dobra": "/effect give @p minecraft:speed 30", "wyjasnienie": "Efekt szybkości to minecraft:speed. Polskie nazwy nie działają w komendach." },
-    { "id": "title-napis", "tokeny": ["/title", "@a", "napis", "{\"text\":\"Hej\"}"], "zly": 2, "dobra": "/title @a title {\"text\":\"Hej\"}", "wyjasnienie": "Po celu wybierasz rodzaj napisu: title, subtitle albo actionbar." }
+    {
+      "id": "gamerule-stara",
+      "tokeny": [
+        "/gamerule",
+        "keepInventory",
+        "true"
+      ],
+      "zly": 1,
+      "dobra": "/gamerule keep_inventory true",
+      "wyjasnienie": "Od wersji 1.21.11 zasady gry piszemy małymi literami z podkreślnikiem: keep_inventory."
+    },
+    {
+      "id": "item-literowka",
+      "tokeny": [
+        "/give",
+        "@p",
+        "minecraft:diamon",
+        "64"
+      ],
+      "zly": 2,
+      "dobra": "/give @p minecraft:diamond 64",
+      "wyjasnienie": "Literówka w nazwie przedmiotu. Diament to minecraft:diamond."
+    },
+    {
+      "id": "title-cudzyslow",
+      "tokeny": [
+        "/title",
+        "@a",
+        "title",
+        "{\"text\":\"Start!}"
+      ],
+      "zly": 3,
+      "dobra": "/title @a title {\"text\":\"Start!\"}",
+      "wyjasnienie": "Brakuje cudzysłowu zamykającego tekst. Każdy cudzysłów musi mieć parę."
+    },
+    {
+      "id": "give-ujemne",
+      "tokeny": [
+        "/give",
+        "@p",
+        "minecraft:torch",
+        "-5"
+      ],
+      "zly": 3,
+      "dobra": "/give @p minecraft:torch 5",
+      "wyjasnienie": "Nie da się dać ujemnej liczby przedmiotów. Liczba musi wynosić co najmniej 1."
+    },
+    {
+      "id": "selektor-x",
+      "tokeny": [
+        "/give",
+        "@x",
+        "minecraft:apple",
+        "3"
+      ],
+      "zly": 1,
+      "dobra": "/give @p minecraft:apple 3",
+      "wyjasnienie": "Selektor @x nie istnieje. Możesz użyć @p (najbliższy gracz), @a (wszyscy), @s (ja), @r (losowy gracz) albo @e (wszystkie byty)."
+    },
+    {
+      "id": "effect-poziom",
+      "tokeny": [
+        "/effect",
+        "give",
+        "@p",
+        "minecraft:speed",
+        "30",
+        "300"
+      ],
+      "zly": 5,
+      "dobra": "/effect give @p minecraft:speed 30 3",
+      "wyjasnienie": "Poziom efektu może wynosić najwyżej 255. 300 to za dużo."
+    },
+    {
+      "id": "blok-literowka",
+      "tokeny": [
+        "/setblock",
+        "~",
+        "~1",
+        "~",
+        "minecraft:stone_brick"
+      ],
+      "zly": 4,
+      "dobra": "/setblock ~ ~1 ~ minecraft:stone_bricks",
+      "wyjasnienie": "Kamienne cegły to stone_bricks, z literą s na końcu."
+    },
+    {
+      "id": "item-zlote-jablko",
+      "tokeny": [
+        "/give",
+        "@p",
+        "minecraft:gold_apple",
+        "3"
+      ],
+      "zly": 2,
+      "dobra": "/give @p minecraft:golden_apple 3",
+      "wyjasnienie": "Złote jabłko to golden_apple, nie gold_apple."
+    },
+    {
+      "id": "item-perla",
+      "tokeny": [
+        "/give",
+        "@p",
+        "minecraft:enderpearl",
+        "16"
+      ],
+      "zly": 2,
+      "dobra": "/give @p minecraft:ender_pearl 16",
+      "wyjasnienie": "Perła Kresu ma podkreślnik: ender_pearl."
+    },
+    {
+      "id": "item-totem",
+      "tokeny": [
+        "/give",
+        "@p",
+        "minecraft:totem",
+        "1"
+      ],
+      "zly": 2,
+      "dobra": "/give @p minecraft:totem_of_undying 1",
+      "wyjasnienie": "Totem ma pełną nazwę: totem_of_undying."
+    },
+    {
+      "id": "item-steak",
+      "tokeny": [
+        "/give",
+        "@p",
+        "minecraft:steak",
+        "16"
+      ],
+      "zly": 2,
+      "dobra": "/give @p minecraft:cooked_beef 16",
+      "wyjasnienie": "Stek w grze to cooked_beef."
+    },
+    {
+      "id": "item-zelazo",
+      "tokeny": [
+        "/give",
+        "@p",
+        "minecraft:iron",
+        "32"
+      ],
+      "zly": 2,
+      "dobra": "/give @p minecraft:iron_ingot 32",
+      "wyjasnienie": "Sztabka żelaza to iron_ingot. Samo iron nie istnieje."
+    },
+    {
+      "id": "item-redstone",
+      "tokeny": [
+        "/give",
+        "@p",
+        "minecraft:redstone_dust",
+        "64"
+      ],
+      "zly": 2,
+      "dobra": "/give @p minecraft:redstone 64",
+      "wyjasnienie": "Pył redstone to po prostu redstone."
+    },
+    {
+      "id": "item-fajerwerk",
+      "tokeny": [
+        "/give",
+        "@p",
+        "minecraft:firework",
+        "64"
+      ],
+      "zly": 2,
+      "dobra": "/give @p minecraft:firework_rocket 64",
+      "wyjasnienie": "Rakieta to firework_rocket."
+    },
+    {
+      "id": "item-netherite",
+      "tokeny": [
+        "/give",
+        "@p",
+        "minecraft:netherrite_sword",
+        "1"
+      ],
+      "zly": 2,
+      "dobra": "/give @p minecraft:netherite_sword 1",
+      "wyjasnienie": "Netherite ma jedno r: netherite_sword."
+    },
+    {
+      "id": "item-strzaly",
+      "tokeny": [
+        "/give",
+        "@p",
+        "minecraft:arrows",
+        "64"
+      ],
+      "zly": 2,
+      "dobra": "/give @p minecraft:arrow 64",
+      "wyjasnienie": "Nazwy przedmiotów są w liczbie pojedynczej: arrow."
+    },
+    {
+      "id": "item-elytry",
+      "tokeny": [
+        "/give",
+        "@p",
+        "minecraft:elytras",
+        "1"
+      ],
+      "zly": 2,
+      "dobra": "/give @p minecraft:elytra 1",
+      "wyjasnienie": "Elytra bez s na końcu."
+    },
+    {
+      "id": "item-duze-litery",
+      "tokeny": [
+        "/give",
+        "@p",
+        "minecraft:Diamond",
+        "1"
+      ],
+      "zly": 2,
+      "dobra": "/give @p minecraft:diamond 1",
+      "wyjasnienie": "Identyfikatory piszemy tylko małymi literami."
+    },
+    {
+      "id": "item-ulamek",
+      "tokeny": [
+        "/give",
+        "@p",
+        "minecraft:apple",
+        "3.5"
+      ],
+      "zly": 3,
+      "dobra": "/give @p minecraft:apple 3",
+      "wyjasnienie": "Liczba przedmiotów musi być całkowita."
+    },
+    {
+      "id": "item-zero",
+      "tokeny": [
+        "/give",
+        "@p",
+        "minecraft:torch",
+        "0"
+      ],
+      "zly": 3,
+      "dobra": "/give @p minecraft:torch 1",
+      "wyjasnienie": "Trzeba dać co najmniej 1 przedmiot."
+    },
+    {
+      "id": "selektor-duze-p",
+      "tokeny": [
+        "/give",
+        "@P",
+        "minecraft:cake",
+        "1"
+      ],
+      "zly": 1,
+      "dobra": "/give @p minecraft:cake 1",
+      "wyjasnienie": "Selektory są małymi literami: @p, @a, @r, @s, @e."
+    },
+    {
+      "id": "selektor-everyone",
+      "tokeny": [
+        "/give",
+        "@everyone",
+        "minecraft:cake",
+        "1"
+      ],
+      "zly": 1,
+      "dobra": "/give @a minecraft:cake 1",
+      "wyjasnienie": "To nie Discord. Wszyscy gracze to @a."
+    },
+    {
+      "id": "selektor-typ",
+      "tokeny": [
+        "/kill",
+        "@e[type=minecraft:zombi]"
+      ],
+      "zly": 1,
+      "dobra": "/kill @e[type=minecraft:zombie]",
+      "wyjasnienie": "W filtrze type literówka: zombie."
+    },
+    {
+      "id": "selektor-itemy",
+      "tokeny": [
+        "/kill",
+        "@e[type=minecraft:items]"
+      ],
+      "zly": 1,
+      "dobra": "/kill @e[type=minecraft:item]",
+      "wyjasnienie": "Leżące przedmioty to typ item, w liczbie pojedynczej."
+    },
+    {
+      "id": "efekt-literowka",
+      "tokeny": [
+        "/effect",
+        "give",
+        "@p",
+        "minecraft:sped",
+        "30"
+      ],
+      "zly": 3,
+      "dobra": "/effect give @p minecraft:speed 30",
+      "wyjasnienie": "Literówka: speed."
+    },
+    {
+      "id": "efekt-nocne",
+      "tokeny": [
+        "/effect",
+        "give",
+        "@a",
+        "minecraft:nightvision",
+        "60"
+      ],
+      "zly": 3,
+      "dobra": "/effect give @a minecraft:night_vision 60",
+      "wyjasnienie": "Noktowizja ma podkreślnik: night_vision."
+    },
+    {
+      "id": "efekt-regen",
+      "tokeny": [
+        "/effect",
+        "give",
+        "@p",
+        "minecraft:regen",
+        "10",
+        "1"
+      ],
+      "zly": 3,
+      "dobra": "/effect give @p minecraft:regeneration 10 1",
+      "wyjasnienie": "Skrót regen nie działa. Pełna nazwa: regeneration."
+    },
+    {
+      "id": "efekt-ogien",
+      "tokeny": [
+        "/effect",
+        "give",
+        "@p",
+        "minecraft:fire_protection",
+        "60"
+      ],
+      "zly": 3,
+      "dobra": "/effect give @p minecraft:fire_resistance 60",
+      "wyjasnienie": "fire_protection to zaklęcie na zbroję. Efekt to fire_resistance."
+    },
+    {
+      "id": "efekt-niewidzialny",
+      "tokeny": [
+        "/effect",
+        "give",
+        "@p",
+        "minecraft:invisible",
+        "30"
+      ],
+      "zly": 3,
+      "dobra": "/effect give @p minecraft:invisibility 30",
+      "wyjasnienie": "Efekt to invisibility, rzeczownik."
+    },
+    {
+      "id": "efekt-kopanie",
+      "tokeny": [
+        "/effect",
+        "give",
+        "@p",
+        "minecraft:mining_speed",
+        "30",
+        "2"
+      ],
+      "zly": 3,
+      "dobra": "/effect give @p minecraft:haste 30 2",
+      "wyjasnienie": "Szybsze kopanie to efekt haste."
+    },
+    {
+      "id": "efekt-remove",
+      "tokeny": [
+        "/effect",
+        "remove",
+        "@p",
+        "minecraft:speed"
+      ],
+      "zly": 1,
+      "dobra": "/effect clear @p minecraft:speed",
+      "wyjasnienie": "Efekt zabierasz przez clear, nie remove."
+    },
+    {
+      "id": "efekt-yes",
+      "tokeny": [
+        "/effect",
+        "give",
+        "@p",
+        "minecraft:speed",
+        "30",
+        "1",
+        "yes"
+      ],
+      "zly": 6,
+      "dobra": "/effect give @p minecraft:speed 30 1 true",
+      "wyjasnienie": "Ukrycie cząsteczek to true albo false."
+    },
+    {
+      "id": "efekt-slowo",
+      "tokeny": [
+        "/effect",
+        "give",
+        "@p",
+        "minecraft:speed",
+        "thirty"
+      ],
+      "zly": 4,
+      "dobra": "/effect give @p minecraft:speed 30",
+      "wyjasnienie": "Czas w sekundach podajesz liczbą."
+    },
+    {
+      "id": "gamerule-duze-true",
+      "tokeny": [
+        "/gamerule",
+        "keep_inventory",
+        "True"
+      ],
+      "zly": 2,
+      "dobra": "/gamerule keep_inventory true",
+      "wyjasnienie": "true i false tylko małymi literami."
+    },
+    {
+      "id": "gamerule-procent",
+      "tokeny": [
+        "/gamerule",
+        "players_sleeping_percentage",
+        "50%"
+      ],
+      "zly": 2,
+      "dobra": "/gamerule players_sleeping_percentage 50",
+      "wyjasnienie": "Sama liczba, bez znaku procentu."
+    },
+    {
+      "id": "gamerule-griefing",
+      "tokeny": [
+        "/gamerule",
+        "mobGriefing",
+        "false"
+      ],
+      "zly": 1,
+      "dobra": "/gamerule mob_griefing false",
+      "wyjasnienie": "Nowe nazwy zasad: małe litery i podkreślnik, mob_griefing."
+    },
+    {
+      "id": "gamerule-dzien",
+      "tokeny": [
+        "/gamerule",
+        "doDaylightCycle",
+        "false"
+      ],
+      "zly": 1,
+      "dobra": "/gamerule advance_time false",
+      "wyjasnienie": "Stara nazwa. Od 1.21.11 cykl dnia to advance_time."
+    },
+    {
+      "id": "gamemode-liczba",
+      "tokeny": [
+        "/gamemode",
+        "1",
+        "@p"
+      ],
+      "zly": 1,
+      "dobra": "/gamemode creative @p",
+      "wyjasnienie": "Numery trybów nie działają. Wpisz nazwę: creative."
+    },
+    {
+      "id": "gamemode-literowka",
+      "tokeny": [
+        "/gamemode",
+        "creatve",
+        "@p"
+      ],
+      "zly": 1,
+      "dobra": "/gamemode creative @p",
+      "wyjasnienie": "Literówka: creative."
+    },
+    {
+      "id": "gamemode-spectate",
+      "tokeny": [
+        "/gamemode",
+        "spectate",
+        "@p"
+      ],
+      "zly": 1,
+      "dobra": "/gamemode spectator @p",
+      "wyjasnienie": "Tryb obserwatora to spectator."
+    },
+    {
+      "id": "difficulty-medium",
+      "tokeny": [
+        "/difficulty",
+        "medium"
+      ],
+      "zly": 1,
+      "dobra": "/difficulty normal",
+      "wyjasnienie": "Średni poziom to normal, nie medium."
+    },
+    {
+      "id": "difficulty-peacefull",
+      "tokeny": [
+        "/difficulty",
+        "peacefull"
+      ],
+      "zly": 1,
+      "dobra": "/difficulty peaceful",
+      "wyjasnienie": "peaceful ma jedno l."
+    },
+    {
+      "id": "defaultgamemode",
+      "tokeny": [
+        "/defaultgamemode",
+        "survivor"
+      ],
+      "zly": 1,
+      "dobra": "/defaultgamemode survival",
+      "wyjasnienie": "Tryb przetrwania to survival."
+    },
+    {
+      "id": "weather-storm",
+      "tokeny": [
+        "/weather",
+        "storm"
+      ],
+      "zly": 1,
+      "dobra": "/weather thunder",
+      "wyjasnienie": "Burza to thunder. Do wyboru: clear, rain, thunder."
+    },
+    {
+      "id": "tp-slowo",
+      "tokeny": [
+        "/tp",
+        "@p",
+        "100",
+        "sixty",
+        "0"
+      ],
+      "zly": 3,
+      "dobra": "/tp @p 100 60 0",
+      "wyjasnienie": "Współrzędne to liczby."
+    },
+    {
+      "id": "tp-mieszane",
+      "tokeny": [
+        "/tp",
+        "@p",
+        "^",
+        "~",
+        "^5"
+      ],
+      "zly": 3,
+      "dobra": "/tp @p ^ ^ ^5",
+      "wyjasnienie": "Nie mieszaj ^ z ~ w jednej pozycji."
+    },
+    {
+      "id": "tp-plus",
+      "tokeny": [
+        "/tp",
+        "@p",
+        "~",
+        "~+5",
+        "~"
+      ],
+      "zly": 3,
+      "dobra": "/tp @p ~ ~5 ~",
+      "wyjasnienie": "Po tyldzie od razu liczba, bez plusa: ~5."
+    },
+    {
+      "id": "setblock-deska",
+      "tokeny": [
+        "/setblock",
+        "~",
+        "~1",
+        "~",
+        "minecraft:oak_plank"
+      ],
+      "zly": 4,
+      "dobra": "/setblock ~ ~1 ~ minecraft:oak_planks",
+      "wyjasnienie": "Deski są w liczbie mnogiej: oak_planks."
+    },
+    {
+      "id": "setblock-skrzynie",
+      "tokeny": [
+        "/setblock",
+        "~",
+        "~1",
+        "~",
+        "minecraft:chests"
+      ],
+      "zly": 4,
+      "dobra": "/setblock ~ ~1 ~ minecraft:chest",
+      "wyjasnienie": "Skrzynia to chest."
+    },
+    {
+      "id": "fill-glas",
+      "tokeny": [
+        "/fill",
+        "~",
+        "~",
+        "~",
+        "~3",
+        "~3",
+        "~3",
+        "minecraft:glas"
+      ],
+      "zly": 7,
+      "dobra": "/fill ~ ~ ~ ~3 ~3 ~3 minecraft:glass",
+      "wyjasnienie": "Szkło ma dwa s: glass."
+    },
+    {
+      "id": "fill-hollowed",
+      "tokeny": [
+        "/fill",
+        "~",
+        "~",
+        "~",
+        "~3",
+        "~3",
+        "~3",
+        "minecraft:stone",
+        "hollowed"
+      ],
+      "zly": 8,
+      "dobra": "/fill ~ ~ ~ ~3 ~3 ~3 minecraft:stone hollow",
+      "wyjasnienie": "Pusty środek to hollow."
+    },
+    {
+      "id": "execute-bez-run",
+      "tokeny": [
+        "/execute",
+        "positioned",
+        "0",
+        "64",
+        "0",
+        "setblock",
+        "~",
+        "~",
+        "~",
+        "minecraft:stone"
+      ],
+      "zly": 5,
+      "dobra": "/execute positioned 0 64 0 run setblock ~ ~ ~ minecraft:stone",
+      "wyjasnienie": "Przed właściwą komendą w execute musi być run."
+    },
+    {
+      "id": "xp-level",
+      "tokeny": [
+        "/xp",
+        "add",
+        "@p",
+        "10",
+        "level"
+      ],
+      "zly": 4,
+      "dobra": "/xp add @p 10 levels",
+      "wyjasnienie": "Poziomy to levels, z s na końcu."
+    },
+    {
+      "id": "title-subtitel",
+      "tokeny": [
+        "/title",
+        "@a",
+        "subtitel",
+        "{\"text\":\"Hej\"}"
+      ],
+      "zly": 2,
+      "dobra": "/title @a subtitle {\"text\":\"Hej\"}",
+      "wyjasnienie": "Podtytuł to subtitle."
+    },
+    {
+      "id": "title-action",
+      "tokeny": [
+        "/title",
+        "@a",
+        "action_bar",
+        "{\"text\":\"Hej\"}"
+      ],
+      "zly": 2,
+      "dobra": "/title @a actionbar {\"text\":\"Hej\"}",
+      "wyjasnienie": "Pasek nad hotbarem to actionbar, razem."
+    },
+    {
+      "id": "title-time",
+      "tokeny": [
+        "/title",
+        "@a",
+        "time",
+        "10",
+        "70",
+        "20"
+      ],
+      "zly": 2,
+      "dobra": "/title @a times 10 70 20",
+      "wyjasnienie": "Czas pokazywania napisu ustawia times."
+    },
+    {
+      "id": "kolor-golden",
+      "tokeny": [
+        "/title",
+        "@a",
+        "title",
+        "{\"text\":\"Start\",\"color\":\"golden\"}"
+      ],
+      "zly": 3,
+      "dobra": "/title @a title {\"text\":\"Start\",\"color\":\"gold\"}",
+      "wyjasnienie": "Kolor to gold, nie golden."
+    },
+    {
+      "id": "summon-golem",
+      "tokeny": [
+        "/summon",
+        "minecraft:golem",
+        "~",
+        "~",
+        "~"
+      ],
+      "zly": 1,
+      "dobra": "/summon minecraft:iron_golem ~ ~ ~",
+      "wyjasnienie": "Golem musi mieć rodzaj: iron_golem albo snow_golem."
+    },
+    {
+      "id": "summon-creper",
+      "tokeny": [
+        "/summon",
+        "minecraft:creper",
+        "~",
+        "~",
+        "~"
+      ],
+      "zly": 1,
+      "dobra": "/summon minecraft:creeper ~ ~ ~",
+      "wyjasnienie": "Creeper ma dwa e w środku."
+    },
+    {
+      "id": "particle-flames",
+      "tokeny": [
+        "/particle",
+        "minecraft:flames",
+        "~",
+        "~1",
+        "~"
+      ],
+      "zly": 1,
+      "dobra": "/particle minecraft:flame ~ ~1 ~",
+      "wyjasnienie": "Cząsteczka ognia to flame."
+    },
+    {
+      "id": "enchant-unbreakable",
+      "tokeny": [
+        "/enchant",
+        "@p",
+        "minecraft:unbreakable",
+        "3"
+      ],
+      "zly": 2,
+      "dobra": "/enchant @p minecraft:unbreaking 3",
+      "wyjasnienie": "Zaklęcie to unbreaking. Unbreakable to coś innego."
+    },
+    {
+      "id": "clear-durt",
+      "tokeny": [
+        "/clear",
+        "@p",
+        "minecraft:durt"
+      ],
+      "zly": 2,
+      "dobra": "/clear @p minecraft:dirt",
+      "wyjasnienie": "Ziemia to dirt."
+    },
+    {
+      "id": "worldborder-sett",
+      "tokeny": [
+        "/worldborder",
+        "sett",
+        "1000"
+      ],
+      "zly": 1,
+      "dobra": "/worldborder set 1000",
+      "wyjasnienie": "Literówka: set."
+    }
   ]
 }

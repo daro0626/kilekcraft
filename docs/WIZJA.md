@@ -25,7 +25,7 @@
 | Symulator LifeSteal | `symulator.html` | gotowe (model uproszczony) |
 | Poziom gracza: XP i 19 odznak | wszystkie strony | gotowe |
 | Wyścig parkour w przeglądarce (klawiatura, mysz bez trzymania przycisku, dotyk, widok 1. i 3. osoby) | `parkour.html` | gotowe, fizyka do porównania z grą |
-| Gra „Znajdź błąd” (17 pytań) | `bledy.html` | gotowe, pytania czekają na test CI |
+| Gra „Znajdź błąd” (63 pytania, 5 na grę, rekord czasu) | `bledy.html` | gotowe, 63/63 pytań sprawdzone na serwerze 26.3 |
 | Koło wyzwań budowlanych ze stoperem | `kolo.html` | gotowe |
 | Wygląd serwera: MOTD i ikona 64×64 | `motd.html` | gotowe, MOTD czeka na test CI |
 | 4 nowe wielkie budowle: smok, wulkan, statek, zamek | `budowle.html` | gotowe |

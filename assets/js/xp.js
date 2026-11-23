@@ -23,7 +23,7 @@ export const BADGES = [
   { id: 'strateg', name: 'Strateg LifeSteal', desc: 'Przetestuj zasady w symulatorze', ico: '♥' },
   { id: 'balans', name: 'Mistrz balansu', desc: 'Ustaw zasady, przy których po 14 dniach gra ponad połowa graczy', ico: '⚖' },
   { id: 'wladca', name: 'Władca serc', desc: 'Przejdź cały przepis LifeSteal w szortach', ico: '❦' },
-  { id: 'lowca', name: 'Łowca błędów', desc: 'Zdobądź 1500 punktów w grze Znajdź błąd', ico: '!' },
+  { id: 'lowca', name: 'Łowca błędów', desc: 'Zdobądź 2500 punktów w jednej grze Znajdź błąd', ico: '!' },
   { id: 'parkour', name: 'Skoczek', desc: 'Ukończ wyścig parkour w przeglądarce', ico: '↗' },
   { id: 'speedrun', name: 'Speedrunner', desc: 'Ukończ wyścig o trudności 7 lub więcej', ico: '⏱' },
   { id: 'rywal', name: 'Rywal z przeszłości', desc: 'Pobij własny rekord, kiedy biegnie przy tobie duch', ico: '◈' },

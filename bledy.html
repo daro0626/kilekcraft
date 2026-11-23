@@ -33,19 +33,21 @@
   <div class="page-head">
     <div class="eyebrow">Gra · Znajdź błąd</div>
     <h1 data-anim="drop">Znajdź błąd w komendzie</h1>
-    <p class="lead">Każda komenda ma jeden błąd. Kliknij część, która jest zła, zanim skończy się czas. Im szybciej, tym więcej punktów, a seria trafień mnoży wynik.</p>
+    <p class="lead">Każda komenda ma jeden błąd. Kliknij część, która jest zła, zanim skończy się czas. Im szybciej, tym więcej punktów, a seria trafień mnoży wynik. Pytania losują się z dużej puli i nie powtarzają, dopóki nie zobaczysz wszystkich.</p>
   </div>
 
   <div class="bq panel corner" id="game">
     <div class="bq-top">
-      <div class="bq-stat"><span>Pytanie</span><b id="qNum">1/10</b></div>
+      <div class="bq-stat"><span>Pytanie</span><b id="qNum">1/5</b></div>
       <div class="bq-stat"><span>Punkty</span><b id="score">0</b></div>
       <div class="bq-stat"><span>Seria</span><b id="streak">×1</b></div>
+      <div class="bq-stat"><span>Czas</span><b id="clock">0,0</b></div>
       <div class="bq-stat"><span>Rekord</span><b id="best">0</b></div>
     </div>
     <div class="bq-time" aria-hidden="true"><i id="timeBar"></i></div>
     <div class="bq-stage" id="stage">
-      <p class="bq-hint" id="hint">Gotowy? Masz 10 komend po 15 sekund.</p>
+      <p class="bq-hint" id="hint">Gotowy? 5 komend, na każdą 15 sekund. Liczy się też czas.</p>
+      <div class="bq-recs" id="recs"></div>
       <div class="bq-cmd" id="cmd" role="group" aria-label="Części komendy"></div>
       <div class="bq-res" id="res" aria-live="polite"></div>
     </div>
