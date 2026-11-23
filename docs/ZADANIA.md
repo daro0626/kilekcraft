@@ -59,7 +59,7 @@ Każde zadanie kończy się dopiero, gdy spełnia kryteria akceptacji **oraz** b
 
 ### A3 [Claude] Przepis „LifeSteal z ekonomią” w szortach
 - **Część 1 gotowa (`lifesteal.html`):** zasady z symulatora, serca ręcznie komendą `attribute` (kreator, zakładka „Serca”), plugin LifeStealZ ze źródłami i datą, ekonomia serc (wypłata serca jako przedmiot, ożywienie), próba przed startem. Nether i End włączone.
-- **Część 2 do zrobienia:** ekonomia za monety (`/sell` z GUI, aukcje, czeki). Serwer Piotrka już nie istnieje, testujemy na serwerze właściciela. Kolejność i zasady: zadania R2–R5 w `docs/CODEX.md`. Cennik (propozycja, niezatwierdzony): `docs/CENNIK_PROPOZYCJA.md`.
+- **Część 2 do zrobienia:** ekonomia za monety (`/sell` z GUI, aukcje, czeki). Według relacji z 23.11 Piotrek usunął serwer (niesprawdzone). Testujemy tam, gdzie wskaże właściciel. Doświadczenia z serwera Piotrka: `docs/DOSWIADCZENIA_LIFESTEAL.md`. Kolejność i zasady: zadania R2–R5 w `docs/CODEX.md`. Cennik (propozycja, niezatwierdzony): `docs/CENNIK_PROPOZYCJA.md`.
 - Komendy pluginu (`/hearts`, `/revive`, `lifestealz hearts add`) mają na stronie odznakę „nie testowaliśmy”. Zostaje, dopóki plugin nie przejdzie próby na serwerze testowym (C6).
 - **Akceptacja:** przepis przetestowany na serwerze testowym, potem przez Piotrka (A8).
 
