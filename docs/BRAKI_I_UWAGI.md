@@ -68,6 +68,23 @@ Statusy: **OTWARTE** — niezaimplementowane; **CZĘŚCIOWO** — istnieje czę�
 **Wymagania:** utrzymać testy odrodzenia na rogach, krawędziach, przy prędkości oraz przy wielu kolejnych śmierciach; na wykryty problem tworzyć osobny wpis, a nie przepisywać historię.
 **Akceptacja:** potwierdzenie działającego wznowienia gry przez człowieka oraz zielone testy regresji.
 
+
+### KC-011 · P1 · OTWARTE — Skrót myszy: lewy stawia, prawy usuwa
+**Zgłoszenie:** w edytorze budowli użytkownik oczekuje stawiania lewym i kasowania prawym przyciskiem myszy — bez przełączania narzędzia za każdym razem.
+**Stan:** __BT__assets/js/edytor.js__BT__ obsługuje edycję przez główny przycisk; drugi jest ignorowany; trzeba uwzględnić blokowanie menu kontekstowego tylko nad płótnem. Nie psuć obrotu kamery, pędzla, symetrii, cofania ani działania na dotyku.
+**Akceptacja:** klik lewy stawia, prawy usuwa wskazany blok, obrót/przybliżenie działa; mobilne przyciski narzędzia pozostają dostępne. Automatyczne testy interakcji myszy oraz ręczne próby desktop.
+
+### KC-012 · P1 · OTWARTE — Prezentacja warstw sprawia wrażenie budowania w dół
+**Zgłoszenie:** na serii dziewięciu zrzutów edytora, przesuwanie przez 9 poziomów nie daje poczucia, że budowla rośnie od fundamentu. Nawet gdy widok «Do tej warstwy» ukrywa wyższe piętra poprawnie matematycznie, UX jest dziwny: kamera, brak jasnego rozróżnienia edycji od odtwarzania i sposób ukrywania elementów.
+**Wymagania:** główna **Animacja** ma zaczynać od dolnej warstwy i stopniowo ujawniać następne bez niezamierzonego przesuwania lub odwracania modelu; wyraźne Start/Pauza/Od nowa i krok +/-; **Warstwy** pozostają narzędziem do oglądania i edycji określonej wysokości. Zachować stały fundament/odniesienie, przewidywalną kamerę oraz możliwość obejrzenia całego obiektu. Przed implementacją porównać widok z 9 referencyjnymi zrzutami użytkownika.
+**Akceptacja:** film/screenshoty dla warstw 1 → ostatnia i ostatnia → 1, widok pełny, animacja i edycja; dziecko rozumie, co rośnie, co jest ukryte, a co usunięte. Brak zmian w rzeczywistych danych budowli podczas samego podglądu.
+
+### KC-013 · P1 · OTWARTE — Wyjątkowe, szczegółowe budowle pokazowe wysokiej jakości (bez płatnej blokady)
+**Zgłoszenie:** obecne 23 budowle są poprawne jako proste projekty, ale właściciel oczekuje dodatkowych spektakularnych projektów *premium pod względem jakości*: inspiracje przesłane w rozmowie 23.11.2026 — wielki budynek ze strzelistą architekturą na latającej wyspie, monumentalna świątynia z kolumnami, kolorowe archipelagi parkour. Oryginalne projekty, bez kopiowania cudzej mapy 1:1. Chodzi o efekt zachwytu i chęć powrotu, **nie** o wymóg płatnego dostępu.
+**Stan:** __BT__assets/js/builds.js__BT__ generuje kształty proceduralnie; to ogranicza detale artystyczne. __BT__assets/js/edytor.js__BT__ ma limit 8000 bloków dla ręcznej edycji, ale nie jest to globalny limit wszystkich modeli ani samego Minecrafta. __BT__assets/js/voxel-scene.js__BT__ wykorzystuje instancing i proste światło. Import własnych __BT__.schem__BT__ z KC-004 pozostaje niedokończony.
+**Wymagania:** najpierw **jeden pilotażowy projekt wzorcowy**, a nie kolejnych 20 prostych brył. Propozycje: latający zamek fantasy z monumentalnymi wieżami, łukami, roślinnością i wielopoziomowym terenem; alternatywnie świątynia w stylu monumentalnym albo parkourowy archipelag. Wysoka jakość modelu: zróżnicowana paleta, gzymsy, schody/łuki, otoczenie, elementy oświetlenia, spójna sylwetka i interesujące detale z bliska. Zaprojektować własną koncepcję i blueprint blokowy, nie tylko powiększyć pętlę proceduralną. Ocenić koszt wydajności, import __BT__.schem__BT__, optymalizację siatki/culling/chunking dla dużych modeli, podgląd 3D, warstwy, listę materiałów, datapack oraz testy na urządzeniach mobilnych. Wygląd na screenie może być ulepszany przez shaders, ale model musi dobrze wyglądać **bez shaderów**.
+**Akceptacja:** najpierw pokazać właścicielowi render/prototyp jednego modelu, porównać wizualnie ze wskazanymi referencjami; bez zatwierdzenia jakości nie tworzyć serii. Model ma być samodzielną rzeczywistą budowlą z bloków, dającą się wyeksportować i zweryfikować w Minecrafcie, nie tylko obrazkiem 3D w przeglądarce. Zmierzyć rozmiar danych, FPS mobile, koszty exportu, zachować sprawność obecnego portalu i nie oznaczać testów manualnych jako ukończonych bez wykonania.
+
 ## Zasady pracy Codexa i Claude
 
 1. **Jeden agent wykonawczy na dany zakres.** Nie uruchamiać równocześnie Claude i Codexa nad tym samym fragmentem; to marnuje limity i powoduje konflikty.
