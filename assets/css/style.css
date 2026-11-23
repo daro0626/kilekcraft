@@ -329,6 +329,12 @@ table.tbl{width:100%;border-collapse:collapse;font-size:15px}
 .pv-wl em{font-style:normal;background:var(--redstone);color:#fff;padding:0 6px;font-size:12px;margin-left:6px}
 .pv-wl .lock{margin-top:10px;font-size:13px;color:#ff8f8f}
 @media (max-width:560px){.pv-wl{inset:6% 6%}}
+.pv-hearts{position:absolute;left:50%;bottom:10%;transform:translateX(-50%);text-align:center;width:min(92%,360px)}
+.pv-hearts .row{display:grid;grid-template-columns:repeat(10,1fr);gap:3px;justify-items:center;background:rgba(0,0,0,.45);padding:8px;border:2px solid #555}
+.pv-hearts .ht{width:22px;height:20px;background:#e8262b;clip-path:polygon(0 20%,20% 0,40% 0,50% 15%,60% 0,80% 0,100% 20%,100% 50%,50% 100%,0 50%);box-shadow:inset -3px -3px 0 rgba(0,0,0,.3);animation:pop .4s var(--ease) both;animation-delay:calc(var(--i)*35ms)}
+.pv-hearts .ht.half{background:linear-gradient(90deg,#e8262b 50%,#3a1b1f 50%)}
+.pv-hearts span{display:inline-block;margin-top:8px;background:rgba(0,0,0,.55);padding:3px 10px;font-size:15px;color:#eee}
+@media (prefers-reduced-motion:reduce){.pv-hearts .ht{animation:none}}
 
 /* =========== BUDOWLE =========== */
 .picker{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
@@ -478,6 +484,53 @@ table.tbl{width:100%;border-collapse:collapse;font-size:15px}
 .short.in .v-chest .copy{animation:popin .6s var(--ease) both 1s}
 .short.in .v-chest .arrow{animation:nudge 1s ease-in-out infinite}
 @keyframes nudge{50%{transform:rotate(-90deg) translateY(6px)}}
+/* przepis LifeSteal */
+body[data-przepis="lifesteal"] .s-vis{height:150px}
+.short>*{flex-shrink:0}
+.shorts,.short{min-width:0}
+.s-cmd{overflow-wrap:anywhere}
+@media (min-width:901px){.short{overflow-y:auto;overscroll-behavior:auto;scrollbar-width:thin}}
+@media (min-width:901px) and (max-height:760px){.s-vis,body[data-przepis="lifesteal"] .s-vis{height:120px}.s-vis>*{scale:.72}.s-text{font-size:16px}}
+.s-badges{display:flex;flex-wrap:wrap;gap:6px}
+.v-ls-rules{display:flex;gap:10px}
+.v-ls-rules div{width:92px;height:110px;border:2px solid var(--line-strong);background:var(--panel);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+.v-ls-rules b{font:400 46px/1 var(--font-px);color:var(--redstone)}
+.v-ls-rules div:nth-child(2) b{color:var(--gold)}.v-ls-rules div:nth-child(3) b{color:var(--muted)}
+.v-ls-rules span{font-size:13px;color:var(--muted)}
+.short.in .v-ls-rules div{animation:deal .7s var(--ease) both}.short.in .v-ls-rules div:nth-child(2){animation-delay:.15s}.short.in .v-ls-rules div:nth-child(3){animation-delay:.3s}
+.v-ls-fork{display:flex;gap:26px;align-items:center}
+.v-ls-fork .way{width:116px;height:116px;border:3px solid var(--sky);display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(92,200,255,.08)}
+.v-ls-fork .way.pl{border-color:var(--emerald);background:rgba(46,229,157,.08)}
+.v-ls-fork b{font:400 48px/1 var(--font-px);color:var(--sky)}.v-ls-fork .pl b{color:var(--emerald)}
+.v-ls-fork span{font-size:14px;color:var(--text);margin-top:6px}
+.short.in .v-ls-fork .way{animation:popin .5s var(--ease) both}.short.in .v-ls-fork .pl{animation-delay:.25s}
+.v-ls-bar{display:grid;grid-template-columns:repeat(10,1fr);gap:4px;background:rgba(0,0,0,.45);border:2px solid #555;padding:10px}
+.v-ls-bar i,.v-ls-duel .pl::before{width:24px;height:22px;background:#e8262b;clip-path:polygon(0 20%,20% 0,40% 0,50% 15%,60% 0,80% 0,100% 20%,100% 50%,50% 100%,0 50%);box-shadow:inset -3px -3px 0 rgba(0,0,0,.3)}
+.short.in .v-ls-bar i{animation:popin .35s var(--ease) both}
+.short.in .v-ls-bar i:nth-child(2){animation-delay:.05s}.short.in .v-ls-bar i:nth-child(3){animation-delay:.1s}.short.in .v-ls-bar i:nth-child(4){animation-delay:.15s}.short.in .v-ls-bar i:nth-child(5){animation-delay:.2s}.short.in .v-ls-bar i:nth-child(6){animation-delay:.25s}.short.in .v-ls-bar i:nth-child(7){animation-delay:.3s}.short.in .v-ls-bar i:nth-child(8){animation-delay:.35s}.short.in .v-ls-bar i:nth-child(9){animation-delay:.4s}.short.in .v-ls-bar i:nth-child(10){animation-delay:.45s}
+.v-ls-duel{display:flex;gap:18px;align-items:center}
+.v-ls-duel .pl{width:96px;height:120px;border:2px solid;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px}
+.v-ls-duel .pl::before{content:""}
+.v-ls-duel .lose{border-color:rgba(255,61,61,.6)}.v-ls-duel .win{border-color:var(--emerald)}
+.v-ls-duel b{font:400 40px/1 var(--font-px)}.v-ls-duel .lose span{color:#ff8f8f}.v-ls-duel .win span{color:var(--emerald)}
+.v-ls-duel .sw{font:400 34px var(--font-px);color:var(--gold)}
+.short.in .v-ls-duel .lose{animation:shakeBox .6s ease both .4s}.short.in .v-ls-duel .win{animation:popin .5s var(--ease) both .7s}
+@keyframes shakeBox{30%,70%{transform:translateX(-6px)}50%,90%{transform:translateX(6px)}}
+.v-ls-cfg{background:#05080f;border:2px solid #26324f;padding:14px 18px;font:15px var(--mono);display:grid;gap:6px;min-width:250px}
+.v-ls-cfg span{color:var(--sky)}.v-ls-cfg b{color:var(--gold);font-weight:700}
+.short.in .v-ls-cfg div{animation:popin .4s var(--ease) both}.short.in .v-ls-cfg div:nth-child(2){animation-delay:.15s}.short.in .v-ls-cfg div:nth-child(3){animation-delay:.3s}
+.v-ls-trade{display:flex;gap:18px;align-items:center}
+.v-ls-trade .it{width:86px;height:86px;display:grid;place-items:center;font-size:44px;border:2px solid #555;background:rgba(0,0,0,.45)}
+.v-ls-trade .heart{color:#e8262b}.v-ls-trade .dia{color:#5fe3e0}
+.v-ls-trade .arr{font-size:34px;color:var(--gold)}
+.short.in .v-ls-trade .arr{animation:nudgeX 1.2s ease-in-out infinite}
+@keyframes nudgeX{50%{transform:translateX(6px)}}
+.v-ls-cmds{display:grid;gap:8px;font:16px var(--mono)}
+.v-ls-cmds div{background:#05080f;border:1px solid #26324f;padding:6px 12px;color:var(--gold)}
+.short.in .v-ls-cmds div{animation:popin .4s var(--ease) both}.short.in .v-ls-cmds div:nth-child(2){animation-delay:.15s}.short.in .v-ls-cmds div:nth-child(3){animation-delay:.3s}
+.v-ls-start{font:400 52px/0.95 var(--font-px);color:var(--gold);text-align:center;text-shadow:3px 3px 0 #5a3d00}
+.short.in .v-ls-start{animation:popin .7s var(--ease) both}
+@media (prefers-reduced-motion:reduce){.short.in [class^="v-ls-"],.short.in [class^="v-ls-"] *{animation:none!important}}
 .shorts .s-title.split .ch{transition-delay:calc(var(--i)*22ms + .2s)}
 @media (max-width:900px){
   .shorts-wrap{grid-template-columns:1fr;gap:14px;padding:16px 0 0}

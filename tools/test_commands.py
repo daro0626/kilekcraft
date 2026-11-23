@@ -83,7 +83,7 @@ def comp(text, color, bold=True):
     return json.dumps(d, ensure_ascii=False, separators=(',', ':'))
 
 def commands(new_names=True):
-    c = {k: [] for k in ('give', 'effect', 'title', 'tp', 'gamerule', 'whitelist')}
+    c = {k: [] for k in ('give', 'effect', 'title', 'tp', 'gamerule', 'whitelist', 'attribute')}
     for p in DATA['przedmioty']:
         c['give'] += [f"give @a minecraft:{p['id']} 1", f"give @a minecraft:{p['id']} 64"]
     for e in DATA['efekty']:
@@ -99,10 +99,15 @@ def commands(new_names=True):
         val = 'true' if z['typ'] == 'bool' else '0'
         c['gamerule'].append(f'gamerule {name} {val}')
     c['whitelist'] += ['whitelist on', 'whitelist add Test_Gracz', 'op Test_Gracz']
+    # Serca w LifeSteal: maksymalne zdrowie w punktach (1 serce = 2 punkty).
+    # attribute przyjmuje jeden byt, więc „wszyscy” to execute as @a … @s (sprawdzone w CI: @a daje błąd)
+    c['attribute'] += [f'execute as @a run attribute @s minecraft:max_health base set {hp}' for hp in (2, 7, 16, 18, 20, 40)]
+    c['attribute'] += ['execute as @a run attribute @s minecraft:max_health base reset', 'attribute @p minecraft:max_health base reset']
     return c
 
 BAD = ('Unknown or incomplete command', 'Incorrect argument', '<--[HERE]', 'Unknown item', 'Unknown effect',
-       'Unknown game rule', 'Invalid', 'Expected', 'Malformed', 'Unknown color')
+       'Unknown game rule', 'Invalid', 'Expected', 'Malformed', 'Unknown color', 'Unknown attribute',
+       "Can't find element")
 OK_ANYWAY = ('No player was found', 'No entity was found')  # składnia dobra, tylko brak graczy
 
 

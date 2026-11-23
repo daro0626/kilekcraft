@@ -22,6 +22,7 @@ READY = {
     'parkour': '#gl',
     'kolo': '#r0 div',
     'motd': '#pvMotd div',
+    'lifesteal': '#shorts .short',
 }
 
 # Nazwy typów z assets/js/builds.js dla próbki z test_commands.SAMPLE
@@ -167,6 +168,17 @@ def browser_commands(page, modern):
     page.locator('#nicks').fill('Test_Gracz')
     page.locator('#owner').fill('Test_Gracz')
     collect('whitelist')
+
+    tab('attribute')
+    chip('cel', '@a')
+    for hearts in ('1', '3.5', '8', '9', '10', '20'):
+        page.locator('#hearts').evaluate(
+            '(el, v) => { el.value = v; el.dispatchEvent(new Event("input", { bubbles: true })); }', hearts)
+        collect('attribute')
+    page.locator('[name="reset"] + span').click()
+    collect('attribute')
+    chip('cel', '@p')
+    collect('attribute')
     return result
 
 
