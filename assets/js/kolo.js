@@ -12,6 +12,8 @@ const LISTS = [
 ];
 const ITEM_H = 64, LOOPS = 6;
 const strips = [0, 1, 2, 3].map(i => $('#r' + i));
+const drawResult = $('#drawResult');
+const announce = (values) => { drawResult.textContent = values.join(' · '); };
 let cur = store.get('kolo:ostatnie', null);
 strips.forEach((s, i) => {
   const arr = Array.from({ length: LOOPS }, () => LISTS[i]).flat();
@@ -22,7 +24,7 @@ strips.forEach((s, i) => {
 
 let spinning = false;
 function spin() {
-  if (spinning) return; spinning = true; $('#spin').disabled = true;
+  if (spinning) return; spinning = true; $('#spin').setAttribute('aria-disabled', 'true');
   const pick = LISTS.map(l => Math.floor(Math.random() * l.length));
   let doneN = 0;
   strips.forEach((s, i) => {
@@ -39,7 +41,8 @@ function spin() {
   });
 }
 function finish(res) {
-  spinning = false; $('#spin').disabled = false; $('#timerBtn').disabled = false; cur = res;
+  spinning = false; $('#spin').removeAttribute('aria-disabled'); $('#timerBtn').disabled = false; cur = res;
+  announce(res);
   store.set('kolo:ostatnie', res);
   const hist = store.get('kolo:historia', []); hist.unshift(res); store.set('kolo:historia', hist.slice(0, 6)); renderHist();
   const r = $('#reels').getBoundingClientRect(); xpBurst(r.left + r.width / 2, r.top + r.height / 2, 20); sfx('win');
@@ -61,20 +64,56 @@ function setClock(l, t) {
   ring.style.strokeDashoffset = total ? C * (1 - left / total) : C;
   ring.classList.toggle('low', total && left <= 60);
 }
+const timerStatus = $('#timerStatus');
+let deadline = 0;
+function stopTimer(message) {
+  clearInterval(tmr);
+  tmr = 0;
+  const keepFocus = ['pause', 'stopT'].includes(document.activeElement.id);
+  $('#pause').disabled = true;
+  $('#stopT').disabled = true;
+  if (keepFocus) $('#timerBtn').focus();
+  timerStatus.textContent = message;
+}
 function startTimer() {
-  if (!cur) return; clearInterval(tmr); paused = false;
-  setClock(parseInt(cur[2], 10) * 60, parseInt(cur[2], 10) * 60);
+  if (!cur) return;
+  clearInterval(tmr);
+  paused = false;
+  const duration = parseInt(cur[2], 10) * 60;
+  setClock(duration, duration);
+  deadline = Date.now() + duration * 1000;
   $('#pause').disabled = false; $('#stopT').disabled = false; $('#pause').textContent = 'Pauza';
+  timerStatus.textContent = 'Stoper uruchomiony';
   tmr = setInterval(() => {
     if (paused) return;
-    setClock(left - 1);
-    if (left <= 10 && left > 0) sfx('tick');
-    if (left <= 0) { clearInterval(tmr); sfx('win'); $('#clock').textContent = 'KONIEC!'; award('kolo:koniec:' + new Date().toDateString(), 20); }
-  }, 1000);
+    const remaining = Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
+    if (remaining === left) return;
+    setClock(remaining);
+    if (remaining > 0 && remaining <= 10) sfx('tick');
+    if (remaining === 0) {
+      stopTimer('Koniec czasu');
+      sfx('win'); $('#clock').textContent = 'KONIEC!';
+      award('kolo:koniec:' + new Date().toDateString(), 20);
+    }
+  }, 150);
 }
 $('#spin').addEventListener('click', spin);
 $('#timerBtn').addEventListener('click', startTimer);
-$('#pause').addEventListener('click', () => { paused = !paused; $('#pause').textContent = paused ? 'Wznów' : 'Pauza'; });
-$('#stopT').addEventListener('click', () => { clearInterval(tmr); setClock(0, total); $('#clock').textContent = '--:--'; });
+$('#pause').addEventListener('click', () => {
+  paused = !paused;
+  if (!paused) deadline = Date.now() + left * 1000;
+  $('#pause').textContent = paused ? 'Wznów' : 'Pauza';
+  timerStatus.textContent = paused ? 'Stoper wstrzymany' : 'Stoper wznowiony';
+});
+$('#stopT').addEventListener('click', () => {
+  stopTimer('Stoper zatrzymany');
+  setClock(0, total);
+  $('#clock').textContent = '--:--';
+});
 renderHist();
-if (cur) { $('#timerBtn').disabled = false; setClock(parseInt(cur[2], 10) * 60, parseInt(cur[2], 10) * 60); }
+if (cur) {
+  announce(cur);
+  $('#timerBtn').disabled = false;
+  const duration = parseInt(cur[2], 10) * 60;
+  setClock(duration, duration);
+}

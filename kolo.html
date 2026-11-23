@@ -37,12 +37,13 @@
   </div>
 
   <div class="slot panel corner">
-    <div class="reels" id="reels">
+    <div class="reels" id="reels" aria-hidden="true">
       <div class="reel"><span class="rl">Temat</span><div class="win"><div class="strip" id="r0"></div></div></div>
       <div class="reel"><span class="rl">Materiał</span><div class="win"><div class="strip" id="r1"></div></div></div>
       <div class="reel"><span class="rl">Czas</span><div class="win"><div class="strip" id="r2"></div></div></div>
       <div class="reel"><span class="rl">Zasada</span><div class="win"><div class="strip" id="r3"></div></div></div>
     </div>
+    <p id="drawResult" class="sr" role="status"></p>
     <div class="slot-btns">
       <button type="button" class="btn spin-btn" id="spin">Zakręć!</button>
       <button type="button" class="btn ghost" id="timerBtn" disabled>Start stopera</button>
@@ -53,6 +54,7 @@
   <div class="kolo-grid">
     <div class="panel pad timer-box">
       <h2 class="section-heading">Stoper</h2>
+      <p id="timerStatus" class="sr" role="status"></p>
       <div class="ring"><svg viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="52" class="rbg"/><circle cx="60" cy="60" r="52" class="rfg" id="ring"/></svg><b id="clock">--:--</b></div>
       <div class="copy-row" style="justify-content:center"><button type="button" class="btn ghost sm" id="pause" disabled>Pauza</button><button type="button" class="btn ghost sm" id="stopT" disabled>Koniec</button></div>
     </div>

@@ -77,9 +77,32 @@ const PAL = ['#ff3d3d', '#a3121a', '#ffc94a', '#2ee59d', '#14a46c', '#5cc8ff', '
 const N = 16, pix = $('#pix'), px = pix.getContext('2d'), prev = $('#iconPrev'), pv = prev.getContext('2d');
 const HEART = ['................', '................', '...XX....XX.....', '..XXXX..XXXX....', '.XXXXXXXXXXXX...', '.XXXXXXXXXXXX...', '.XXXXXXXXXXXX...', '..XXXXXXXXXX....', '...XXXXXXXX.....', '....XXXXXX......', '.....XXXX.......', '......XX........', '................', '................', '................', '................'];
 let grid = store.get('motd:ikona') || HEART.map(r => [...r].map(c => c === 'X' ? 0 : 11));
-let color = 0;
-$('#ipal').innerHTML = PAL.map((c, i) => `<button type="button" role="radio" class="sw-btn" data-i="${i}" aria-checked="${i === color}" aria-label="${c ? 'Kolor ' + c : 'Gumka'}" style="--c:${c || 'transparent'}">${c ? '' : '✕'}</button>`).join('');
-$('#ipal').addEventListener('click', (e) => { const b = e.target.closest('.sw-btn'); if (!b) return; color = +b.dataset.i; $('#ipal').querySelectorAll('.sw-btn').forEach(x => x.setAttribute('aria-checked', x === b)); });
+let color = 0, cursorX = 0, cursorY = 0;
+$('#ipal').innerHTML = PAL.map((c, i) => `<button type="button" role="radio" class="sw-btn" data-i="${i}" aria-checked="${i === color}" tabindex="${i === color ? 0 : -1}" aria-label="${c ? 'Kolor ' + c : 'Gumka'}" style="--c:${c || 'transparent'}">${c ? '' : '✕'}</button>`).join('');
+const palette = $('#ipal');
+const swatches = [...palette.children];
+function selectColor(index) {
+  swatches[color].setAttribute('aria-checked', 'false');
+  swatches[color].tabIndex = -1;
+  color = index;
+  swatches[color].setAttribute('aria-checked', 'true');
+  swatches[color].tabIndex = 0;
+}
+palette.addEventListener('click', (event) => {
+  const swatch = event.target.closest('.sw-btn');
+  if (swatch) selectColor(+swatch.dataset.i);
+});
+palette.addEventListener('keydown', (event) => {
+  const offset = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[event.key];
+  if (!offset) return;
+  event.preventDefault();
+  selectColor((color + offset + PAL.length) % PAL.length);
+  swatches[color].focus();
+});
+function describeCell() {
+  const fill = PAL[grid[cursorY][cursorX]] || 'przezroczysta';
+  $('#pixCell').textContent = `Kolumna ${cursorX + 1}, wiersz ${cursorY + 1}, ${fill}`;
+}
 function drawIcon() {
   const s = pix.width / N; px.clearRect(0, 0, pix.width, pix.height);
   for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
@@ -89,20 +112,50 @@ function drawIcon() {
   px.strokeStyle = 'rgba(255,255,255,.06)'; for (let i = 0; i <= N; i++) { px.beginPath(); px.moveTo(i * s + .5, 0); px.lineTo(i * s + .5, pix.height); px.moveTo(0, i * s + .5); px.lineTo(pix.width, i * s + .5); px.stroke(); }
   pv.clearRect(0, 0, 64, 64);
   for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) { const c = PAL[grid[y][x]]; if (c) { pv.fillStyle = c; pv.fillRect(x * 4, y * 4, 4, 4); } }
-  store.set('motd:ikona', grid);
+  if (document.activeElement === pix) {
+    px.lineWidth = 2;
+    px.strokeStyle = '#0b1020';
+    px.strokeRect(cursorX * s + 1, cursorY * s + 1, s - 2, s - 2);
+    px.strokeStyle = '#ffffff';
+    px.strokeRect(cursorX * s + 3, cursorY * s + 3, s - 6, s - 6);
+  }
 }
+const saveIcon = () => store.set('motd:ikona', grid);
 let painting = false;
 function paint(e) {
   const r = pix.getBoundingClientRect(), x = Math.floor((e.clientX - r.left) / r.width * N), y = Math.floor((e.clientY - r.top) / r.height * N);
   if (x < 0 || y < 0 || x >= N || y >= N) return;
-  const v = color === PAL.length - 1 ? 15 : color; if (grid[y][x] === v) return;
-  grid[y][x] = v; drawIcon(); sfx('tick');
+  cursorX = x;
+  cursorY = y;
+  paintCell();
+}
+function paintCell() {
+  if (grid[cursorY][cursorX] === color) return;
+  grid[cursorY][cursorX] = color;
+  drawIcon();
+  sfx('tick');
 }
 pix.addEventListener('pointerdown', (e) => { painting = true; pix.setPointerCapture?.(e.pointerId); paint(e); });
 pix.addEventListener('pointermove', (e) => { if (painting) paint(e); });
-addEventListener('pointerup', () => (painting = false));
-$('#clearIcon').addEventListener('click', () => { grid = Array.from({ length: N }, () => Array(N).fill(15)); drawIcon(); });
-$('#fillIcon').addEventListener('click', () => { grid = grid.map(r => r.map(v => v === 15 ? color : v)); drawIcon(); });
+pix.addEventListener('lostpointercapture', () => { painting = false; saveIcon(); });
+pix.addEventListener('focus', () => { drawIcon(); describeCell(); });
+pix.addEventListener('blur', drawIcon);
+pix.addEventListener('keydown', (event) => {
+  const direction = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }[event.key];
+  if (direction) {
+    event.preventDefault();
+    cursorX = Math.max(0, Math.min(N - 1, cursorX + direction[0]));
+    cursorY = Math.max(0, Math.min(N - 1, cursorY + direction[1]));
+    drawIcon();
+  } else if (event.key === ' ' || event.key === 'Enter') {
+    event.preventDefault();
+    paintCell();
+    saveIcon();
+  } else return;
+  describeCell();
+});
+$('#clearIcon').addEventListener('click', () => { grid = Array.from({ length: N }, () => Array(N).fill(15)); drawIcon(); saveIcon(); });
+$('#fillIcon').addEventListener('click', () => { grid = grid.map(r => r.map(v => v === 15 ? color : v)); drawIcon(); saveIcon(); });
 $('#dlIcon').addEventListener('click', () => {
   prev.toBlob((b) => { if (b) { download(b, 'server-icon.png'); award('motd:ikona', 20); } }, 'image/png');
 });

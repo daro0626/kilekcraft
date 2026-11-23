@@ -65,26 +65,51 @@ function initGame(context) {
 
   // ---------- świat ----------
   let solid = new Map(), room = null, spawn = new THREE.Vector3(), minY = 0;
-  const lavaMats = [];
+  const lavaMats = new Set();
   const k3 = (x, y, z) => x + ',' + y + ',' + z;
+  const faceSteps = [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]];
+  function buildMeshes() {
+    const chunks = new Map();
+    const { position, normal, uv } = box.attributes;
+    for (const [x, y, z, type] of room.blocks) {
+      const materials = materialFor(type);
+      for (const [face, [dx, dy, dz]] of faceSteps.entries()) {
+        const adjacent = solid.get(k3(x + dx, y + dy, z + dz));
+        if (adjacent && !BLOCKS[adjacent].alpha && BLOCKS[adjacent].pat !== 'leaves') continue;
+        const material = Array.isArray(materials) ? materials[face] : materials;
+        const key = [x >> 3, y >> 3, z >> 3, material.id].join(',');
+        if (!chunks.has(key)) chunks.set(key, { material, positions: [], normals: [], uvs: [], indices: [] });
+        const chunk = chunks.get(key);
+        const start = chunk.positions.length / 3;
+        for (let v = face * 4; v < face * 4 + 4; v++) {
+          chunk.positions.push(x + .5 + position.getX(v), y + .5 + position.getY(v), z + .5 + position.getZ(v));
+          chunk.normals.push(normal.getX(v), normal.getY(v), normal.getZ(v));
+          chunk.uvs.push(uv.getX(v), uv.getY(v));
+        }
+        chunk.indices.push(start, start + 2, start + 1, start + 2, start + 3, start + 1);
+        if (type === 'lava') lavaMats.add(material);
+      }
+    }
+    for (const { material, positions, normals, uvs, indices } of chunks.values()) {
+      const geometry = new THREE.BufferGeometry();
+      geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+      geometry.setAttribute('normal', new THREE.Float32BufferAttribute(normals, 3));
+      geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+      geometry.setIndex(indices);
+      const mesh = new THREE.Mesh(geometry, material);
+      if (material.transparent) mesh.renderOrder = 2;
+      level.add(mesh);
+    }
+  }
   function loadLevel() {
     room = generate(state);
     const code = encode(state); codeIn.value = code;
     try { history.replaceState(null, '', '#' + code); } catch { /* podgląd */ }
     store.set('komnata', state);
-    for (const mesh of level.children) mesh.dispose();
-    level.clear(); solid = new Map(); lavaMats.length = 0;
-    const by = {};
-    for (const b of room.blocks) { (by[b[3]] ||= []).push(b); solid.set(k3(b[0], b[1], b[2]), b[3]); }
-    const M = new THREE.Matrix4();
-    for (const [t, list] of Object.entries(by)) {
-      const mat = materialFor(t);
-      const m = new THREE.InstancedMesh(box, mat, list.length);
-      list.forEach((b, i) => { M.makeTranslation(b[0] + .5, b[1] + .5, b[2] + .5); m.setMatrixAt(i, M); });
-      if (BLOCKS[t].alpha) m.renderOrder = 2;
-      level.add(m);
-      if (t === 'lava') lavaMats.push(mat);
-    }
+    for (const mesh of level.children) mesh.geometry.dispose();
+    level.clear(); solid = new Map(); lavaMats.clear();
+    for (const [x, y, z, type] of room.blocks) solid.set(k3(x, y, z), type);
+    buildMeshes();
     // start: złoty blok (parkour) albo szmaragd (labirynt)
     const st = room.blocks.find(b => b[3] === 'gold') || room.blocks.find(b => b[3] === 'emerald') || room.blocks[0];
     spawn.set(st[0] + .5, st[1] + 1, st[2] + .5);
@@ -93,8 +118,8 @@ function initGame(context) {
     $('#best').textContent = best ? fmt(best) : '—';
     yaw = -Math.PI / 2; pitch = state.type === 'labirynt' ? .85 : .38;
     reset(true);
-    draw(performance.now(), true);
     showOver('Gotowy?', `${state.type === 'labirynt' ? 'Labirynt' : 'Parkour'} · trudność ${state.diff} · kod ${code}`, false);
+    resize(true);
   }
 
   // ---------- stan gry ----------
@@ -283,9 +308,11 @@ function initGame(context) {
   let last = 0, dist = 5.5, accumulator = 0, displayedTime = '', frameId = 0;
   const camT = new THREE.Vector3(), targetCamera = new THREE.Vector3();
   const tick = 1 / 120;
-  function resize() {
+  function resize(force = false) {
     const { clientWidth: width, clientHeight: height } = canvas;
     if (!width || !height) return;
+    if (!force && camera.aspect === width / height && renderer.domElement.width === Math.floor(width * ratio) &&
+        renderer.domElement.height === Math.floor(height * ratio)) return;
     renderer.setSize(width, height, false); camera.aspect = width / height; camera.updateProjectionMatrix();
     if (!running) draw(performance.now(), true);
   }
@@ -325,6 +352,5 @@ function initGame(context) {
   }
 
   loadLevel();
-  new ResizeObserver(resize).observe(canvas);
-  resize();
+  new ResizeObserver(() => resize()).observe(canvas);
 }
