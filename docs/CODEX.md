@@ -36,7 +36,7 @@ Pisz do właściciela po polsku, krótko i konkretnie. Na końcu każdej sesji d
 - Konflikt w `data/testy.json` przy scalaniu z `main`: weź wersję z gałęzi, potem puść test komend jeszcze raz.
 - Gdy zadanie wymaga decyzji właściciela albo testu w grze, zatrzymaj się, opisz opcje i przejdź do następnego zadania.
 
-## 2. Co się zmieniło ostatnio (PR #16, gałąź `funkcja/budowle-kategorie`)
+## 2. Co się zmieniło ostatnio (PR #27, gałąź `funkcja/budowle-kategorie`)
 
 - **Budowle w kategoriach.** `assets/js/builds.js` ma `KATEGORIE` (6 kategorii) i 20 budowli z polem `kat`. Nowe: wiatrak, strażnica, wielkie drzewo, jaskinia kryształów, portal, domek na drzewie, latarnia morska, farma, rakieta, wieżowiec, ołtarz serc, spawn z bazarem. Na stronie jest pasek kategorii (`#kategorie`), a domyślnie widać kategorię wybranej budowli.
 - **Paleta bloków sprawdzana na serwerze.** `assets/js/blocks.js` ma 15 nowych bloków. CI stawia każdy blok z palety (`test_palette` w `tools/test_commands.py`, wynik `wyniki.paleta`). Przy datapacku jest znacznik „bloki sprawdzone” albo „N bloków czeka na test” (`packStatusHTML(blockIds)` w `export.js`). Wynik z 23.11: 42/42 OK.
@@ -47,7 +47,7 @@ Pisz do właściciela po polsku, krótko i konkretnie. Na końcu każdej sesji d
 
 Rób w tej kolejności. Przy każdym jest lista plików, kroki i warunek akceptacji. Jeśli z poprzedniego polecenia (przegląd PR #7–#15, zadania C7–C10) coś jest niedokończone, dokończ to przed zadaniem R2.
 
-### R1. Przegląd PR #16 (budowle + Sezon)
+### R1. Przegląd PR #27 (budowle + Sezon)
 Szukasz błędów, nie zmieniasz zakresu. Każdy znaleziony błąd = poprawka + test w `tools/test_strony.py`.
 1. `assets/js/builds.js`: każda budowla ma mniej niż 15 000 bloków, nie ma bloków poniżej y=0 (sprawdza `Grid.set`), nie ma pustych warstw w środku (warstwa bez bloków psuje licznik „Warstwa N z M” w datapacku, bo `layerFunctions` pomija puste `y`). Napisz test, który dla każdej budowli porównuje liczbę różnych `y` z `size[1]` i wypisz budowle z dziurami. Dziura nie musi być błędem (np. latające odłamki), ale sprawdź, czy suwak na stronie i datapack zachowują się wtedy sensownie.
 2. `assets/js/budowle.js`: link z hashem (`budowle.html#rakieta`) ma otworzyć właściwą kategorię. Przycisk „Otwórz plan” przy filmach ma działać, gdy wybrana jest inna kategoria. Klawiatura: pasek kategorii i karty da się obsłużyć Tabem i Enterem.
@@ -57,7 +57,7 @@ Szukasz błędów, nie zmieniasz zakresu. Każdy znaleziony błąd = poprawka + 
    - Czy zapisany w `localStorage` stan ze starszej wersji (brak pól `ataki`, `atakiW` w `statystyki`) nie psuje gry. Jeśli psuje, dodaj migrację w `sezon.js` (uzupełnij brakujące pola zerami).
 4. `assets/js/sezon.js`: obsługa klawiaturą od startu do końca sezonu, fokus po każdej decyzji trafia na pierwszą akcję. `aria-live` w dzienniku nie może czytać całej listy przy każdym ruchu (sprawdź w czytniku albo ogranicz do ostatniego wpisu).
 5. Lighthouse mobile dla `budowle.html` i `symulator.html`: Performance ≥ 85, Accessibility ≥ 95. Podaj wyniki w PR.
-- **Akceptacja:** PR „Przegląd PR #16” z poprawkami albo z listą „sprawdzone, OK” punkt po punkcie.
+- **Akceptacja:** PR „Przegląd PR #27” z poprawkami albo z listą „sprawdzone, OK” punkt po punkcie.
 
 ### R2. Cennik jako dane i test identyfikatorów przedmiotów
 Cel: cennik z `docs/CENNIK_PROPOZYCJA.md` jako dane, które można pokazać na stronie i kiedyś wgrać do pluginu. **Nie zmieniaj kwot.** To decyzja właściciela.
@@ -142,4 +142,4 @@ Napisz krótko, w tej kolejności:
 
 ## Dziennik pracy
 
-- 2026-11-23 · Claude: PR #16 (20 budowli w 6 kategoriach, test palety na serwerze 42/42, gra „Sezon LifeSteal”). Ten plik. Cennik w `docs/CENNIK_PROPOZYCJA.md`.
+- 2026-11-23 · Claude: PR #27 (20 budowli w 6 kategoriach, test palety na serwerze 42/42, gra „Sezon LifeSteal”). Ten plik. Cennik w `docs/CENNIK_PROPOZYCJA.md`.
