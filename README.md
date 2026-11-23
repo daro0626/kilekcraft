@@ -17,6 +17,7 @@ Polska, fanowska akademia serwerowców Minecraft Java. Animowana, ale przede wsz
 | `komnaty.html` | Generator parkourów, gór do wspinaczki i labiryntów 1–10 z kodem komnaty |
 | `gry.html` | Zbiór gier: wyścig parkour, Znajdź błąd, koło wyzwań, wygląd serwera |
 | `parkour.html` | Wyścig 3D po komnatach z generatora, stoper, rekordy, duch najlepszego przejazdu, widok z 1. i 3. osoby, mysz jak w grze |
+| `wyzwanie.html` | Wyzwanie dnia: jedna komnata dziennie (parkour, góra albo labirynt), ta sama dla wszystkich, licząca się z datą |
 | `bledy.html` | Gra: znajdź błąd w komendzie (pytania sprawdzane na serwerze) |
 | `kolo.html` | Koło wyzwań budowlanych ze stoperem |
 | `motd.html` | Kolorowy opis serwera i ikona 64×64 z podglądem listy serwerów |

@@ -27,10 +27,11 @@ export const BADGES = [
   { id: 'parkour', name: 'Skoczek', desc: 'Ukończ wyścig parkour w przeglądarce', ico: '↗' },
   { id: 'speedrun', name: 'Speedrunner', desc: 'Ukończ wyścig o trudności 7 lub więcej', ico: '⏱' },
   { id: 'rywal', name: 'Rywal z przeszłości', desc: 'Pobij własny rekord, kiedy biegnie przy tobie duch', ico: '◈' },
+  { id: 'dzien', name: 'Zawodnik dnia', desc: 'Ukończ wyzwanie dnia', ico: '☀' },
   { id: 'kolo', name: 'Szczęśliwy los', desc: 'Zakręć kołem wyzwań', ico: '◎' },
   { id: 'odkrywca', name: 'Odkrywca', desc: 'Odwiedź wszystkie strony KILEKCRAFT', ico: '✦' },
 ];
-const PAGES = ['index', 'serwer', 'hosting', 'komendy', 'budowle', 'edytor', 'komnaty', 'symulator', 'gry', 'bledy', 'parkour', 'kolo', 'motd', 'lifesteal'];
+const PAGES = ['index', 'serwer', 'hosting', 'komendy', 'budowle', 'edytor', 'komnaty', 'symulator', 'gry', 'bledy', 'parkour', 'kolo', 'motd', 'lifesteal', 'wyzwanie'];
 
 // próg XP potrzebny na dany poziom: 0, 50, 150, 300, 500, 750…
 export const xpFor = (lvl) => 25 * lvl * (lvl - 1);

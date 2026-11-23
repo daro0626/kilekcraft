@@ -3,7 +3,7 @@
 Dotyczy Codexa, Claude i każdego innego agenta. Przeczytaj w całości przed pierwszą zmianą.
 
 ## Czym jest projekt
-KILEKCRAFT to polska, fanowska strona o Minecraft Java z narzędziami i grami: przepisy w szortach („Pierwszy serwer” i „LifeSteal z ekonomią serc”), doradca hostingu, kreator komend z podglądem, przeglądarka 8 budowli 3D, edytor budowli z eksportem do datapacka, generator komnat-wyzwań, symulator LifeSteal, wyścig parkour w przeglądarce, gra „Znajdź błąd”, koło wyzwań i wygląd serwera (MOTD + ikona). Dźwięki są syntezowane w przeglądarce (`sfx.js`) i domyślnie wyłączone. Na każdej stronie jest poziom gracza (XP i odznaki, tylko w `localStorage`). Głównym odbiorcą jest Piotrek (gra na Javie, głównie na komputerze, lubi shorty i wielkie budowle) oraz jego koledzy. Treść jest pisana publicznie.
+KILEKCRAFT to polska, fanowska strona o Minecraft Java z narzędziami i grami: przepisy w szortach („Pierwszy serwer” i „LifeSteal z ekonomią serc”), doradca hostingu, kreator komend z podglądem, przeglądarka 8 budowli 3D, edytor budowli z eksportem do datapacka, generator komnat-wyzwań, symulator LifeSteal, wyścig parkour w przeglądarce, wyzwanie dnia (jedna komnata dziennie, ta sama dla wszystkich), gra „Znajdź błąd”, koło wyzwań i wygląd serwera (MOTD + ikona). Dźwięki są syntezowane w przeglądarce (`sfx.js`) i domyślnie wyłączone. Na każdej stronie jest poziom gracza (XP i odznaki, tylko w `localStorage`). Głównym odbiorcą jest Piotrek (gra na Javie, głównie na komputerze, lubi shorty i wielkie budowle) oraz jego koledzy. Treść jest pisana publicznie.
 
 Szczegóły: `docs/WIZJA.md`, styl: `docs/STYL.md`, dane: `docs/DANE.md`, zadania: `docs/ZADANIA.md`.
 
@@ -29,7 +29,7 @@ Szczegóły: `docs/WIZJA.md`, styl: `docs/STYL.md`, dane: `docs/DANE.md`, zadani
 
 ## Budżety jakości (kryteria akceptacji każdej zmiany)
 - Lighthouse mobile (Moto G Power, throttling domyślny): Performance ≥ 85, Accessibility ≥ 95 na każdej stronie.
-- Brak błędów w konsoli na wszystkich 14 stronach (desktop 1366×820 i mobile 390×844).
+- Brak błędów w konsoli na wszystkich 15 stronach (desktop 1366×820 i mobile 390×844).
 - JS pierwszego widoku strony głównej (bez Three.js) < 60 KB nieskompresowany.
 - Kontrast tekstu ≥ 4.5:1.
 - Wszystkie interakcje działają klawiaturą i dotykiem.
