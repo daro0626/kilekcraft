@@ -290,6 +290,25 @@ def test_layers(rcon):
     return ok, info
 
 
+def palette_ids():
+    """Identyfikatory bloków z assets/js/blocks.js (bez portalu, który ma id: null)."""
+    src = (ROOT / 'assets/js/blocks.js').read_text(encoding='utf-8')
+    return sorted(set(re.findall(r"id:\s*'(minecraft:[a-z0-9_]+)'", src)))
+
+
+def test_palette(rcon):
+    """Każdy blok z palety budowli musi dać się postawić i odczytać na serwerze."""
+    ok_ids, errs = [], []
+    rcon.cmd('forceload add 0 0')
+    for i, bid in enumerate(palette_ids()):
+        x, y, z = OFFSET_X + i % 16, 170, i // 16
+        put = rcon.cmd(f'setblock {x} {y} {z} {bid}')
+        got = rcon.cmd(f'execute if block {x} {y} {z} {bid}')
+        if 'passed' in got.lower(): ok_ids.append(bid)
+        else: errs.append({'komenda': f'setblock {x} {y} {z} {bid}', 'odpowiedz': (put + ' | ' + got)[:300]})
+    return ok_ids, errs
+
+
 # ---------------------------------------------------------------- gra „Znajdź błąd”
 def test_bledy(rcon):
     """Zła komenda musi dać błąd, dobra musi przejść. Zwraca listę sprawdzonych id i błędy."""
@@ -462,9 +481,10 @@ def main():
             print('PALETA', block, reply)
             if 'passed' not in reply.lower():
                 palette_errors.append({'komenda': block, 'odpowiedz': reply})
-        results['paleta'] = {'ok': not palette_errors, 'wersja': version, 'silnik': label,
-                             'data': date.today().isoformat(), 'przetestowano': len(PALETTE_SAMPLE),
-                             'bledy': palette_errors}
+        # Próbka z palety edytora (C10) przez funkcję datapacka; pełną paletę sprawdza test_palette niżej.
+        results['paleta_edytor'] = {'ok': not palette_errors, 'wersja': version, 'silnik': label,
+                                    'data': date.today().isoformat(), 'przetestowano': len(PALETTE_SAMPLE),
+                                    'bledy': palette_errors}
         failed += len(palette_errors)
     if ok:
         lok, linfo = test_layers(rcon)
@@ -472,6 +492,11 @@ def main():
         results['warstwy'] = {'ok': lok, 'wersja': version, 'silnik': label, 'data': date.today().isoformat(),
                               'przetestowano': 8, 'bledy': [] if lok else [{'komenda': k, 'odpowiedz': v[:300]} for k, v in linfo]}
         failed += not lok
+        pids, perrs = test_palette(rcon)
+        print(f'Paleta bloków: {len(pids)}/{len(palette_ids())}')
+        results['paleta'] = {'ok': not perrs, 'wersja': version, 'silnik': label, 'data': date.today().isoformat(),
+                             'przetestowano': len(palette_ids()), 'zweryfikowane': pids, 'bledy': perrs}
+        failed += bool(perrs)
         (a.report_dir / 'datapack.json').write_text(json.dumps({
             '_opis': 'Zawartość pack.mcmeta dla eksportowanych datapacków. Zapisane przez tools/test_commands.py po udanym teście.',
             'pack': meta, 'sprawdzone': True, 'wersja': version, 'silnik': label, 'data': date.today().isoformat()},

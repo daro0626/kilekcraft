@@ -40,4 +40,16 @@ export const BLOCKS = {
   blue_wool: { name: 'Niebieska wełna', id: 'minecraft:blue_wool', c: '#4759a5', pat: 'woven' },
   moss_block: { name: 'Blok mchu', id: 'minecraft:moss_block', c: '#637b38', pat: 'noise' },
   packed_ice: { name: 'Ubity lód', id: 'minecraft:packed_ice', c: '#97bfe9', pat: 'frost' },
+  // Bloki dodane razem z kategoriami budowli. Identyfikatory sprawdza test „paleta” w tools/test_commands.py.
+  spruce_log:   { name: 'Świerkowy pień',    id: 'minecraft:spruce_log',    c: '#4a3520', pat: 'bark' },
+  spruce_planks:{ name: 'Świerkowe deski',   id: 'minecraft:spruce_planks', c: '#7a5a36', pat: 'planks' },
+  gray_concrete:{ name: 'Szary beton',       id: 'minecraft:gray_concrete', c: '#3f444b', pat: 'smooth' },
+  yellow_concrete:{ name: 'Żółty beton',     id: 'minecraft:yellow_concrete',c: '#f0b020', pat: 'smooth' },
+  hay:          { name: 'Snopek siana',      id: 'minecraft:hay_block',     c: '#c9a43a', pat: 'planks' },
+  pumpkin:      { name: 'Dynia',             id: 'minecraft:pumpkin',       c: '#d9822b', pat: 'smooth' },
+  glowstone:    { name: 'Jasnogłaz',         id: 'minecraft:glowstone',     c: '#f6d27a', pat: 'lantern', glow: true },
+  snow:         { name: 'Blok śniegu',       id: 'minecraft:snow_block',    c: '#f4f8fb', pat: 'noise' },
+  end_stone:    { name: 'Kamień Kresu',      id: 'minecraft:end_stone',     c: '#e4e2a8', pat: 'noise' },
+  redstone:     { name: 'Blok czerwienitu',  id: 'minecraft:redstone_block',c: '#c41e14', pat: 'metal', glow: true },
+  terracotta:   { name: 'Terakota',          id: 'minecraft:terracotta',    c: '#a4644a', pat: 'noise' },
 };

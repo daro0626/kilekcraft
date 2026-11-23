@@ -237,15 +237,282 @@ function castle() {
   return g.list();
 }
 
+
+// =========================================================
+// Budowle dodane razem z kategoriami (Średniowiecze, Natura, Fantasy,
+// Przetrwanie, Miasto i kosmos, LifeSteal).
+// =========================================================
+const ring = (x, z, cx, cz, r, w = 1) => { const d = Math.hypot(x - cx, z - cz); return d <= r + .5 && d > r + .5 - w; };
+
+// ---------- Wiatrak ----------
+function windmill() {
+  const g = new Grid(), C = 8, H = 18;
+  for (let y = 0; y <= H; y++) { const r = 5 - y * .12; for (let x = 0; x <= 16; x++) for (let z = 0; z <= 16; z++) {
+    if (ring(x, z, C, C, r, 1.2)) g.set(x, y, z, (y === 6 || y === 12) && (x === C || z === C) ? 'glass' : y % 6 === 0 ? 'spruce_planks' : 'bricks');
+    if (y === 0 && Math.hypot(x - C, z - C) <= r) g.set(x, y, z, 'spruce_planks');
+  } }
+  for (let y = 0; y <= 6; y++) { const r = 3.6 * (1 - y / 7); for (let x = 0; x <= 16; x++) for (let z = 0; z <= 16; z++) if (ring(x, z, C, C, r, 1.3)) g.set(x, H + 1 + y, z, 'dark_log'); }
+  for (const y of [1, 2]) for (const z of [C - 5, C - 4]) g.del(C, y, z); // drzwi
+  // oś i cztery skrzydła z białego płótna
+  const hy = H - 2, hz = 1;
+  for (let z = hz; z <= 3; z++) g.set(C, hy, z, 'spruce_log');
+  for (let k = 1; k <= 12; k++) for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+    g.set(C + dx * k, hy + dy * k, hz, 'spruce_log');
+    if (k >= 3) for (let w = 1; w <= 3; w++) g.set(C + dx * k + (dy ? w : 0) * (dy > 0 ? 1 : -1), hy + dy * k + (dx ? w : 0) * (dx > 0 ? -1 : 1), hz, 'white_wool');
+  }
+  // pole z dyniami i snopki
+  for (let x = -6; x <= 22; x++) for (let z = 13; z <= 24; z++) g.set(x, 0, z, (x + z) % 4 === 0 ? 'pumpkin' : 'grass');
+  [[-2, 3], [-3, 5], [18, 4], [19, 6]].forEach(([x, z]) => { g.set(x, 0, z, 'hay'); g.set(x, 1, z, 'hay'); });
+  return g.list();
+}
+
+// ---------- Wieża strażnicza ----------
+function watchtower() {
+  const g = new Grid(), S = 6, H = 16;
+  for (let y = 0; y <= H; y++) for (let x = 0; x <= S; x++) for (let z = 0; z <= S; z++) {
+    const edge = x === 0 || x === S || z === 0 || z === S, corner = (x === 0 || x === S) && (z === 0 || z === S);
+    if (corner) g.set(x, y, z, 'spruce_log');
+    else if (edge && y <= 6) g.set(x, y, z, y === 3 && (x === S / 2 || z === S / 2) ? 'glass' : 'cobble');
+    else if (edge && y > 6 && y % 4 === 0) g.set(x, y, z, 'spruce_planks');
+    if (y === 0 || y === 7) if (!edge || y === 0) g.set(x, y, z, 'spruce_planks');
+  }
+  g.del(S / 2, 1, 0); g.del(S / 2, 2, 0);
+  // platforma z balustradą i daszkiem
+  for (let x = -2; x <= S + 2; x++) for (let z = -2; z <= S + 2; z++) {
+    g.set(x, H + 1, z, 'spruce_planks');
+    const edge = x === -2 || x === S + 2 || z === -2 || z === S + 2;
+    if (edge) g.set(x, H + 2, z, (x + z) % 2 ? 'spruce_log' : 'cobble');
+  }
+  for (const [x, z] of [[-2, -2], [S + 2, -2], [-2, S + 2], [S + 2, S + 2]]) for (let y = H + 2; y <= H + 5; y++) g.set(x, y, z, 'spruce_log');
+  for (let k = 0; k <= 4; k++) for (let x = -3 + k; x <= S + 3 - k; x++) for (let z = -3 + k; z <= S + 3 - k; z++) {
+    const edge = x === -3 + k || x === S + 3 - k || z === -3 + k || z === S + 3 - k; if (edge || k === 4) g.set(x, H + 6 + k, z, 'dark_log');
+  }
+  g.set(S / 2, H + 2, S / 2, 'lantern'); g.set(S / 2, H + 11, S / 2, 'lantern');
+  // kamienna ścieżka do drzwi
+  for (let z = -8; z <= -1; z++) g.set(S / 2, 0, z, 'cobble');
+  return g.list();
+}
+
+// ---------- Wielkie drzewo ----------
+function bigTree() {
+  const g = new Grid(), r = rng(31), C = 16, H = 26;
+  for (let y = 0; y <= H; y++) { const rad = y < 4 ? 3.6 - y * .2 : 2.6 - y * .03; for (let x = 0; x <= 32; x++) for (let z = 0; z <= 32; z++) if (Math.hypot(x - C, z - C) <= rad) g.set(x, y, z, 'oak_log'); }
+  // korzenie
+  for (let a = 0; a < 6; a++) { const ang = a * 1.05 + .3; for (let k = 3; k <= 8; k++) g.set(Math.round(C + Math.cos(ang) * k), Math.max(0, 2 - Math.floor(k / 3)), Math.round(C + Math.sin(ang) * k), 'oak_log'); }
+  // gałęzie i kule liści
+  const blob = (bx, by, bz, R) => { for (let x = -R; x <= R; x++) for (let y = -R; y <= R; y++) for (let z = -R; z <= R; z++) {
+    if (Math.hypot(x, y * 1.4, z) <= R + r() * .6 - .3 && !g.get(bx + x, by + y, bz + z)) g.set(bx + x, by + y, bz + z, 'leaves'); } };
+  const tips = [];
+  for (let a = 0; a < 5; a++) { const ang = a * 1.26 + .5, y0 = 14 + (a % 3) * 3; let x = C, y = y0, z = C;
+    for (let k = 0; k < 9; k++) { x += Math.cos(ang); z += Math.sin(ang); y += .45; g.set(Math.round(x), Math.round(y), Math.round(z), 'oak_log'); }
+    tips.push([Math.round(x), Math.round(y), Math.round(z)]); }
+  for (const [x, y, z] of tips) blob(x, y + 1, z, 5);
+  blob(C, H + 2, C, 7);
+  // świecące owoce i trawa
+  for (let i = 0; i < 14; i++) { const [x, y, z] = tips[i % tips.length]; g.set(x + Math.round((r() - .5) * 8), y - 3, z + Math.round((r() - .5) * 8), 'glowstone'); }
+  for (let x = 0; x <= 32; x++) for (let z = 0; z <= 32; z++) if (!g.get(x, 0, z) && Math.hypot(x - C, z - C) < 15) g.set(x, 0, z, r() < .2 ? 'moss_block' : 'grass');
+  return g.list();
+}
+
+// ---------- Jaskinia kryształów ----------
+function crystalCave() {
+  const g = new Grid(), r = rng(41), C = 14, R = 12;
+  for (let x = 0; x <= 28; x++) for (let z = 0; z <= 28; z++) for (let y = 0; y <= R; y++) {
+    const d = Math.hypot(x - C, y * 1.15, z - C);
+    if (d <= R + .5 && d > R - 1.6 + r() * .6) g.set(x, y, z, r() < .25 ? 'cobble' : 'stone');
+    if (y === 0 && d <= R) g.set(x, y, z, r() < .3 ? 'cobble' : 'stone');
+  }
+  // szerokie wejście od strony kamery, żeby zajrzeć do środka
+  for (let x = 0; x <= 28; x++) for (let y = 1; y <= R; y++) for (let z = C; z <= 28; z++) if (Math.hypot((x - C) / 1.2, y) < 7.5) g.del(x, y, z);
+  // kryształy z podłogi i z sufitu (sufit liczony z kształtu kopuły)
+  const roof = (x, z) => Math.floor(Math.sqrt(Math.max(0, (R - 1.8) ** 2 - (x - C) ** 2 - (z - C) ** 2)) / 1.15);
+  const spike = (x, z, h, down) => { const top = roof(x, z); for (let k = 0; k < h; k++) { const y = down ? top - k : 1 + k; if (y < 1 || y >= top + (down ? 1 : 0)) continue; g.set(x, y, z, k === h - 1 ? 'glowstone' : 'amethyst'); if (k < h / 2) { g.set(x + 1, y, z, 'amethyst'); g.set(x, y, z + 1, 'amethyst'); } } };
+  for (let i = 0; i < 10; i++) { const a = r() * 6.28, d = 2 + r() * 6; spike(Math.round(C + Math.cos(a) * d), Math.round(C + Math.sin(a) * d), 3 + Math.floor(r() * 4), false); }
+  for (let i = 0; i < 7; i++) { const a = r() * 6.28, d = 1 + r() * 5; spike(Math.round(C + Math.cos(a) * d), Math.round(C + Math.sin(a) * d), 2 + Math.floor(r() * 3), true); }
+  // podziemne jeziorko
+  for (let x = 0; x <= 28; x++) for (let z = 0; z <= 28; z++) if (Math.hypot(x - C - 4, z - C - 3) < 3) g.set(x, 0, z, 'water');
+  return g.list();
+}
+
+// ---------- Portal do innego świata ----------
+function endPortal() {
+  const g = new Grid(), r = rng(53), C = 15;
+  // wyspa z kamienia Kresu
+  for (let y = 0; y <= 6; y++) { const rad = 13 - (6 - y) * 1.6; for (let x = 0; x <= 30; x++) for (let z = 0; z <= 30; z++) if (Math.hypot(x - C, z - C) + r() * 1.2 <= rad) g.set(x, y, z, y === 6 ? 'end_stone' : r() < .3 ? 'obsidian' : 'end_stone'); }
+  // pierścień portalu
+  const base = 7;
+  for (let a = 0; a < 360; a += 2) { const t = a * Math.PI / 180; for (const rr of [8, 9]) { const x = Math.round(C + Math.cos(t) * rr), y = Math.round(base + 9 + Math.sin(t) * rr); if (y >= base) g.set(x, y, C, rr === 8 ? 'purpur' : 'obsidian'); } }
+  for (let x = C - 7; x <= C + 7; x++) for (let y = base; y <= base + 17; y++) if (Math.hypot(x - C, y - base - 9) < 7.6) g.set(x, y, C, 'portal');
+  // filary z kryształami
+  for (const [x, z] of [[C - 10, C - 6], [C + 10, C - 6], [C - 10, C + 6], [C + 10, C + 6]]) { for (let y = base; y <= base + 8; y++) g.set(x, y, z, 'obsidian'); g.set(x, base + 9, z, 'amethyst'); g.set(x, base + 10, z, 'lantern'); }
+  // latające odłamki
+  for (let i = 0; i < 6; i++) { const a = i * 1.05, x = Math.round(C + Math.cos(a) * 16), z = Math.round(C + Math.sin(a) * 16), y = 10 + (i % 3) * 4; for (let dx = -1; dx <= 1; dx++) for (let dz = -1; dz <= 1; dz++) g.set(x + dx, y, z + dz, 'end_stone'); g.set(x, y - 1, z, 'end_stone'); }
+  return g.list();
+}
+
+// ---------- Domek na drzewie ----------
+function treeHouse() {
+  const g = new Grid(), r = rng(61), C = 10, F = 11;
+  for (let y = 0; y <= F + 10; y++) for (let x = C - 1; x <= C + 1; x++) for (let z = C - 1; z <= C + 1; z++) if (Math.hypot(x - C, z - C) < 1.6) g.set(x, y, z, 'spruce_log');
+  // podłoga i domek
+  for (let x = C - 5; x <= C + 5; x++) for (let z = C - 5; z <= C + 5; z++) g.set(x, F, z, 'spruce_planks');
+  for (let y = F + 1; y <= F + 4; y++) for (let x = C - 3; x <= C + 3; x++) for (let z = C - 3; z <= C + 3; z++) {
+    const edge = x === C - 3 || x === C + 3 || z === C - 3 || z === C + 3; if (!edge) continue;
+    const corner = (x === C - 3 || x === C + 3) && (z === C - 3 || z === C + 3);
+    g.set(x, y, z, corner ? 'spruce_log' : y === F + 2 && (x === C || z === C) ? 'glass' : 'oak_planks');
+  }
+  g.del(C, F + 1, C - 3); g.del(C, F + 2, C - 3);
+  for (let k = 0; k <= 4; k++) for (let x = C - 4 + k; x <= C + 4 - k; x++) for (let z = C - 4; z <= C + 4; z++) if (x === C - 4 + k || x === C + 4 - k) g.set(x, F + 5 + k, z, 'dark_log');
+  // balustrada, drabina z desek i korona drzewa
+  for (let x = C - 5; x <= C + 5; x++) for (let z = C - 5; z <= C + 5; z++) if ((x === C - 5 || x === C + 5 || z === C - 5 || z === C + 5) && (x + z) % 2 === 0) g.set(x, F + 1, z, 'spruce_log');
+  for (let y = 1; y < F; y++) g.set(C, y, C - 2, 'spruce_planks');
+  for (let x = -6; x <= 6; x++) for (let y = 0; y <= 6; y++) for (let z = -6; z <= 6; z++) { const d = Math.hypot(x, y * 1.3, z); if (d <= 6 + r() * .7 && (Math.abs(x) > 4 || Math.abs(z) > 4 || y > 3)) if (!g.get(C + x, F + 7 + y, C + z)) g.set(C + x, F + 7 + y, C + z, 'leaves'); }
+  g.set(C, F + 4, C, 'lantern');
+  for (let x = 0; x <= 20; x++) for (let z = 0; z <= 20; z++) if (!g.get(x, 0, z) && Math.hypot(x - C, z - C) < 9) g.set(x, 0, z, 'grass');
+  return g.list();
+}
+
+// ---------- Latarnia morska ----------
+function lighthouse() {
+  const g = new Grid(), r = rng(71), C = 12, H = 24;
+  for (let x = 0; x <= 24; x++) for (let z = 0; z <= 24; z++) { const d = Math.hypot(x - C, z - C); if (d < 12) g.set(x, 0, z, d < 7 + r() * 1.5 ? 'stone' : 'water'); if (d < 6.5 + r()) g.set(x, 1, z, r() < .4 ? 'cobble' : 'stone'); }
+  for (let y = 2; y <= H; y++) { const rad = 4 - y * .06; for (let x = 0; x <= 24; x++) for (let z = 0; z <= 24; z++) if (ring(x, z, C, C, rad, 1.2)) g.set(x, y, z, Math.floor((y - 2) / 4) % 2 ? 'white_concrete' : 'red_concrete'); }
+  for (let x = 0; x <= 24; x++) for (let z = 0; z <= 24; z++) { const d = Math.hypot(x - C, z - C); if (d <= 4.4) g.set(x, H + 1, z, 'smooth_stone'); if (d <= 4.4 && d > 3.4) g.set(x, H + 2, z, 'iron'); }
+  for (let y = H + 2; y <= H + 4; y++) for (let x = C - 2; x <= C + 2; x++) for (let z = C - 2; z <= C + 2; z++) { const d = Math.hypot(x - C, z - C); if (d <= 2.2) g.set(x, y, z, d < 1.2 ? 'glowstone' : 'glass'); }
+  for (let k = 0; k <= 3; k++) for (let x = C - 3 + k; x <= C + 3 - k; x++) for (let z = C - 3 + k; z <= C + 3 - k; z++) g.set(x, H + 5 + k, z, 'red_concrete');
+  // pomost
+  for (let x = C + 6; x <= C + 12; x++) for (const z of [C - 1, C, C + 1]) g.set(x, 1, z, 'spruce_planks');
+  return g.list();
+}
+
+// ---------- Farma ze stodołą ----------
+function farm() {
+  const g = new Grid(), W = 12, D = 16, Hw = 6;
+  for (let x = -14; x <= W + 10; x++) for (let z = -6; z <= D + 6; z++) g.set(x, 0, z, 'grass');
+  for (let y = 1; y <= Hw; y++) for (let x = 0; x <= W; x++) for (let z = 0; z <= D; z++) {
+    const edge = x === 0 || x === W || z === 0 || z === D; if (!edge) continue;
+    const corner = (x === 0 || x === W) && (z === 0 || z === D);
+    g.set(x, y, z, corner ? 'spruce_log' : y === Hw ? 'spruce_planks' : 'red_concrete');
+  }
+  for (let y = 1; y <= 4; y++) for (let x = W / 2 - 2; x <= W / 2 + 2; x++) g.del(x, y, 0);
+  for (let y = 1; y <= 4; y++) for (const x of [W / 2 - 2, W / 2 + 2]) g.set(x, y, -1, 'white_concrete');
+  for (let k = 0; k <= W / 2; k++) for (let z = -1; z <= D + 1; z++) { g.set(k, Hw + 1 + k, z, 'dark_log'); g.set(W - k, Hw + 1 + k, z, 'dark_log'); }
+  for (let k = 1; k < W / 2; k++) for (let x = k + 1; x < W - k; x++) for (const z of [0, D]) g.set(x, Hw + k, z, 'red_concrete');
+  for (let x = 2; x <= 4; x++) for (let z = 10; z <= 14; z++) for (let y = 1; y <= 2; y++) g.set(x, y, z, 'hay');
+  // pola: dynie i siano, ogrodzenie z pni
+  for (let x = -13; x <= -2; x++) for (let z = -4; z <= D + 4; z++) {
+    if (x === -13 || x === -2 || z === -4 || z === D + 4) { if ((x + z) % 2 === 0) g.set(x, 1, z, 'spruce_log'); }
+    else if (x % 3 === 0) g.set(x, 0, z, 'water'); else g.set(x, 1, z, x % 3 === 1 ? 'pumpkin' : 'hay');
+  }
+  return g.list();
+}
+
+// ---------- Rakieta na wyrzutni ----------
+function rocket() {
+  const g = new Grid(), C = 10, H = 38;
+  for (let x = 0; x <= 20; x++) for (let z = 0; z <= 20; z++) g.set(x, 0, z, (x + z) % 2 ? 'gray_concrete' : 'smooth_stone');
+  for (let x = 0; x <= 20; x++) for (const z of [0, 20]) g.set(x, 0, z, 'yellow_concrete');
+  for (let y = 1; y <= H; y++) {
+    const rad = y > H - 8 ? 3.2 * (H - y + 1) / 9 : 3.2;
+    for (let x = 0; x <= 20; x++) for (let z = 0; z <= 20; z++) if (ring(x, z, C, C, rad, 1.3)) {
+      const win = (y === 22 || y === 23) && z === C - 3 && x === C;
+      g.set(x, y, z, win ? 'glass' : y > H - 8 ? 'red_concrete' : y % 10 === 5 ? 'gray_concrete' : 'white_concrete');
+    }
+  }
+  // stateczniki i silniki
+  for (const [dx, dz] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) for (let k = 0; k <= 5; k++) for (let y = 1; y <= 8 - k; y++) g.set(C + dx * (3 + k), y + 2, C + dz * (3 + k), 'red_concrete');
+  for (let x = C - 2; x <= C + 2; x++) for (let z = C - 2; z <= C + 2; z++) if (Math.hypot(x - C, z - C) < 2.3) g.set(x, 1, z, 'lantern');
+  // wieża serwisowa
+  for (let y = 1; y <= H - 6; y++) for (const [x, z] of [[C + 7, C - 1], [C + 7, C + 1], [C + 9, C - 1], [C + 9, C + 1]]) g.set(x, y, z, 'iron');
+  for (let y = 6; y <= H - 6; y += 8) for (let x = C + 4; x <= C + 9; x++) g.set(x, y, C, 'gray_concrete');
+  g.set(C + 8, H - 5, C, 'redstone');
+  return g.list();
+}
+
+// ---------- Wieżowiec ----------
+function skyscraper() {
+  const g = new Grid(), S = 10, H = 44;
+  for (let x = -4; x <= S + 4; x++) for (let z = -4; z <= S + 4; z++) g.set(x, 0, z, (x === -4 || z === -4 || x === S + 4 || z === S + 4) ? 'gray_concrete' : 'smooth_stone');
+  for (let y = 1; y <= H; y++) { const inset = y > 32 ? 2 : y > 20 ? 1 : 0; for (let x = inset; x <= S - inset; x++) for (let z = inset; z <= S - inset; z++) {
+    const edge = x === inset || x === S - inset || z === inset || z === S - inset, corner = (x === inset || x === S - inset) && (z === inset || z === S - inset);
+    if (y % 4 === 0) g.set(x, y, z, edge ? 'gray_concrete' : 'smooth_stone');
+    else if (edge) g.set(x, y, z, corner ? 'gray_concrete' : 'glass');
+  } }
+  for (let y = 1; y <= 3; y++) g.del(S / 2, y, 0);
+  for (let y = H + 1; y <= H + 8; y++) g.set(S / 2, y, S / 2, 'iron');
+  g.set(S / 2, H + 9, S / 2, 'redstone');
+  for (const [x, z] of [[2, 2], [S - 2, 2], [2, S - 2], [S - 2, S - 2]]) g.set(x, H + 1, z, 'lantern');
+  for (let y = 4; y <= H; y += 8) for (let x = 0; x <= S; x++) g.set(x, y, -1, 'blue_concrete');
+  return g.list();
+}
+
+// ---------- Ołtarz serc (LifeSteal) ----------
+function heartAltar() {
+  const g = new Grid(), C = 12;
+  const heart = ['..XXX...XXX..', '.XXXXX.XXXXX.', 'XXXXXXXXXXXXX', 'XXXXXXXXXXXXX', 'XXXXXXXXXXXXX', '.XXXXXXXXXXX.', '..XXXXXXXXX..', '...XXXXXXX...', '....XXXXX....', '.....XXX.....', '......X......'];
+  for (let x = 0; x <= 24; x++) for (let z = 0; z <= 24; z++) { const d = Math.hypot(x - C, z - C); if (d <= 12) g.set(x, 0, z, d > 10.5 ? 'stone_bricks' : 'black_concrete'); if (d <= 7 && d > 6) g.set(x, 1, z, 'stone_bricks'); if (d <= 6) g.set(x, 1, z, 'smooth_stone'); }
+  // pionowe serce z czerwonego betonu
+  heart.forEach((row, j) => [...row].forEach((c, i) => { if (c === 'X') { const y = 4 + heart.length - j; g.set(C - 6 + i, y, C, (j < 3 && (i === 2 || i === 3)) ? 'white_concrete' : 'red_concrete'); g.set(C - 6 + i, y, C + 1, 'redstone'); } }));
+  for (let y = 2; y <= 4; y++) for (let x = C - 1; x <= C + 1; x++) g.set(x, y, C, 'obsidian');
+  // cztery kolumny ze światłem i schody w górę
+  for (const [x, z] of [[C - 8, C - 8], [C + 8, C - 8], [C - 8, C + 8], [C + 8, C + 8]]) { for (let y = 1; y <= 9; y++) g.set(x, y, z, y === 9 ? 'glowstone' : 'stone_bricks'); }
+  for (let k = 0; k <= 3; k++) for (let x = C - 2; x <= C + 2; x++) g.set(x, 1, C - 11 + k, k ? 'stone_bricks' : 'smooth_stone');
+  return g.list();
+}
+
+// ---------- Spawn z bazarem (LifeSteal) ----------
+function spawnHub() {
+  const g = new Grid(), r = rng(83), C = 18;
+  for (let x = 0; x <= 36; x++) for (let z = 0; z <= 36; z++) { const d = Math.hypot(x - C, z - C); if (d <= 18) g.set(x, 0, z, d < 4 ? 'quartz' : (x + z) % 3 ? 'stone_bricks' : 'smooth_stone'); }
+  // fontanna
+  for (let x = 0; x <= 36; x++) for (let z = 0; z <= 36; z++) { const d = Math.hypot(x - C, z - C); if (d <= 3.5 && d > 2.5) g.set(x, 1, z, 'quartz'); if (d <= 2.5) g.set(x, 1, z, 'water'); }
+  for (let y = 1; y <= 5; y++) g.set(C, y, C, y === 5 ? 'lantern' : 'quartz');
+  // osiem straganów dookoła
+  const roofs = ['red_concrete', 'yellow_concrete', 'blue_concrete', 'white_concrete'];
+  for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4, sx = Math.round(C + Math.cos(a) * 12), sz = Math.round(C + Math.sin(a) * 12), roof = roofs[i % 4];
+    for (const [dx, dz] of [[-2, -2], [2, -2], [-2, 2], [2, 2]]) for (let y = 1; y <= 3; y++) g.set(sx + dx, y, sz + dz, 'spruce_log');
+    for (let dx = -2; dx <= 2; dx++) for (let dz = -2; dz <= 2; dz++) g.set(sx + dx, 4, sz + dz, (dx + dz) % 2 ? roof : 'white_wool');
+    for (let dx = -1; dx <= 1; dx++) g.set(sx + dx, 1, sz, i % 2 ? 'spruce_planks' : 'oak_planks');
+    g.set(sx, 2, sz, ['pumpkin', 'hay', 'gold', 'emerald'][i % 4]);
+  }
+  // brama spawnu i latarnie na obwodzie
+  for (let y = 1; y <= 8; y++) for (const x of [C - 3, C + 3]) g.set(x, y, 0, 'stone_bricks');
+  for (let x = C - 3; x <= C + 3; x++) g.set(x, 9, 0, 'stone_bricks');
+  g.set(C, 8, 0, 'lantern');
+  for (let i = 0; i < 16; i++) { const a = i * Math.PI / 8, x = Math.round(C + Math.cos(a) * 17), z = Math.round(C + Math.sin(a) * 17); if (Math.abs(x - C) <= 4 && z < 4) continue; g.set(x, 1, z, 'stone_bricks'); g.set(x, 2, z, 'lantern'); }
+  return g.list();
+}
+
+export const KATEGORIE = [
+  { id: 'sredniowiecze', name: 'Średniowiecze' },
+  { id: 'natura', name: 'Natura' },
+  { id: 'fantasy', name: 'Fantasy' },
+  { id: 'przetrwanie', name: 'Przetrwanie' },
+  { id: 'miasto', name: 'Miasto i kosmos' },
+  { id: 'lifesteal', name: 'LifeSteal' },
+];
+
 export const BUILDS = [
-  { id: 'wyspa', name: 'Latająca wyspa z portalem', short: 'Wyspa', desc: 'Wyspa wisi w powietrzu, ma portal i drzewo. Od spodu zwisają latarnie. Najlepiej ją postawić nad oceanem albo na spawnie.', make: island },
-  { id: 'miecz', name: 'Gigantyczny miecz w skale', short: 'Miecz', desc: 'Miecz ma prawie 50 bloków wysokości i diamentowy środek ostrza. Widać go z daleka.', make: sword },
-  { id: 'wieza', name: 'Wieża Smoka', short: 'Wieża', desc: 'Okrągła wieża ze spiralnym balkonem, koroną z blankami i fioletowym dachem.', make: tower },
-  { id: 'smok', name: 'Smok oplatający górę', short: 'Smok', desc: 'Zielony smok owija się dwa razy wokół ośnieżonej góry. Na szczycie ma głowę z rogami, skrzydłami i ogniem.', make: dragon },
-  { id: 'wulkan', name: 'Wulkan z lawą', short: 'Wulkan', desc: 'Stożek z kraterem pełnym lawy. Trzy rzeki lawy spływają po zboczach, a nad kraterem unosi się dym.', make: volcano },
-  { id: 'statek', name: 'Statek na wodospadzie', short: 'Statek', desc: 'Statek z żaglami przechyla się nad krawędzią klifu, a obok spada wodospad.', make: ship },
-  { id: 'zamek', name: 'Zamek z mostem zwodzonym', short: 'Zamek', desc: 'Mury z blankami, cztery wieże, donżon z chorągwią, fosa i opuszczony most na łańcuchach.', make: castle },
-  { id: 'arena', name: 'Arena LifeSteal', short: 'Arena', desc: 'Arena na pojedynki z trybunami i czterema bramami. Na środku jest serce z czerwonego betonu.', make: arena },
+  { id: 'wyspa', kat: 'fantasy', name: 'Latająca wyspa z portalem', short: 'Wyspa', desc: 'Wyspa wisi w powietrzu, ma portal i drzewo. Od spodu zwisają latarnie. Najlepiej ją postawić nad oceanem albo na spawnie.', make: island },
+  { id: 'miecz', kat: 'fantasy', name: 'Gigantyczny miecz w skale', short: 'Miecz', desc: 'Miecz ma prawie 50 bloków wysokości i diamentowy środek ostrza. Widać go z daleka.', make: sword },
+  { id: 'wieza', kat: 'sredniowiecze', name: 'Wieża Smoka', short: 'Wieża', desc: 'Okrągła wieża ze spiralnym balkonem, koroną z blankami i fioletowym dachem.', make: tower },
+  { id: 'smok', kat: 'fantasy', name: 'Smok oplatający górę', short: 'Smok', desc: 'Zielony smok owija się dwa razy wokół ośnieżonej góry. Na szczycie ma głowę z rogami, skrzydłami i ogniem.', make: dragon },
+  { id: 'wulkan', kat: 'natura', name: 'Wulkan z lawą', short: 'Wulkan', desc: 'Stożek z kraterem pełnym lawy. Trzy rzeki lawy spływają po zboczach, a nad kraterem unosi się dym.', make: volcano },
+  { id: 'statek', kat: 'natura', name: 'Statek na wodospadzie', short: 'Statek', desc: 'Statek z żaglami przechyla się nad krawędzią klifu, a obok spada wodospad.', make: ship },
+  { id: 'zamek', kat: 'sredniowiecze', name: 'Zamek z mostem zwodzonym', short: 'Zamek', desc: 'Mury z blankami, cztery wieże, donżon z chorągwią, fosa i opuszczony most na łańcuchach.', make: castle },
+  { id: 'arena', kat: 'lifesteal', name: 'Arena LifeSteal', short: 'Arena', desc: 'Arena na pojedynki z trybunami i czterema bramami. Na środku jest serce z czerwonego betonu.', make: arena },
+  { id: 'wiatrak', kat: 'sredniowiecze', name: 'Wiatrak przy polu dyń', short: 'Wiatrak', desc: 'Ceglany wiatrak z czterema skrzydłami z płótna. Wokół pole dyń i snopki siana.', make: windmill },
+  { id: 'straznica', kat: 'sredniowiecze', name: 'Wieża strażnicza', short: 'Strażnica', desc: 'Kamienny dół, drewniana góra i platforma z balustradą. Dobra przy bramie albo na granicy bazy.', make: watchtower },
+  { id: 'drzewo', kat: 'natura', name: 'Wielkie drzewo', short: 'Drzewo', desc: 'Gruby pień z korzeniami, pięć konarów i kule liści. Między liśćmi świecą owoce z jasnogłazu.', make: bigTree },
+  { id: 'krysztaly', kat: 'natura', name: 'Jaskinia kryształów', short: 'Kryształy', desc: 'Kamienna kopuła z wejściem. W środku rosną kryształy z ametystu, a obok jest podziemne jeziorko.', make: crystalCave },
+  { id: 'portal', kat: 'fantasy', name: 'Portal do innego świata', short: 'Portal', desc: 'Okrągły portal z purpuru i obsydianu na wyspie z kamienia Kresu. Dookoła latają odłamki skał.', make: endPortal },
+  { id: 'domek', kat: 'przetrwanie', name: 'Domek na drzewie', short: 'Domek', desc: 'Domek z tarasem na wysokości 11 bloków. Na górę prowadzą stopnie z desek przy pniu.', make: treeHouse },
+  { id: 'latarnia', kat: 'przetrwanie', name: 'Latarnia morska', short: 'Latarnia', desc: 'Biało-czerwona wieża na skalistej wysepce, ze świecącą kopułą i drewnianym pomostem.', make: lighthouse },
+  { id: 'farma', kat: 'przetrwanie', name: 'Farma ze stodołą', short: 'Farma', desc: 'Czerwona stodoła z dwuspadowym dachem i sianem w środku. Obok pole z dyniami i kanałami wody.', make: farm },
+  { id: 'rakieta', kat: 'miasto', name: 'Rakieta na wyrzutni', short: 'Rakieta', desc: 'Biała rakieta z czerwonym czubkiem i statecznikami. Obok stoi żelazna wieża serwisowa.', make: rocket },
+  { id: 'wiezowiec', kat: 'miasto', name: 'Wieżowiec', short: 'Wieżowiec', desc: 'Szklany wieżowiec na 44 bloki, coraz węższy u góry, z anteną i czerwonym światłem.', make: skyscraper },
+  { id: 'oltarz', kat: 'lifesteal', name: 'Ołtarz serc', short: 'Ołtarz', desc: 'Wielkie serce z czerwonego betonu stoi na obsydianie. Pasuje na spawn serwera LifeSteal.', make: heartAltar },
+  { id: 'bazar', kat: 'lifesteal', name: 'Spawn z bazarem', short: 'Bazar', desc: 'Okrągły plac z fontanną, ośmioma straganami i bramą. Miejsce na sklep i spotkania graczy.', make: spawnHub },
 ];
 
 const cache = {};

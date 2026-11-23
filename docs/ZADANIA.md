@@ -53,12 +53,13 @@ Każde zadanie kończy się dopiero, gdy spełnia kryteria akceptacji **oraz** b
 - Zapisz kody komnat, w których któryś skok jest niemożliwy albo za łatwy. Poprawimy wtedy zasady skoków w `assets/js/komnaty-gen.js`.
 - **Akceptacja:** każdy poziom trudności ma co najmniej jedną komnatę przejdzioną przez Piotrka.
 
-### A5 [Piotrek] Symulator a prawdziwy serwer
-- Porównaj wynik symulatora z tym, co działo się na serwerze LifeSteal (kto odpadł i kiedy). Jeśli model się myli, opisz jak.
+### A5 [Piotrek] Sezon LifeSteal i symulator a prawdziwy serwer
+- Zagraj kilka sezonów w „Sezon LifeSteal”. Za łatwo, za trudno, nudno? Która decyzja jest bez sensu?
+- Porównaj wynik symulatora zasad z tym, co działo się na serwerze LifeSteal (kto odpadł i kiedy). Jeśli model się myli, opisz jak.
 
 ### A3 [Claude] Przepis „LifeSteal z ekonomią” w szortach
 - **Część 1 gotowa (`lifesteal.html`):** zasady z symulatora, serca ręcznie komendą `attribute` (kreator, zakładka „Serca”), plugin LifeStealZ ze źródłami i datą, ekonomia serc (wypłata serca jako przedmiot, ożywienie), próba przed startem. Nether i End włączone.
-- **Część 2 do zrobienia:** ekonomia za monety (`/sell` z GUI, aukcje). Wymaga wyboru pluginów pod Paper 26.x z linkiem do Hangar/Modrinth i datą.
+- **Część 2 do zrobienia:** ekonomia za monety (`/sell` z GUI, aukcje, czeki). Serwer Piotrka już nie istnieje, testujemy na serwerze właściciela. Kolejność i zasady: zadania R2–R5 w `docs/CODEX.md`. Cennik (propozycja, niezatwierdzony): `docs/CENNIK_PROPOZYCJA.md`.
 - Komendy pluginu (`/hearts`, `/revive`, `lifestealz hearts add`) mają na stronie odznakę „nie testowaliśmy”. Zostaje, dopóki plugin nie przejdzie próby na serwerze testowym (C6).
 - **Akceptacja:** przepis przetestowany na serwerze testowym, potem przez Piotrka (A8).
 
@@ -79,10 +80,12 @@ Każde zadanie kończy się dopiero, gdy spełnia kryteria akceptacji **oraz** b
 - Zapisz, czy tempo (pół sekundy na warstwę) jest dobre i czy coś stanęło w złym miejscu.
 - **Akceptacja:** obie drogi zbudowały miecz w tym samym miejscu, w którym stał gracz na starcie.
 
-### B1 [Claude] Więcej wielkich budowli
-- Pomysły dla Piotrka: smok z kamienia oplatający górę, statek na wodospadzie, zamek z mostem zwodzonym, wulkan z lawą.
-- Bez postaci i mobów z gry (np. Creepera) na stronie. To elementy marki.
-- **Akceptacja:** każda budowla < 15 000 bloków, płynna na telefonie, z opisem.
+### B1 [Claude] Więcej wielkich budowli — gotowe (20 budowli w 6 kategoriach)
+- Kategorie: Średniowiecze, Natura, Fantasy, Przetrwanie, Miasto i kosmos, LifeSteal. Każda budowla ma animację warstwa po warstwie i datapack, a każdy blok przechodzi test „paleta” na serwerze.
+- Dalej: po 1–2 budowle do słabszych kategorii (zadanie R6 w `docs/CODEX.md`). Bez postaci i mobów z gry.
+
+### B5 [Piotrek] Nowe budowle w grze
+- Wybierz 3 nowe budowle (np. wiatrak, latarnia, rakieta), pobierz datapack i postaw je animacją. Zapisz, czy coś wygląda inaczej niż w przeglądarce.
 
 ### B2 [Codex] Wydajność przeglądarki
 - Ukrywanie niewidocznych ścian (bloki otoczone z 6 stron nie muszą być rysowane), mniej instancji przy dużych budowlach.

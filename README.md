@@ -12,7 +12,7 @@ Polska, fanowska akademia serwerowców Minecraft Java. Animowana, ale przede wsz
 | `lifesteal.html` | Przepis „LifeSteal z ekonomią serc” w 9 szortach: serca komendą albo pluginem |
 | `hosting.html` | Doradca: 4 pytania → 3 najlepsze hostingi z kosztem miesięcznym |
 | `komendy.html` | Kreator komend z podglądem w „grze”: 18 rodzajów (przedmioty, efekty, napisy, teleport, zasady, biała lista, serca, tryb gry, pora dnia, pogoda, trudność, moby, zaklęcia, XP, usuwanie bytów, czyszczenie ekwipunku, granica świata, spawn) |
-| `budowle.html` | 8 wielkich budowli 3D warstwa po warstwie, z mapą i listą bloków, 2 filmy i datapack do każdej budowli |
+| `budowle.html` | 20 budowli 3D w 6 kategoriach (Średniowiecze, Natura, Fantasy, Przetrwanie, Miasto i kosmos, LifeSteal), warstwa po warstwie, z mapą i listą bloków, 2 filmy i datapack do każdej budowli |
 | `edytor.html` | Edytor 3D z symetrią i cofaniem, eksport do datapacka (całość, animacja albo warstwa po warstwie) |
 | `komnaty.html` | Generator parkourów, gór do wspinaczki i labiryntów 1–10 z kodem komnaty |
 | `gry.html` | Zbiór gier: wyścig parkour, Znajdź błąd, koło wyzwań, wygląd serwera |
@@ -21,7 +21,7 @@ Polska, fanowska akademia serwerowców Minecraft Java. Animowana, ale przede wsz
 | `bledy.html` | Gra: znajdź błąd w komendzie — 5 losowych pytań z 63, bez powtórek, stoper i rekord czasu (pytania sprawdzane na serwerze) |
 | `kolo.html` | Koło wyzwań budowlanych ze stoperem |
 | `motd.html` | Kolorowy opis serwera i ikona 64×64 z podglądem listy serwerów |
-| `symulator.html` | Symulator zasad LifeSteal: arena, wykres, wnioski z 200 przebiegów |
+| `symulator.html` | Gra „Sezon LifeSteal”: 14 dni decyzji przeciw 7 botom, rekord i odznaka. Pod nią symulator zasad dla admina: arena, wykres, wnioski z 200 przebiegów |
 
 ## Uruchomienie lokalnie
 ```bash

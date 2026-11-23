@@ -47,6 +47,9 @@ Kod komnaty `P8-N-4821` = typ (P parkour, L labirynt), trudność, motyw (K/N/L/
 ## Symulator (`assets/js/lifesteal-sim.js`)
 Uproszczony model: losowe pary walczą, szansa wygranej zależy od umiejętności (rozkład normalny) i opcjonalnie od liczby serc. Wynik to 1 przebieg na arenie i 200 przebiegów do wniosków. To nie jest przepowiednia, tylko podpowiedź do zasad.
 
+## Gra „Sezon LifeSteal” (`assets/js/sezon-model.js`, interfejs `assets/js/sezon.js`)
+Wymyślona gra, nie opis konkretnego pluginu. 14 dni, gracz i 7 botów, start 5 serc, limit 15. Dzień: jedna akcja gracza (kop, farma, baza, polowanie, sojusz), potem noc: boty się zbroją i napadają (styl: wojownik, ostrożny, kupiec, podstępny). Szansa w walce: funkcja logistyczna z różnicy sprzętu (×0,9) i serc (×0,07), złote jabłko +0,8, obrona bazy −0,45 za poziom (tylko w nocy), sojusznik −0,5, zakres 8–92%. Wydarzenia: dzień 5 targ (−50% w sklepie), dzień 9 noc łowców (napady ×1,8), dzień 12 burza (ryzyko w jaskini ×2). Losowanie z ziarnem (`crypto.getRandomValues`), cały stan to JSON w `kc:sezon:stan`, rekord w `kc:sezon:rekord`. Balans sprawdzony 1000 sezonami w Node: sama farma przeżywa ok. 48%, rozsądna gra ok. 95% i wygrywa ok. 1/3 sezonów. `tools/test_strony.py` gra 300 sezonów i cały sezon w interfejsie.
+
 ## Poziom gracza (`assets/js/xp.js`)
 XP i odznaki w `localStorage` pod kluczem `kc:xp`. Próg poziomu: 25·n·(n−1). Nic nie wychodzi poza przeglądarkę.
 
