@@ -31,6 +31,11 @@ function costOf(h, a, ram) {
     const e = ram * a.czas * h.eur_za_gb_h + h.eur_mies_staly;
     return { pln: e * KURS, txt: `${ram} GB × ${a.czas} h × 0,01 € + 0,10 € = ${eur(e)}`, eur: e };
   }
+  // host z kilkoma planami: najmniejszy, który ma dość RAM i miejsc dla graczy
+  if (h.plany) {
+    const p = h.plany.find(x => x.ram >= ram && x.gracze >= a.gracze) || h.plany[h.plany.length - 1];
+    return { pln: p.cena, txt: `plan ${p.nazwa}: ${p.ram} GB RAM, do ${p.gracze >= 999 ? 'bez limitu' : p.gracze} graczy, ${zl(p.cena)} / 30 dni z VAT`, plan: p };
+  }
   if (h.cena_eur_mies) return { pln: h.cena_eur_mies * KURS, txt: `${eur(h.cena_eur_mies)} (plan ${h.ram} GB)`, eur: h.cena_eur_mies };
   return { pln: h.cena_pln_mies || 0, txt: h.cena_opis };
 }
@@ -46,6 +51,14 @@ function rate(h, a, ram) {
     if (s > 60) why.unshift('za darmo i wystarczy do grania z kolegami o umówionej porze');
     s += 8;
   }
+  // darmowy plan, który usypia (np. MCHosting): limity biorę z danych
+  if (h.usypia) {
+    if (a.czas === 720) { s -= 70; why.push('usypia, gdy nikt nie gra, więc nie działa 24/7'); }
+    if (a.gracze > h.gracze_max) { s -= 40; why.push(`darmowy plan ma limit ${h.gracze_max} graczy`); }
+    if (ram > h.ram) { s -= 25; why.push(`potrzebujesz ok. ${ram} GB, a darmowy plan ma ${h.ram} GB`); }
+    if (s > 60) why.unshift('za darmo, a serwer budzi się sam, gdy ktoś wchodzi');
+    s += 6;
+  }
   if (h.id === 'minehut') {
     s -= 25; why.push('limity darmowego planu trzeba sprawdzić, bo źródła się różnią');
     if (a.gracze > 10) { s -= 30; why.push('darmowy plan jest dla małej grupy'); }
@@ -57,8 +70,9 @@ function rate(h, a, ram) {
     if (a.dodatki >= 2 && !tooExpensive) { s += 6; why.push('bez kolejki i z RAM-em, który sam ustawiasz'); }
   }
   if (h.typ === 'abonament') {
-    if (ram <= 4 && a.czas < 720) { s -= 30; why.push(`plan ${h.ram} GB to dla ciebie za dużo, bo wystarczy ok. ${ram} GB`); }
-    else if (!tooExpensive) why.unshift('działa cały czas, a koledzy wchodzą, kiedy chcą');
+    if (!h.plany && h.ram < ram) { s -= 40; why.push(`plan ${h.ram} GB to za mało, potrzeba ok. ${ram} GB`); }
+    if (!h.plany && ram <= 4 && a.czas < 720) { s -= 30; why.push(`plan ${h.ram} GB to dla ciebie za dużo, bo wystarczy ok. ${ram} GB`); }
+    else if (!tooExpensive) why.unshift(h.plany ? `plan ${c.plan.nazwa} (${c.plan.ram} GB) działa cały czas` : 'działa cały czas, a koledzy wchodzą, kiedy chcą');
     if (/Polska/.test(h.kraj)) { s += 4; why.push('serwer w Polsce, czyli niski ping'); }
     s -= c.pln / 10;
   }

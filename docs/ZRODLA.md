@@ -30,6 +30,7 @@ Każdy z dwóch serwerów przeszedł 82 próby składni przez RCON. Efekt w grze
 | exaroton: 1 kredyt = 0,01 €, 1 kredyt/GB/h, 10 kredytów/mies. za miejsce, 5 kredytów na start | https://support.exaroton.com/hc/en-us/articles/360019687657-Pricing | 2026-11-23 |
 | Ceny 8 GB: FugyHost, KeyHost, Hostinger, Pukawka, Space-Node, TostHost | https://space-node.net/blog/hosting-serwera-minecraft-porownanie-2026 (**uwaga: autorem jest jeden z porównywanych hostów**) | 2026-11-10 |
 | Minehut: limity darmowego planu, źródła się różnią | https://mineguard.pro/en/blog/aternos-vs-paid-hosting-comparison | niepewne |
+| MCHosting: darmowy plan 2 GB / 10 graczy / 3 GB dysku, usypia bez graczy, bez limitu czasu; Starter 19 zł (3 GB, 20 graczy), Standard 35 zł (6 GB, 40), Pro 55 zł (10 GB), Max 89 zł (16 GB) za 30 dni z VAT 23%; −10% za 90 dni; BLIK, Przelewy24, karta; serwery w Norymberdze (Hetzner, netcup); Java + Bedrock | https://mchosting.pl/ (strona hosta) | 2026-11-23 |
 
 ## Marka
 | Fakt | Źródło | Sprawdzono |
