@@ -74,6 +74,7 @@
         "give-ujemne",
         "selektor-x",
         "whitelist-dodaj",
+        "time-dzien",
         "effect-poziom",
         "weather-deszcz",
         "blok-literowka",
@@ -83,12 +84,7 @@
         "efekt-polski",
         "title-napis"
       ],
-      "bledy": [
-        {
-          "komenda": "time-dzien",
-          "odpowiedz": "zła → Time marker minecraft:dzien does not exist for clock minecraft:overworld | dobra → Set minecraft:overworld to time marker minecraft:day"
-        }
-      ]
+      "bledy": []
     },
     "datapack": {
       "ok": true,
