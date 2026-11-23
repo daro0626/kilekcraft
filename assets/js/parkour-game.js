@@ -213,7 +213,7 @@ export function initGame(onNext) {
   // ---------- stan gry ----------
   let pos = new THREE.Vector3(), vel = new THREE.Vector3();
   let onGround = false, yaw = -Math.PI / 2, pitch = .38, running = false, started = false, finished = false;
-  let tNow = 0, deaths = 0, best = null, checkpoint = null, walkPhase = 0, faceYaw = 0;
+  let tNow = 0, deaths = 0, best = null, walkPhase = 0, faceYaw = 0;
   // klawisze po kodzie fizycznym: Shift, Caps Lock ani polski Alt (ą, ę, ś) nie zmieniają ich nazwy,
   // więc puszczony klawisz zawsze znika z listy i postać nie „idzie sama”
   const KEYMAP = { KeyW: 'f', ArrowUp: 'f', KeyS: 'b', ArrowDown: 'b', KeyA: 'l', ArrowLeft: 'l', KeyD: 'r', ArrowRight: 'r', KeyQ: 'tl', KeyE: 'tr' };
@@ -245,7 +245,7 @@ export function initGame(onNext) {
   function reset(full) {
     if (full) { recording = []; recTimer = 0; recInterval = REC_DT; ghostIdx = 0; }
     showBlocks({ crumbled: [], ...run.reset(full) });
-    checkpoint = run.checkpoint; jumpBuffer = 0; syncRun(); updateLava();
+    clearInput(); walkPhase = 0; syncRun(); updateLava();
     $('#deaths').textContent = deaths; $('#time').textContent = fmt(tNow);
   }
   function updateLava() {
@@ -254,6 +254,7 @@ export function initGame(onNext) {
     const gap = Math.max(0, Math.floor(pos.y - run.lavaY));
     const el = $('#lava'); if (el) el.textContent = run.started ? gap + ' bl.' : '—';
   }
+  let lastFlash = -Infinity;
   const DEATH = { lawa: 'Lawa cię dogoniła!', magma: 'Za długo na magmie!' };
 
   // ---------- kolizje (do kamery i cienia) ----------
@@ -276,14 +277,19 @@ export function initGame(onNext) {
     if (ev.jumped) sfx('jump');
     if (ev.landed && !ev.died) sfx('land');
     if (ev.died) {
+      clearInput(); walkPhase = 0;
       sfx('lava'); syncRun(); $('#deaths').textContent = deaths;
-      if (!reduced) $('#flash').animate([{ opacity: 1 }, { opacity: 0 }], 450);
+      const now = performance.now();
+      if (!reduced && now - lastFlash >= 900) {
+        lastFlash = now;
+        $('#flash').animate([{ opacity: .65 }, { opacity: 0 }], 300);
+      }
       if (DEATH[ev.died]) toast(DEATH[ev.died]);
       if (!run.rules.checkpoints) { recording = []; recTimer = 0; recInterval = REC_DT; ghostIdx = 0; run.t = 0; run.started = false; }
       syncRun(); updateLava(); return;
     }
     syncRun(); updateLava();
-    if (ev.checkpoint) { checkpoint = run.checkpoint; sfx('checkpoint'); toast('Punkt kontrolny!'); }
+    if (ev.checkpoint) { sfx('checkpoint'); toast('Punkt kontrolny zapisany. Tu wrócisz po upadku.'); }
     // nagrywanie trajektorii do ducha (tylko gdy bieg trwa)
     if (started) {
       if (!recording.length) recording.push([0, pos.x, pos.y, pos.z, faceYaw]);
@@ -333,16 +339,13 @@ export function initGame(onNext) {
     $('#nextLvl').hidden = !done || state.diff >= 10; $('#keys').hidden = done;
     over.hidden = false; running = false;
     canvas.tabIndex = -1;
-    keys.clear();
-    jumpBuffer = 0;
-    drag = null;
+    $('#restartLevel').hidden = !started && !deaths && !done;
+    clearInput();
     if (locked()) {
       retryLockAt = performance.now() + 1100;
       wasLocked = false;
       document.exitPointerLock();
     }
-    endTouch({ pointerId: stickId });
-    endTouch({ pointerId: lookId });
     hint();
     if (focus) $('#play').focus();
   }
@@ -360,6 +363,7 @@ export function initGame(onNext) {
     cancelAnimationFrame(frameId);
     frameId = requestAnimationFrame(loop);
   }
+  $('#restartLevel').addEventListener('click', () => { reset(true); play(); });
   $('#nextLvl').addEventListener('click', () => { const next = { ...state, diff: Math.min(10, state.diff + 1), seed: Math.floor(Math.random() * 99999) + 1 };
     onNext(next); play(); });
 
@@ -374,9 +378,11 @@ export function initGame(onNext) {
     if (c === 'KeyV') { e.preventDefault(); if (!e.repeat) toggleView(); return; }
     // R: powrót do punktu kontrolnego; w komnatach bez punktów kontrolnych start od zera
     if (c === 'KeyR') { e.preventDefault(); reset(!run.rules.checkpoints); return; }
+    if (c === 'Space' && e.target instanceof Element && e.target.closest('button')) return;
     if (c === 'Space') { e.preventDefault(); if (!e.repeat) jumpBuffer = .12; return; }
     if (!KEYMAP[c]) return;
-    e.preventDefault(); keys.add(c);
+    e.preventDefault();
+    if (!e.repeat) keys.add(c);
   });
   addEventListener('keyup', (e) => keys.delete(e.code));
   const pause = () => {
@@ -445,13 +451,19 @@ export function initGame(onNext) {
 
   // Widok z pierwszej albo trzeciej osoby (V albo przycisk), zapamiętany w przeglądarce.
   const wrap = $('#wrapG');
+  const gameControls = document.createElement('div');
+  gameControls.className = 'pk-controls';
+  const pauseBtn = document.createElement('button');
+  pauseBtn.type = 'button'; pauseBtn.className = 'pk-pause'; pauseBtn.textContent = 'Pauza';
+  pauseBtn.addEventListener('click', () => showOver('Pauza', 'Odpocznij chwilę.', false, true));
   const viewBtn = document.createElement('button');
   viewBtn.type = 'button'; viewBtn.className = 'pk-view';
   const hintEl = document.createElement('div');
   hintEl.className = 'pk-hint'; hintEl.textContent = canLock
     ? 'Przeciągnij myszą, aby obrócić kamerę. Kliknij planszę, aby spróbować zablokować kursor.'
     : 'Przeciągnij myszą, aby obrócić kamerę.';
-  wrap.append(viewBtn, hintEl);
+  gameControls.append(pauseBtn, viewBtn);
+  wrap.append(gameControls, hintEl);
   function viewLabel() {
     viewBtn.textContent = fp ? '👁 1. osoba' : '👁 3. osoba';
     viewBtn.setAttribute('aria-label', fp ? 'Widok z pierwszej osoby. Zmień na widok zza postaci (V)' : 'Widok zza postaci. Zmień na pierwszą osobę (V)');
@@ -495,6 +507,13 @@ export function initGame(onNext) {
     }
   });
   const endTouch = (e) => { if (e.pointerId === stickId) { stickId = null; joy = { x: 0, y: 0 }; knob.style.transform = ''; stick.classList.remove('on'); } if (e.pointerId === lookId) lookId = null; };
+  function clearInput() {
+    keys.clear();
+    jumpBuffer = 0;
+    drag = null;
+    if (stickId !== null) endTouch({ pointerId: stickId });
+    if (lookId !== null) endTouch({ pointerId: lookId });
+  }
   touchArea.addEventListener('pointerup', endTouch); touchArea.addEventListener('pointercancel', endTouch);
   touchArea.addEventListener('lostpointercapture', endTouch);
   $('#jumpBtn').addEventListener('pointerdown', (e) => { e.preventDefault(); jumpBuffer = .12; });
@@ -503,7 +522,15 @@ export function initGame(onNext) {
 
   // ---------- pętla ----------
   let last = 0, dist = 5.5, accumulator = 0, displayedTime = '', frameId = 0;
-  const camT = new THREE.Vector3(), targetCamera = new THREE.Vector3();
+  const camT = new THREE.Vector3();
+  let cameraDistance = 0;
+  function cameraClear(x, y, z, radius) {
+    for (let gx = Math.floor(x - radius); gx <= Math.floor(x + radius); gx++)
+      for (let gy = Math.floor(y - radius); gy <= Math.floor(y + radius); gy++)
+        for (let gz = Math.floor(z - radius); gz <= Math.floor(z + radius); gz++)
+          if (isSolid(gx, gy, gz)) return false;
+    return true;
+  }
   const tick = 1 / 120;
   function resize(force = false) {
     const { clientWidth: width, clientHeight: height } = canvas;
@@ -552,14 +579,18 @@ export function initGame(onNext) {
     } else {
       // kamera za graczem
       camT.set(pos.x, pos.y + 1.3, pos.z);
-      let available = dist;
-      for (let d = .2; d <= dist; d += .2) {
-        if (isSolid(Math.floor(camT.x + dx * d), Math.floor(camT.y + dyCam * d), Math.floor(camT.z + dz * d))) {
-          available = Math.max(.08, d - .22); break;
-        }
+      const halfNear = camera.near * Math.tan(camera.fov * Math.PI / 360);
+      const clearance = Math.min(.27, Math.hypot(camera.near, halfNear, halfNear * camera.aspect) + .01);
+      let available = .04;
+      for (let d = .16; d < dist + .16; d += .16) {
+        const test = Math.min(d, dist);
+        if (!cameraClear(camT.x + dx * test, camT.y + dyCam * test, camT.z + dz * test, clearance)) break;
+        available = test;
+        if (test === dist) break;
       }
-      targetCamera.set(camT.x + dx * available, camT.y + dyCam * available, camT.z + dz * available);
-      camera.position.lerp(targetCamera, snap || reduced || available < dist ? 1 : .2);
+      // Wygładzamy tylko odległość na aktualnym promieniu. Kamera nie przecina ściany w drodze.
+      cameraDistance = snap || reduced || available < cameraDistance ? available : cameraDistance + (available - cameraDistance) * .2;
+      camera.position.set(camT.x + dx * cameraDistance, camT.y + dyCam * cameraDistance, camT.z + dz * cameraDistance);
       camera.lookAt(camT);
     }
     if (!reduced) for (const m of lavaMats) m.emissiveIntensity = .7 + Math.sin(now / 300) * .25;

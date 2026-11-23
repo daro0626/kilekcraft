@@ -12,6 +12,8 @@ jobs:
           node-version: "24"
       - name: Sprawdź 60000 komnat
         run: node tools/test_komnaty.mjs
+      - name: Sprawdź bezpieczne odradzanie
+        run: node tools/test_checkpointy.mjs
       - name: Bot przechodzi komnaty mistrzowskie M1–M10
         run: node tools/test_mistrz.mjs
   playwright:

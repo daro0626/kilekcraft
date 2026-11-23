@@ -50,16 +50,19 @@ function moveAxis(b, world, axis, d) {
   }
 }
 
-// Blok pod stopami: najpierw środek, potem rogi (żeby stanie na krawędzi też się liczyło)
-export function feetType(b, world) {
-  const { pos } = b, y = Math.floor(pos.y - .05), W = PHYS.W - .02;
-  const c = world.type(Math.floor(pos.x), y, Math.floor(pos.z));
-  if (c && !PASS.has(c)) return c;
-  for (const [dx, dz] of [[-W, -W], [W, -W], [-W, W], [W, W]]) {
-    const t = world.type(Math.floor(pos.x + dx), y, Math.floor(pos.z + dz));
-    if (t && !PASS.has(t)) return t;
+// Rozpoznanie podparcia zwraca współrzędne, także gdy stoi tylko narożnik.
+const footOffsets = [[0, 0], [-1, -1], [1, -1], [-1, 1], [1, 1]];
+function feetBlock(b, world) {
+  const { pos } = b, y = Math.floor(pos.y - .05), width = PHYS.W - .02;
+  for (const [dx, dz] of footOffsets) {
+    const x = Math.floor(pos.x + dx * width), z = Math.floor(pos.z + dz * width);
+    if (world.solid(x, y, z)) return { x, y, z, type: world.type(x, y, z) };
   }
-  return undefined;
+  return null;
+}
+
+export function feetType(b, world) {
+  return feetBlock(b, world)?.type;
 }
 
 export function touching(b, world, type) {
@@ -123,20 +126,54 @@ export function createRun(room, type, vec = () => ({ x: 0, y: 0, z: 0 })) {
   const minY = Math.min(...room.blocks.map(b => b[1]));
   const climb = type !== 'labirynt';
   const b = makeBody(vec(), vec());
+  const previous = [];
   const run = {
     rules, world, body: b, pos: b.pos, vel: b.vel, spawn, minY, solid,
     t: 0, life: 0, deaths: 0, started: false, finished: false, checkpoint: { ...spawn },
     lavaY: rules.lava ? rules.lava.y0 : -Infinity,
     isGone: (k) => gone.has(k),
   };
+  function safeSpot({ x, y, z }, lavaY) {
+    if (y < lavaY || (climb && !rules.noFloor && y < minY + 1.5)) return false;
+    const under = world.type(Math.floor(x), y - 1, Math.floor(z));
+    if (!under || PASS.has(under) || SURF[under]?.burn || (rules.crumble && under === CRACK)
+      || overlaps(world, x, y, z)) return false;
+    // Zapas przy hitboksie na ciecze, także ponad stopami.
+    const margin = PHYS.W + .12;
+    for (let gx = Math.floor(x - margin); gx <= Math.floor(x + margin); gx++) {
+      for (let gz = Math.floor(z - margin); gz <= Math.floor(z + margin); gz++) {
+        for (let gy = y - 1; gy < y + PHYS.HGT; gy++) {
+          const t = world.type(gx, gy, gz);
+          if (t === 'lava' || (climb && t === 'water')) return false;
+        }
+      }
+    }
+    return true;
+  }
+  const above = (x, y, z) => ({ x: x + .5, y: y + 1, z: z + .5 });
+
   function restoreAll(ev) { for (const k of gone.keys()) ev.restored.push(k); gone.clear(); touched.clear(); }
   run.reset = function (full, ev = { restored: [] }) {
-    if (full) { run.checkpoint = { ...spawn }; run.deaths = 0; run.started = false; run.finished = false; run.t = 0; }
-    const c = rules.checkpoints ? run.checkpoint : spawn;
-    b.pos.x = c.x; b.pos.y = c.y; b.pos.z = c.z; b.vel.x = b.vel.y = b.vel.z = 0;
-    b.onGround = true; b.jumpBuffer = 0; b.burn = 0;
+    if (full) {
+      previous.length = 0;
+      run.checkpoint = { ...spawn }; run.deaths = 0; run.started = false; run.finished = false; run.t = 0;
+    }
     run.life = 0; run.lavaY = rules.lava ? rules.lava.y0 : -Infinity;
     restoreAll(ev);
+    const isCheckpoint = (point) => world.type(Math.floor(point.x), point.y - 1, Math.floor(point.z)) === 'emerald'
+      && safeSpot(point, run.lavaY);
+    let c = spawn;
+    if (rules.checkpoints) {
+      while (previous.length && !isCheckpoint(previous.at(-1))) previous.pop();
+      c = previous.at(-1) || spawn;
+    }
+    if (!safeSpot(c, run.lavaY)) {
+      c = room.blocks.map(([x, y, z]) => above(x, y, z)).find(point => safeSpot(point, run.lavaY));
+      if (!c) throw new Error('Komnata nie ma bezpiecznego miejsca odrodzenia.');
+    }
+    run.checkpoint = { ...c };
+    b.pos.x = c.x; b.pos.y = c.y; b.pos.z = c.z; b.vel.x = b.vel.y = b.vel.z = 0;
+    b.onGround = true; b.jumpBuffer = 0; b.burn = 0;
     return ev;
   };
   function die(ev, why) { run.deaths++; ev.died = why; run.reset(false, ev); }
@@ -173,9 +210,16 @@ export function createRun(room, type, vec = () => ({ x: 0, y: 0, z: 0 })) {
     }
     const fb = b.onGround ? e.feet : null;
     if (fb === 'emerald' && rules.checkpoints) {
-      const cp = { x: Math.floor(b.pos.x) + .5, y: Math.floor(b.pos.y), z: Math.floor(b.pos.z) + .5 };
-      const c = run.checkpoint;
-      if (Math.hypot(cp.x - c.x, cp.y - c.y, cp.z - c.z) > 1.5) { run.checkpoint = cp; ev.checkpoint = true; }
+      const support = feetBlock(b, world);
+      if (support?.type === 'emerald') {
+        const cp = above(support.x, support.y, support.z), c = run.checkpoint;
+        if (Math.hypot(cp.x - c.x, cp.y - c.y, cp.z - c.z) > 1.5 && safeSpot(cp, run.lavaY)) {
+          const prior = previous.findIndex(point => point.x === cp.x && point.y === cp.y && point.z === cp.z);
+          if (prior !== -1) previous.splice(prior, 1);
+          previous.push(cp);
+          run.checkpoint = { ...cp }; ev.checkpoint = true;
+        }
+      }
     }
     if (fb === 'diamond' && run.started && !run.finished) { run.finished = true; ev.win = true; }
     return ev;

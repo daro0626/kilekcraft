@@ -38,14 +38,41 @@
   </div>
 
   <div class="ed">
-    <div class="ed-stage panel corner" id="stage">
-      <div class="ed-hud">
-        <span class="badge info" id="hudTool">Stawianie</span>
-        <span class="badge ok" id="hudCount">0 bloków</span>
-        <span class="badge wait" id="hudSym" hidden>Symetria</span>
+    <div class="ed-work">
+      <section class="panel pad ed-layer" aria-labelledby="edLayerTitle">
+        <h2 class="section-heading" id="edLayerTitle">Warstwy</h2>
+        <div class="seg" role="group" aria-label="Widoczność warstw">
+          <button type="button" class="tab" data-layer-mode="all" aria-pressed="true">Całość</button>
+          <button type="button" class="tab" data-layer-mode="below" aria-pressed="false">Do tej warstwy</button>
+          <button type="button" class="tab" data-layer-mode="single" aria-pressed="false">Tylko ta warstwa</button>
+        </div>
+        <div class="ed-layer-step">
+          <label for="edLayer" id="edLayerLabel">Warstwa 1 z 1</label>
+          <button type="button" class="btn sm ghost" id="edLayerDown" aria-label="Poprzednia warstwa">−</button>
+          <input type="range" id="edLayer" min="1" max="1" value="1">
+          <button type="button" class="btn sm ghost" id="edLayerUp" aria-label="Następna warstwa">+</button>
+        </div>
+        <p class="muted small" id="edLayerHint" hidden>Edytujesz zaznaczoną warstwę. Słup ×5 jest dostępny w trybie Całość.</p>
+      </section>
+      <div class="ed-stage panel corner" id="stage">
+        <div class="ed-hud">
+          <span class="badge info" id="hudTool">Stawianie</span>
+          <span class="badge ok" id="hudCount">0 bloków</span>
+          <span class="badge info" id="hudLayer" hidden></span>
+          <span class="badge wait" id="hudSym" hidden>Symetria</span>
+        </div>
+        <div class="v-poster" id="poster">Ładowanie edytora 3D…</div>
+        <div class="ed-help muted">Klik: akcja · Przeciągnij: obrót · Kółko lub dwa palce: przybliżenie · Klawisze: B stawianie, E usuwanie, I pipeta, Ctrl+Z cofnij</div>
       </div>
-      <div class="v-poster" id="poster">Ładowanie edytora 3D…</div>
-      <div class="ed-help muted">Klik: akcja · Przeciągnij: obrót · Kółko lub dwa palce: przybliżenie · Klawisze: B stawianie, E usuwanie, I pipeta, Ctrl+Z cofnij</div>
+      <section class="panel pad ed-layer-info" aria-labelledby="edLayerMaterialsTitle">
+        <h2 class="section-heading" id="edLayerMaterialsTitle">Materiały warstwy</h2>
+        <p class="muted small" id="edLayerCount">0 bloków</p>
+        <ul class="mats" id="edLayerMats"></ul>
+        <details id="edPlanDetails">
+          <summary>Plan warstwy z góry</summary>
+          <canvas id="edPlan" width="241" height="241" role="img" aria-label="Plan z góry"></canvas>
+        </details>
+      </section>
     </div>
 
     <aside class="ed-side">
@@ -74,7 +101,7 @@
         <div class="ed-row ed-acts">
           <button type="button" class="btn sm ghost" id="undo" aria-label="Cofnij">↶ Cofnij</button>
           <button type="button" class="btn sm ghost" id="redo" aria-label="Ponów">↷ Ponów</button>
-          <button type="button" class="btn sm ghost" id="clear">Wyczyść</button>
+          <button type="button" class="btn sm ghost" id="clear">Wyczyść całość</button>
         </div>
         <label class="lbl" for="tpl" style="margin-top:6px">Zacznij od</label>
         <select id="tpl">
@@ -105,7 +132,7 @@
       <details class="small"><summary>Pokaż wszystkie komendy (<span id="lineCount">0</span>)</summary><pre class="console ed-lines" id="lines"></pre><button type="button" class="btn sm ghost" id="copyLines">Kopiuj wszystkie</button></details>
     </div>
     <div class="panel pad">
-      <h2 class="section-heading">Materiały</h2>
+      <h2 class="section-heading">Materiały całej budowli</h2>
       <ul class="mats" id="mats"></ul>
     </div>
   </section>

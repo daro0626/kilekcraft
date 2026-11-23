@@ -16,7 +16,16 @@ const PALETTE = ['stone', 'cobble', 'stone_bricks', 'smooth_stone', 'oak_planks'
   'red_wool', 'blue_wool', 'moss_block', 'packed_ice'];
 
 let dirty = true, visible = true;
-let tool = 'build', brush = '1', sym = 'none', cur = store.get('ed:blok', 'stone_bricks');
+let tool = 'build', brush = '1', sym = 'none';
+const savedBlock = store.get('ed:blok');
+let cur = Object.hasOwn(BLOCKS, savedBlock) ? savedBlock : 'stone_bricks';
+const savedView = store.get('ed:warstwy');
+let layerMode = ['all', 'below', 'single'].includes(savedView?.mode) ? savedView.mode : 'all';
+let layerY = Number.isInteger(savedView?.y) ? savedView.y : 0;
+let wholeTargetY = 4, wholeDistance;
+const layerMeshes = Array.from({ length: H }, () => new Map());
+const inView = y => layerMode === 'all' || (layerMode === 'single' ? y === layerY : y <= layerY);
+const active = () => layerMode !== 'all';
 const world = new Map(); // "x,y,z" -> typ
 const key = (x, y, z) => x + ',' + y + ',' + z;
 const undo = [], redo = [];
@@ -28,11 +37,11 @@ function setBlock(t) { cur = t; store.set('ed:blok', t); pal.querySelectorAll('.
 pal.addEventListener('click', (e) => { const b = e.target.closest('.sw-btn'); if (b) { setBlock(b.dataset.t); if (tool !== 'build') setTool('build'); } });
 
 function seg(attr, set) {
-  document.querySelectorAll(`[data-${attr}]`).forEach(b => b.addEventListener('click', () => set(b.dataset[attr])));
+  document.querySelectorAll(`[data-${attr}]`).forEach(b => b.addEventListener('click', () => set(b.getAttribute('data-' + attr))));
 }
-function press(attr, v) { document.querySelectorAll(`[data-${attr}]`).forEach(b => b.setAttribute('aria-pressed', b.dataset[attr] === v)); }
+function press(attr, v) { document.querySelectorAll(`[data-${attr}]`).forEach(b => b.setAttribute('aria-pressed', b.getAttribute('data-' + attr) === v)); }
 const TOOLN = { build: 'Stawianie', erase: 'Usuwanie', pick: 'Pipeta' };
-function setTool(t) { tool = t; press('tool', t); $('#hudTool').textContent = TOOLN[t]; $('#hudTool').className = 'badge ' + (t === 'erase' ? 'warn' : 'info'); updateGhost(); }
+function setTool(t) { tool = t; press('tool', t); $('#hudTool').textContent = TOOLN[t]; $('#hudTool').className = 'badge ' + (t === 'erase' ? 'warn' : 'info'); updateGhost(); showGhost(null); }
 seg('tool', setTool);
 seg('brush', (v) => { brush = v; press('brush', v); updateGhost(); });
 seg('sym', (v) => { sym = v; press('sym', v); $('#hudSym').hidden = v === 'none'; $('#hudSym').textContent = v === 'x' ? 'Lustro ↔' : 'Lustro ×4'; symPlanes(); });
@@ -77,8 +86,9 @@ const pos = (x, y, z) => new THREE.Vector3(x - N / 2 + .5, y + .5, z - N / 2 + .
 // podgląd miejsca
 const ghostMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: .35, depthWrite: false });
 const ghostEdge = new THREE.LineBasicMaterial({ color: 0xffffff });
+const ghostEdges = new THREE.EdgesGeometry(box);
 const ghosts = new THREE.Group(); scene.add(ghosts);
-function ghostCube() { const g = new THREE.Group(); g.add(new THREE.Mesh(box, ghostMat)); g.add(new THREE.LineSegments(new THREE.EdgesGeometry(box), ghostEdge)); g.scale.setScalar(1.02); return g; }
+function ghostCube() { const g = new THREE.Group(); g.add(new THREE.Mesh(box, ghostMat)); g.add(new THREE.LineSegments(ghostEdges, ghostEdge)); g.scale.setScalar(1.02); return g; }
 function updateGhost() {
   const c = tool === 'erase' ? 0xff3d3d : tool === 'pick' ? 0x5cc8ff : new THREE.Color(BLOCKS[cur].c).getHex();
   ghostMat.color.setHex(c); ghostEdge.color.setHex(c); dirty = true;
@@ -92,42 +102,42 @@ function setCell(x, y, z, t, anim = true) {
   const k = key(x, y, z), old = world.get(k) || null;
   if (old === t) return;
   if (old) {
-    const m = meshes.get(k); meshes.delete(k);
-    if (anim && !reduced) { m.userData.to = 0; tweens.add(m); } else scene.remove(m);
+    const m = meshes.get(k); meshes.delete(k); layerMeshes[y].delete(k);
+    if (anim && !reduced && m.visible) { m.userData.to = 0; tweens.add(m); } else { scene.remove(m); tweens.delete(m); }
     world.delete(k);
   }
   if (t) {
-    const m = new THREE.Mesh(box, materialFor(t)); m.position.copy(pos(x, y, z)); m.userData.k = k;
+    const m = new THREE.Mesh(box, materialFor(t)); m.position.copy(pos(x, y, z)); m.userData.k = k; m.userData.y = y; m.visible = inView(y);
     if (BLOCKS[t].alpha) m.renderOrder = 2;
-    if (anim && !reduced) { m.scale.setScalar(.05); m.userData.to = 1; tweens.add(m); burst(m.position, BLOCKS[t].c); }
-    scene.add(m); meshes.set(k, m); world.set(k, t);
+    if (anim && !reduced && m.visible) { m.scale.setScalar(.05); m.userData.to = 1; tweens.add(m); burst(m.position, BLOCKS[t].c, y); }
+    scene.add(m); meshes.set(k, m); world.set(k, t); layerMeshes[y].set(k, m);
   }
   dirty = true;
 }
-function burst(p, color) {
+function burst(p, color, layer) {
   for (let i = 0; i < 6; i++) {
     const s = new THREE.Mesh(box, new THREE.MeshBasicMaterial({ color, transparent: true }));
-    s.scale.setScalar(.14); s.position.copy(p);
+    s.userData.y = layer; s.scale.setScalar(.14); s.position.copy(p);
     s.userData.v = new THREE.Vector3((Math.random() - .5) * .25, Math.random() * .25 + .1, (Math.random() - .5) * .25); s.userData.life = 1;
     scene.add(s); parts.push(s);
   }
 }
-function apply(changes, record = true) {
+function apply(changes, anim = true) {
   const done = [];
   for (const c of changes) {
     const [x, y, z] = c.k.split(',').map(Number);
     const from = world.get(c.k) || null; if (from === c.to) continue;
-    if (c.to && world.size >= MAX) { toast(`Limit to ${MAX} bloków.`); break; }
-    setCell(x, y, z, c.to); done.push({ k: c.k, from, to: c.to });
+    if (!from && c.to && world.size >= MAX) { toast(`Limit to ${MAX} bloków.`); break; }
+    setCell(x, y, z, c.to, anim); done.push({ k: c.k, from, to: c.to });
   }
-  if (record && done.length) { undo.push(done); redo.length = 0; }
+  if (done.length) { undo.push(done); redo.length = 0; }
   changed(); return done;
 }
 const inside = (x, y, z) => x >= 0 && z >= 0 && x < N && z < N && y >= 0 && y < H;
 function expand([x, y, z]) {
   let cells = [[x, y, z]];
   if (tool === 'build' && brush === '3') cells = [-1, 0, 1].flatMap(a => [-1, 0, 1].map(b => [x + a, y, z + b]));
-  if (tool === 'build' && brush === 'col') cells = [0, 1, 2, 3, 4].map(d => [x, y + d, z]);
+  if (tool === 'build' && brush === 'col' && !active()) cells = [0, 1, 2, 3, 4].map(d => [x, y + d, z]);
   const out = [];
   for (const [a, b, c] of cells) {
     out.push([a, b, c]);
@@ -140,24 +150,37 @@ function expand([x, y, z]) {
 
 // ---------- celowanie ----------
 const ray = new THREE.Raycaster(), mouse = new THREE.Vector2();
+const workPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0));
+const workPoint = new THREE.Vector3();
 function target(ev) {
   const r = renderer.domElement.getBoundingClientRect();
   mouse.set(((ev.clientX - r.left) / r.width) * 2 - 1, -((ev.clientY - r.top) / r.height) * 2 + 1);
   ray.setFromCamera(mouse, camera);
-  const hits = ray.intersectObjects([...meshes.values(), ground], false);
-  const h = hits.find(h => h.object === ground || meshes.get(h.object.userData.k) === h.object);
-  if (!h) return null;
-  if (h.object === ground) {
-    const x = Math.floor(h.point.x + N / 2), z = Math.floor(h.point.z + N / 2);
+  if (active()) {
+    const hit = ray.intersectObjects([...layerMeshes[layerY].values()], false)[0];
+    if (hit) {
+      const [x, y, z] = hit.object.userData.k.split(',').map(Number);
+      if (tool !== 'build') return [x, y, z];
+      const n = hit.face.normal;
+      return n.y === 0 && inside(x + n.x, y, z + n.z) ? [x + n.x, y, z + n.z] : null;
+    }
+    workPlane.constant = -layerY;
+    if (tool !== 'build' || !ray.ray.intersectPlane(workPlane, workPoint)) return null;
+    const x = Math.floor(workPoint.x + N / 2), z = Math.floor(workPoint.z + N / 2);
+    return inside(x, layerY, z) ? [x, layerY, z] : null;
+  }
+  const hit = ray.intersectObjects([...meshes.values(), ground], false)[0];
+  if (!hit) return null;
+  if (hit.object === ground) {
+    const x = Math.floor(hit.point.x + N / 2), z = Math.floor(hit.point.z + N / 2);
     return tool === 'build' && inside(x, 0, z) ? [x, 0, z] : null;
   }
-  const [x, y, z] = h.object.userData.k.split(',').map(Number);
+  const [x, y, z] = hit.object.userData.k.split(',').map(Number);
   if (tool !== 'build') return [x, y, z];
-  const n = h.face.normal; return [x + Math.round(n.x), y + Math.round(n.y), z + Math.round(n.z)];
+  const n = hit.face.normal; return [x + Math.round(n.x), y + Math.round(n.y), z + Math.round(n.z)];
 }
-let hover = null;
 function showGhost(t) {
-  ghosts.clear(); hover = t;
+  ghosts.clear();
   if (t) for (const p of expand(t)) { const g = ghostCube(); g.position.copy(pos(...p)); ghosts.add(g); }
   dirty = true;
 }
@@ -165,9 +188,14 @@ const el = renderer.domElement;
 let down = null;
 el.addEventListener('pointermove', (e) => { if (e.pointerType === 'mouse') showGhost(target(e)); });
 el.addEventListener('pointerleave', () => showGhost(null));
-el.addEventListener('pointerdown', (e) => { down = { x: e.clientX, y: e.clientY, t: performance.now() }; });
+el.addEventListener('pointerdown', (e) => {
+  if (!e.isPrimary || e.button !== 0) { down = null; return; }
+  down = { id: e.pointerId, x: e.clientX, y: e.clientY };
+});
+el.addEventListener('pointercancel', () => { down = null; });
+el.addEventListener('lostpointercapture', () => { down = null; });
 el.addEventListener('pointerup', (e) => {
-  if (!down) return; const moved = Math.hypot(e.clientX - down.x, e.clientY - down.y); down = null;
+  if (!down || down.id !== e.pointerId) return; const moved = Math.hypot(e.clientX - down.x, e.clientY - down.y); down = null;
   if (moved > 6 || e.button > 0) return;
   const t = target(e); if (!t) return;
   if (tool === 'pick') { const ty = world.get(key(...t)); if (ty && BLOCKS[ty]) { setBlock(ty); setTool('build'); toast('Wybrano: ' + BLOCKS[ty].name); } return; }
@@ -183,30 +211,151 @@ el.addEventListener('pointerup', (e) => {
   if (e.pointerType === 'mouse') showGhost(target(e));
 });
 
+const highest = () => layerMeshes.findLastIndex(layer => layer.size > 0);
 function fit() {
-  let top = 4; for (const k of world.keys()) top = Math.max(top, +k.split(',')[1]);
+  const top = Math.max(4, highest());
   const d = Math.max(30, top * 1.35);
-  controls.target.set(0, Math.min(top * .45, 30), 0);
-  camera.position.set(d * .78, top * .5 + d * .45, d * .9); controls.update(); dirty = true;
+  wholeTargetY = Math.min(top * .45, 30);
+  const y = active() ? layerY + .5 : wholeTargetY;
+  controls.target.set(0, y, 0);
+  camera.position.set(d * .78, y + top * .5 + d * .45 - wholeTargetY, d * .9);
+  wholeDistance = camera.position.distanceTo(controls.target);
+  if (active()) setDistance(Math.min(wholeDistance, 38));
+  controls.update(); dirty = true;
 }
 
+function setDistance(distance) {
+  const offset = camera.position.clone().sub(controls.target).setLength(distance);
+  camera.position.copy(controls.target).add(offset);
+  controls.update();
+  camera.updateMatrixWorld();
+}
+function shiftCamera(y) {
+  camera.position.y += y - controls.target.y;
+  controls.target.y = y;
+  controls.update();
+  camera.updateMatrixWorld();
+}
+const slider = $('#edLayer');
+const planDetails = $('#edPlanDetails');
+const plan = $('#edPlan');
+const planCtx = plan.getContext('2d');
+const layerDown = $('#edLayerDown'), layerUp = $('#edLayerUp');
+
+function drawPlan() {
+  if (!planDetails.open) return;
+  const cell = (plan.width - 1) / N;
+  planCtx.fillStyle = '#0d1530';
+  planCtx.fillRect(0, 0, plan.width, plan.height);
+  for (const k of layerMeshes[layerY].keys()) {
+    const [x, , z] = k.split(',').map(Number);
+    planCtx.fillStyle = BLOCKS[world.get(k)].c;
+    planCtx.fillRect(x * cell, z * cell, cell, cell);
+  }
+  planCtx.strokeStyle = '#6c82a3';
+  planCtx.beginPath();
+  for (let i = 0; i <= N; i++) {
+    const f = i * cell + .5;
+    planCtx.moveTo(f, 0); planCtx.lineTo(f, plan.height);
+    planCtx.moveTo(0, f); planCtx.lineTo(plan.width, f);
+  }
+  planCtx.stroke();
+  plan.setAttribute('aria-label', `Plan warstwy ${layerY + 1} z góry. ${layerMeshes[layerY].size} bloków.`);
+}
+planDetails.addEventListener('toggle', drawPlan);
+
+function refreshLayer(align = false) {
+  const before = layerY;
+  const maxY = Math.min(H - 1, highest() + 1);
+  layerY = Math.max(0, Math.min(maxY, layerY));
+  if (align || (active() && before !== layerY)) shiftCamera(active() ? layerY + .5 : wholeTargetY);
+  slider.max = maxY + 1;
+  slider.value = layerY + 1;
+  $('#edLayerLabel').textContent = `Warstwa ${layerY + 1} z ${maxY + 1}`;
+  slider.setAttribute('aria-valuetext', $('#edLayerLabel').textContent);
+  layerDown.disabled = layerY === 0;
+  layerUp.disabled = layerY === maxY;
+  $('#hudLayer').hidden = !active();
+  $('#hudLayer').textContent = `Warstwa ${layerY + 1}`;
+  $('#edLayerHint').hidden = !active();
+  const column = document.querySelector('[data-brush="col"]');
+  column.disabled = active();
+  if (column.disabled && brush === 'col') { brush = '1'; press('brush', brush); }
+
+  for (const m of meshes.values()) m.visible = inView(m.userData.y);
+  for (const m of tweens) m.visible = inView(m.userData.y);
+  for (const m of parts) m.visible = inView(m.userData.y);
+  ground.visible = !active();
+  grid.position.y = active() ? layerY + .004 : 0;
+  symGroup.position.y = active() ? layerY : 0;
+  showGhost(null);
+  const cells = layerMeshes[layerY];
+  $('#edLayerMaterialsTitle').textContent = `Materiały warstwy ${layerY + 1}`;
+  $('#edLayerCount').textContent = `Liczba bloków: ${cells.size.toLocaleString('pl-PL')}`;
+  listMaterials($('#edLayerMats'), [...cells.keys()].map(k => world.get(k)), 'Ta warstwa jest pusta.');
+  drawPlan();
+  store.set('ed:warstwy', { mode: layerMode, y: layerY });
+}
+function pickLayer(y) {
+  const moveCamera = active() && y !== layerY;
+  layerY = y;
+  refreshLayer(moveCamera);
+}
+slider.addEventListener('input', () => pickLayer(+slider.value - 1));
+layerDown.addEventListener('click', () => pickLayer(layerY - 1));
+layerUp.addEventListener('click', () => pickLayer(layerY + 1));
+seg('layer-mode', (mode) => {
+  if (mode === layerMode) return;
+  const wasActive = active();
+  if (!wasActive) {
+    wholeTargetY = controls.target.y;
+    wholeDistance = camera.position.distanceTo(controls.target);
+  }
+  layerMode = mode;
+  press('layer-mode', mode);
+  refreshLayer(wasActive !== active());
+  if (wasActive !== active()) setDistance(active() ? Math.min(wholeDistance, 38) : wholeDistance);
+});
+
 // ---------- cofnij / ponów / wyczyść / szablony ----------
-function revert(list, dir) { for (const c of [...list].reverse()) { const [x, y, z] = c.k.split(',').map(Number); setCell(x, y, z, dir === 'undo' ? c.from : c.to); } changed(); }
-function doUndo() { const l = undo.pop(); if (l) { revert(l, 'undo'); redo.push(l); } }
-function doRedo() { const l = redo.pop(); if (l) { revert(l, 'redo'); undo.push(l); } }
+function changesHidden(list) {
+  return active() && list.some(c => !inView(+c.k.split(',')[1]));
+}
+function history(from, to, reverse) {
+  const list = from.at(-1);
+  if (!list || (changesHidden(list) && !confirm('Ta zmiana obejmuje ukryte warstwy. Kontynuować?'))) return;
+  from.pop();
+  for (const c of reverse ? [...list].reverse() : list) {
+    const [x, y, z] = c.k.split(',').map(Number);
+    setCell(x, y, z, reverse ? c.from : c.to);
+  }
+  to.push(list);
+  changed();
+}
+const doUndo = () => history(undo, redo, true);
+const doRedo = () => history(redo, undo, false);
 $('#undo').addEventListener('click', doUndo); $('#redo').addEventListener('click', doRedo);
-$('#clear').addEventListener('click', () => { if (!world.size) return; apply([...world.keys()].map(k => ({ k, to: null }))); toast('Plac wyczyszczony. Cofniesz to przyciskiem ↶.'); });
+$('#clear').addEventListener('click', () => {
+  if (!world.size) return;
+  const changes = [...world.keys()].map(k => ({ k, to: null }));
+  if (changesHidden(changes) && !confirm('Wyczyścić całą budowlę wraz z ukrytymi warstwami?')) return;
+  apply(changes);
+  toast('Plac wyczyszczony. Cofniesz to przyciskiem ↶.');
+});
 tplSel.addEventListener('change', () => {
   const id = tplSel.value; tplSel.value = ''; if (!id) return;
   const b = getBuild(id), ox = Math.floor((N - b.size[0]) / 2), oz = Math.floor((N - b.size[2]) / 2);
-  const ch = [...world.keys()].map(k => ({ k, to: null }));
-  for (const [x, y, z, t] of b.blocks) if (BLOCKS[t].id && inside(x + ox, y, z + oz)) ch.push({ k: key(x + ox, y, z + oz), to: t });
-  const anim = reduced; // duże szablony bez animacji
-  for (const c of ch) { const [x, y, z] = c.k.split(',').map(Number); const from = world.get(c.k) || null; c.from = from; }
-  const prev = ch.map(c => ({ ...c }));
-  for (const c of ch) { const [x, y, z] = c.k.split(',').map(Number); setCell(x, y, z, c.to, anim); }
-  undo.push(prev.filter(c => c.from !== c.to)); redo.length = 0;
-  $('#name').value = b.name; changed(); fit(); toast(`Wczytano: ${b.name}. Możesz ją przerabiać.`);
+  const next = new Map();
+  for (const [x, y, z, t] of b.blocks) {
+    if (BLOCKS[t].id && inside(x + ox, y, z + oz)) next.set(key(x + ox, y, z + oz), t);
+  }
+  const changes = [];
+  for (const k of world.keys()) if (!next.has(k)) changes.push({ k, to: null });
+  for (const [k, t] of next) changes.push({ k, to: t });
+  $('#name').value = b.name;
+  apply(changes, false);
+  fit();
+  toast(`Wczytano: ${b.name}. Możesz ją przerabiać.`);
 });
 addEventListener('keydown', (e) => {
   if (e.target.closest('input,select,textarea')) return;
@@ -216,21 +365,31 @@ addEventListener('keydown', (e) => {
 });
 
 // ---------- zmiany: licznik, materiały, eksport, zapis ----------
-let saveT;
 function normBlocks() {
   const arr = [...world.entries()].map(([k, t]) => { const [x, y, z] = k.split(',').map(Number); return [x, y, z, t]; });
   if (!arr.length) return arr;
   const mx = Math.min(...arr.map(a => a[0])), mz = Math.min(...arr.map(a => a[2]));
   return arr.map(([x, y, z, t]) => [x - mx, y, z - mz, t]);
 }
+function listMaterials(list, types, empty) {
+  const count = new Map();
+  for (const t of types) count.set(t, (count.get(t) || 0) + 1);
+  const rows = [...count].sort((a, b) => b[1] - a[1]);
+  const st = (n) => n >= 64 ? `${Math.floor(n / 64)}×64${n % 64 ? ' + ' + (n % 64) : ''}` : '';
+  list.innerHTML = rows.length ? rows.map(([t, n]) => `<li><label><span></span><i style="background:${BLOCKS[t].c}"></i><span class="mn">${BLOCKS[t].name}</span><span class="mc">${n}</span><span class="ms muted">${st(n)}</span></label></li>`).join('') : '<li class="muted small">' + empty + '</li>';
+}
+let saveT;
+function save() {
+  clearTimeout(saveT); saveT = undefined;
+  store.set('ed:swiat', { name: $('#name').value, b: [...world.entries()] });
+}
+addEventListener('pagehide', () => { if (saveT) save(); });
 function changed() {
   $('#hudCount').textContent = `${world.size.toLocaleString('pl-PL')} bloków`;
-  const cnt = {}; for (const t of world.values()) cnt[t] = (cnt[t] || 0) + 1;
-  const rows = Object.entries(cnt).sort((a, b) => b[1] - a[1]);
-  const st = (n) => n >= 64 ? `${Math.floor(n / 64)}×64${n % 64 ? ' + ' + (n % 64) : ''}` : '';
-  $('#mats').innerHTML = rows.length ? rows.map(([t, n]) => `<li><label><span></span><i style="background:${BLOCKS[t].c}"></i><span class="mn">${BLOCKS[t].name}</span><span class="mc">${n}</span><span class="ms muted">${st(n)}</span></label></li>`).join('') : '<li class="muted">Plac jest pusty. Postaw pierwszy blok.</li>';
+  listMaterials($('#mats'), world.values(), 'Plac jest pusty. Postaw pierwszy blok.');
+  refreshLayer();
   updExport();
-  clearTimeout(saveT); saveT = setTimeout(() => store.set('ed:swiat', { name: $('#name').value, b: [...world.entries()] }), 400);
+  clearTimeout(saveT); saveT = setTimeout(save, 400);
 }
 function updExport() {
   const name = safeName($('#name').value);
@@ -246,9 +405,10 @@ $('#copyFn').addEventListener('click', (e) => copyText('/function kilekcraft:' +
 $('#copyLines').addEventListener('click', (e) => copyText(mcfunction(normBlocks(), $('#name').value), e.currentTarget));
 $('#dl').addEventListener('click', async (e) => {
   if (!world.size) { toast('Najpierw coś zbuduj!'); return; }
+  const button = e.currentTarget;
   const { name, blob } = await datapack(normBlocks(), $('#name').value);
   download(blob, `kilekcraft_${name}.zip`);
-  const r = e.currentTarget.getBoundingClientRect();
+  const r = button.getBoundingClientRect();
   if (award('ed:eksport', 50, { from: { x: r.left + r.width / 2, y: r.top } })) badge('architekt');
   toast('Datapack gotowy. Jeśli plik się nie pobrał, otwórz stronę w zwykłej przeglądarce.');
 });
@@ -256,10 +416,20 @@ packStatusHTML().then(h => { $('#packStatus').innerHTML = h; });
 
 // odtworzenie zapisu
 const saved = store.get('ed:swiat');
-if (saved && saved.b) { $('#name').value = saved.name || 'moja budowla'; for (const [k, t] of saved.b) { if (!BLOCKS[t]) continue; const [x, y, z] = k.split(',').map(Number); setCell(x, y, z, t, false); } }
+if (Array.isArray(saved?.b)) {
+  $('#name').value = saved.name || 'moja budowla';
+  for (const item of saved.b) {
+    if (!Array.isArray(item)) continue;
+    const [k, t] = item;
+    if (typeof k !== 'string' || !Object.hasOwn(BLOCKS, t) || world.size >= MAX) continue;
+    const coords = k.split(',').map(Number);
+    if (coords.length === 3 && coords.every(Number.isInteger) && inside(...coords)) setCell(...coords, t, false);
+  }
+}
 else { // mały start, żeby plac nie był pusty
   for (let x = 20; x < 28; x++) for (let z = 20; z < 28; z++) setCell(x, 0, z, (x + z) % 2 ? 'stone_bricks' : 'smooth_stone', false);
 }
+press('layer-mode', layerMode);
 changed(); fit();
 
 // ---------- pętla ----------
