@@ -8,11 +8,8 @@ export { sfx } from './sfx.js';
 import { sfx as _sfx } from './sfx.js';
 export const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-// bezpieczny localStorage (w niektórych widokach rzuca wyjątek)
-export const store = {
-  get(k, d = null) { try { const v = localStorage.getItem('kc:' + k); return v ? JSON.parse(v) : d; } catch { return d; } },
-  set(k, v) { try { localStorage.setItem('kc:' + k, JSON.stringify(v)); } catch { /* brak pamięci — trudno */ } },
-};
+import { store } from './store.js';
+export { store };
 
 // menu na telefonie
 const mb = document.querySelector('.menu-btn'), nav = document.querySelector('.nav');

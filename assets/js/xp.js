@@ -7,7 +7,7 @@
 //   badge('id')                   → odblokuj odznakę
 // =========================================================
 import { sfx } from './sfx.js';
-const KEY = 'kc:xp';
+import { store } from './store.js';
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 export const BADGES = [
@@ -37,9 +37,8 @@ const PAGES = ['index', 'serwer', 'hosting', 'komendy', 'budowle', 'edytor', 'ko
 export const xpFor = (lvl) => 25 * lvl * (lvl - 1);
 export const levelOf = (xp) => { let l = 1; while (xp >= xpFor(l + 1)) l++; return l; };
 
-function load() { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch { return {}; } }
-const S = Object.assign({ xp: 0, got: {}, badges: {}, count: {} }, load());
-function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch { /* bez zapisu */ } }
+const S = Object.assign({ xp: 0, got: {}, badges: {}, count: {} }, store.get('xp'));
+function save() { store.set('xp', S); }
 
 export function bump(name) { S.count[name] = (S.count[name] || 0) + 1; save(); return S.count[name]; }
 export function has(key) { return !!S.got[key]; }
@@ -93,8 +92,51 @@ function renderPanel() {
   const n = Object.keys(S.badges).length;
   panel.innerHTML = `<div class="xp-head"><div class="xp-big">${l}</div><div><b>Poziom ${l}</b><span>${S.xp} XP · do następnego ${next - S.xp} XP</span><span>Odznaki: ${n} z ${BADGES.length}</span></div><button type="button" class="xp-close" aria-label="Zamknij">✕</button></div>
   <ul class="xp-badges">${BADGES.map(b => `<li class="${S.badges[b.id] ? 'on' : ''}"><i>${b.ico}</i><div><b>${b.name}</b><span>${b.desc}</span></div></li>`).join('')}</ul>
+  <div class="xp-backup copy-row">
+    <button type="button" class="btn ghost sm" data-backup>Eksportuj postęp</button>
+    <button type="button" class="btn ghost sm" data-restore>Importuj postęp</button>
+    <input type="file" accept=".json,application/json" hidden>
+  </div>
+  <p class="xp-note" role="status" data-backup-status></p>
   <p class="xp-note">Postęp zapisuje się tylko w tej przeglądarce. Nikt inny go nie widzi.</p>`;
   panel.querySelector('.xp-close').addEventListener('click', () => { panel.hidden = true; btn.focus(); });
+  const status = panel.querySelector('[data-backup-status]');
+  const input = panel.querySelector('input[type=file]');
+  const recover = panel.querySelector('[data-restore]');
+  panel.querySelector('[data-backup]').addEventListener('click', async () => {
+    try {
+      const { backup, MAX_FILE } = await import('./progress-backup.js');
+      const file = new Blob([backup(S)], { type: 'application/json' });
+      if (file.size > MAX_FILE) throw new Error('Za duży plik');
+      const url = URL.createObjectURL(file);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'kilekcraft-postep.json';
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      status.textContent = 'Kopia zawiera poziom, odznaki i rekordy.';
+    } catch { status.textContent = 'Nie udało się zapisać kopii postępu.'; }
+  });
+  recover.addEventListener('click', () => input.click());
+  input.addEventListener('change', async () => {
+    const file = input.files[0];
+    if (!file) return;
+    try {
+      const { restore, MAX_FILE } = await import('./progress-backup.js');
+      if (file.size > MAX_FILE) throw new Error('Za duży plik');
+      Object.assign(S, restore(await file.text(), S, new Set(BADGES.map(b => b.id))));
+      render();
+      if (!panel.hidden) {
+        panel.querySelector('[data-backup-status]').textContent = 'Wczytano kopię. Zachowano wyższy poziom i lepsze rekordy.';
+        panel.querySelector('[data-restore]').focus();
+      }
+    } catch {
+      input.value = '';
+      status.textContent = 'Nie udało się wczytać kopii. Sprawdź plik JSON z KILEKCRAFT.';
+      if (!panel.hidden) recover.focus();
+    }
+  });
+
 }
 
 // ---------- efekty ----------

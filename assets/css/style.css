@@ -611,6 +611,7 @@ body[data-przepis="lifesteal"] .s-vis{height:150px}
 .xp-badges i{width:34px;height:34px;flex:none;display:grid;place-items:center;font-style:normal;font-weight:700;background:var(--panel-2);border:2px solid var(--gold);color:var(--gold)}
 .xp-badges b{display:block;font-size:15px}.xp-badges span{font-size:13px;color:var(--muted)}
 .xp-note{font-size:12px;color:var(--dim);margin:10px 0 0}
+.xp-backup{margin-top:12px;flex-wrap:wrap}
 .xp-float{position:fixed;left:0;top:0;z-index:300;font:400 26px var(--font-px);color:#b6ff7a;text-shadow:2px 2px 0 #1e4a0a,0 0 12px rgba(124,255,74,.6);pointer-events:none;white-space:nowrap}
 .lvl-up{position:fixed;left:50%;top:30%;transform:translate(-50%,-50%);z-index:310;text-align:center;pointer-events:none;transition:opacity .5s,transform .5s}
 .lvl-up.out{opacity:0;transform:translate(-50%,-70%)}

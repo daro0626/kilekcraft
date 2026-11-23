@@ -242,7 +242,15 @@ export function initGame(onNext) {
     finished = true; running = false;
     const t = tNow; $('#time').textContent = fmt(t);
     recording.push([t, pos.x, pos.y, pos.z, faceYaw]);
-    const code = encode(state), rec = !best || t < best, hadGhost = !!ghostData;
+    const code = encode(state);
+    const latest = store.get('pk:best:' + code, null);
+    if (latest !== best) {
+      best = latest;
+      ghostData = store.get('pk:ghost:' + code, null);
+      $('#best').textContent = best ? fmt(best) : '—';
+      $('#ghostTile').hidden = !ghostData;
+    }
+    const rec = !best || t < best, hadGhost = !!ghostData;
     if (rec) {
       best = t; store.set('pk:best:' + code, t); $('#best').textContent = fmt(t);
       ghostData = recording.map((s) => s.map((n) => Math.round(n * 100) / 100));
