@@ -23,6 +23,10 @@ Każde zadanie kończy się dopiero, gdy spełnia kryteria akceptacji **oraz** b
 - Test „Znajdź błąd” sprawdza 17 par komend. Pytania, które nie przejdą, same znikają z gry. Jeśli zniknie ich dużo, popraw `data/bledy.json`.
 - **Akceptacja:** `wyniki.motd.ok` i co najmniej 12 zweryfikowanych pytań.
 
+### A7 [Piotrek] Wyzwanie dnia: czy warto wracać codziennie?
+- Sprawdź z kolegą w tym samym dniu, czy macie dokładnie ten sam kod komnaty (strona liczy dzień z zegara urządzenia, nie z serwera — teoretycznie ktoś z innej strefy czasowej mógłby dostać inny dzień, ale dla was to nie powinien być problem).
+- Spróbuj przycisku „Skopiuj wynik” i wklej go gdzieś, żeby sprawdzić, czy tekst wygląda dobrze.
+
 ### A6 [Piotrek] Wyścig parkour: czy da się przejść?
 - Przejdź w przeglądarce P3, P6, P8 i L4. Zapisz czas i miejsca, gdzie fizyka różni się od gry.
 

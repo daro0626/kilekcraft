@@ -22,6 +22,7 @@ READY = {
     'parkour': '#gl',
     'kolo': '#r0 div',
     'motd': '#pvMotd div',
+    'wyzwanie': '#gl',
 }
 
 # Nazwy typów z assets/js/builds.js dla próbki z test_commands.SAMPLE
@@ -66,6 +67,26 @@ def parkour(page, mobile):
     expect(page.locator('#play')).to_be_focused()
     expect(page.locator('#ovTitle')).to_have_text('Pauza')
 
+
+
+def wyzwanie(page, mobile):
+    code = page.locator('#dzienKod').inner_text()
+    assert code and code != '—', code
+    expect(page.locator('#ovText')).to_contain_text(code)
+    expect(page.locator('#play')).to_be_visible()
+    if mobile:
+        page.locator('#play').tap()
+        expect(page.locator('#jumpBtn')).to_be_visible()
+        page.locator('#jumpBtn').tap()
+        expect(page.locator('#time')).not_to_have_text('0,00')
+    else:
+        page.locator('#play').press('Enter')
+        expect(page.locator('#gl')).to_be_focused()
+        page.keyboard.press('Space')
+        expect(page.locator('#time')).not_to_have_text('0,00')
+    page.locator('#gl').press('Escape')
+    expect(page.locator('#play')).to_be_focused()
+    expect(page.locator('#ovTitle')).to_have_text('Pauza')
 
 
 def hosting(page):
@@ -183,6 +204,8 @@ def run(browser, width, height):
         smoke(page, name)
         if name == 'parkour':
             parkour(page, mobile)
+        if name == 'wyzwanie':
+            wyzwanie(page, mobile)
         if name == 'hosting':
             hosting(page)
         if name == 'edytor':
