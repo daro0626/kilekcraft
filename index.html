@@ -136,7 +136,7 @@ const io = new IntersectionObserver(async ([e]) => {
   const { webglOK, createViewer } = await import('./assets/js/voxel.js');
   if (!webglOK()) { host.querySelector('.poster').textContent = 'Twoja przeglądarka nie pokazuje 3D. Budowle nadal zobaczysz jako mapę warstw.'; return; }
   const { getBuild } = await import('./assets/js/builds.js');
-  const v = createViewer(host, getBuild('wyspa'), { autoRotate: !reduced, ghost: false, layerPlane: false, motes: !reduced, noZoom: true, zoom: .9 });
+  const v = await createViewer(host, getBuild('wyspa'), { autoRotate: !reduced, ghost: false, layerPlane: false, motes: !reduced, noZoom: true, zoom: .9 });
   host.querySelector('.poster').remove();
   if (!reduced) v.animateBuild(3200);
 }, { rootMargin: '100px' });

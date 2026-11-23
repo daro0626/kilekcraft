@@ -25,7 +25,8 @@ jobs:
               --quiet --output=json --output=html --output-path="$RUNNER_TEMP/raporty/$page"
           done
       - name: Sprawdź progi osobno dla każdej strony
-        run: python3 tools/progi_lighthouse.py "$RUNNER_TEMP/raporty" >> "$GITHUB_STEP_SUMMARY"
+        shell: bash
+        run: python3 tools/progi_lighthouse.py "$RUNNER_TEMP/raporty" | tee -a "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
