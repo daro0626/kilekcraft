@@ -100,8 +100,9 @@ def commands(new_names=True):
         c['gamerule'].append(f'gamerule {name} {val}')
     c['whitelist'] += ['whitelist on', 'whitelist add Test_Gracz', 'op Test_Gracz']
     # Serca w LifeSteal: maksymalne zdrowie w punktach (1 serce = 2 punkty).
-    c['attribute'] += [f'attribute @a minecraft:max_health base set {hp}' for hp in (2, 7, 16, 18, 20, 40)]
-    c['attribute'] += ['attribute @a minecraft:max_health base reset']
+    # attribute przyjmuje jeden byt, więc „wszyscy” to execute as @a … @s (sprawdzone w CI: @a daje błąd)
+    c['attribute'] += [f'execute as @a run attribute @s minecraft:max_health base set {hp}' for hp in (2, 7, 16, 18, 20, 40)]
+    c['attribute'] += ['execute as @a run attribute @s minecraft:max_health base reset', 'attribute @p minecraft:max_health base reset']
     return c
 
 BAD = ('Unknown or incomplete command', 'Incorrect argument', '<--[HERE]', 'Unknown item', 'Unknown effect',

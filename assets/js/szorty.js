@@ -85,8 +85,8 @@ const LIFESTEAL = [
   },
   {
     t: 'Ręcznie: wszyscy na start',
-    p: 'Komenda attribute ustawia, ile zdrowia gracz może mieć najwięcej. 1 serce to 2 punkty, więc 10 serc to 20. Ta komenda daje wszystkim po 10 serc. W konsoli piszesz bez ukośnika.',
-    cmd: 'attribute @a minecraft:max_health base set 20',
+    p: 'Komenda attribute ustawia, ile zdrowia gracz może mieć najwięcej. 1 serce to 2 punkty, więc 10 serc to 20. Komenda attribute działa na jednego gracza naraz, więc execute as @a powtarza ją dla każdego. Tak wszyscy dostają po 10 serc. W konsoli piszesz bez ukośnika.',
+    cmd: 'execute as @a run attribute @s minecraft:max_health base set 20',
     test: 'attribute',
     v: `<div class="v-ls-bar">${'<i></i>'.repeat(10)}</div>`,
     a: { href: 'komendy.html', label: 'Kreator serc' },

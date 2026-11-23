@@ -21,7 +21,7 @@ Każdy fakt na stronie, który może się zmienić, musi tu mieć źródło i da
 | `natural_health_regeneration` (dawne naturalRegeneration) | https://wisehosting.com/help/how-to-enable-disable-different-gamerules | 2026-11-23 |
 | Składnia komend sześciu szablonów na vanilla 26.3 i Paper 26.3 build 258 | [Test vanilla](https://github.com/daro0626/kilekcraft/actions/runs/45136900087) · [Test Paper](https://github.com/daro0626/kilekcraft/actions/runs/45136991692) | 2026-11-23 |
 
-| Komenda `attribute <cel> minecraft:max_health base set <punkty>` / `base reset`; nazwy atrybutów bez przedrostka `generic.` od 1.21.2; 20 punktów = 10 serc | https://metabot.gg/en/minecraft/commands/attribute ; https://wikily.gg/minecraft/commands/attribute ; https://www.bilibili.com/opus/957257796958552103 (zmiana nazw) | 2026-11-23, **czeka na test CI (C6)** |
+| Komenda `attribute <cel> minecraft:max_health base set <punkty>` / `base reset`; nazwy atrybutów bez przedrostka `generic.` od 1.21.2; 20 punktów = 10 serc. Cel to **jeden** byt: `attribute @a …` serwer 26.3 odrzuca („Only one entity is allowed”), więc dla wszystkich `execute as @a run attribute @s …` | https://metabot.gg/en/minecraft/commands/attribute ; https://wikily.gg/minecraft/commands/attribute ; https://www.bilibili.com/opus/957257796958552103 (zmiana nazw) | 2026-11-23, **czeka na test CI (C6)** |
 | Obniżenie `max_health` nie zmniejsza od razu bieżącego zdrowia (znany błąd) | https://bugs.mojang.com/browse/MC-180001 ; https://bugs-legacy.mojang.com/browse/MC-16345 | 2026-11-23 |
 
 Każdy z dwóch serwerów przeszedł 82 próby składni przez RCON. Efekt w grze czeka na test Piotrka. Historyczne nazwy zasad i daty ich wprowadzenia pochodzą z podanych wyżej źródeł.

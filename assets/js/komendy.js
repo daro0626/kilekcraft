@@ -129,7 +129,9 @@ function build(f) {
   }
   if (tpl === 'attribute') {
     const tg = readTarget(f), reset = !!f.get('reset'), hearts = reset ? 10 : +f.get('hearts');
-    out.cmds.push(reset ? `/attribute ${tg.t} minecraft:max_health base reset` : `/attribute ${tg.t} minecraft:max_health base set ${hearts * 2}`);
+    // attribute działa na jednego gracza naraz; dla wszystkich powtarzamy ją przez execute as @a
+    const head = tg.t === '@a' ? '/execute as @a run attribute @s' : `/attribute ${tg.t}`;
+    out.cmds.push(reset ? `${head} minecraft:max_health base reset` : `${head} minecraft:max_health base set ${hearts * 2}`);
     out.pv = { hearts, reset };
     if (hearts < 2 && !reset) out.warn = 'Przy 1 sercu jeden cios kończy grę. W LifeSteal to zwykle ostatnia chwila przed eliminacją.';
     if (tg.bad) out.warn = 'Nick musi mieć 3–16 znaków: litery, cyfry albo _.';

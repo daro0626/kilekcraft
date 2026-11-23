@@ -177,6 +177,8 @@ def browser_commands(page, modern):
         collect('attribute')
     page.locator('[name="reset"] + span').click()
     collect('attribute')
+    chip('cel', '@p')
+    collect('attribute')
     return result
 
 
