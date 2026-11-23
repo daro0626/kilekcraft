@@ -30,6 +30,11 @@ export const BLOCKS = {
   sand:         { name: 'Piasek',            id: 'minecraft:sand',          c: '#dccf9c', pat: 'noise' },
   smooth_stone: { name: 'Gładki kamień',     id: 'minecraft:smooth_stone',  c: '#9a9ca3', pat: 'smooth' },
   dark_log:     { name: 'Pień ciemnego dębu',id: 'minecraft:dark_oak_log',  c: '#3e2b18', pat: 'bark' },
+  lava:         { name: 'Lawa',              id: 'minecraft:lava',          c: '#ff6a1a', pat: 'portal', glow: true },
+  emerald:      { name: 'Blok szmaragdu',    id: 'minecraft:emerald_block', c: '#2fd66f', pat: 'metal', glow: true },
+  white_wool:   { name: 'Biała wełna',       id: 'minecraft:white_wool',    c: '#e9ecef', pat: 'noise' },
+  black_concrete:{ name: 'Czarny beton',     id: 'minecraft:black_concrete',c: '#1b1d24', pat: 'smooth' },
+  blue_concrete:{ name: 'Niebieski beton',   id: 'minecraft:blue_concrete', c: '#2c3fa8', pat: 'smooth' },
 };
 
 // Deterministyczny generator losowy — budowla zawsze wygląda tak samo.

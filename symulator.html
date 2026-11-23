@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Symulator LifeSteal — KILEKCRAFT</title>
+<meta name="description" content="Przetestuj zasady serwera LifeSteal, zanim wpuścisz graczy: serca, walki, bany, sklep. Animowana arena i wnioski z 200 symulacji.">
+<link rel="icon" href="data:,">
+<meta name="theme-color" content="#0b1020">
+<link rel="preload" href="assets/fonts/jersey-10-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<a class="skip" href="#main">Przejdź do treści</a>
+<header class="top">
+  <div class="wrap">
+    <a class="logo" href="index.html" aria-label="KILEKCRAFT — strona główna"><span class="cube"></span><span>KILEK<b>CRAFT</b></span></a>
+    <button class="menu-btn" aria-expanded="false" aria-controls="nav">Menu</button>
+    <nav class="nav" id="nav" aria-label="Główne">
+      <a href="serwer.html">Serwer</a>
+      <a href="hosting.html">Hosting</a>
+      <a href="komendy.html">Komendy</a>
+      <a href="budowle.html">Budowle</a>
+      <a href="edytor.html">Edytor</a>
+      <a href="komnaty.html">Komnaty</a>
+      <a href="symulator.html" aria-current="page">Symulator</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+  <div class="page-head">
+    <div class="eyebrow">07 · Symulator LifeSteal</div>
+    <h1 data-anim="drop">Przetestuj zasady, zanim zagrają koledzy</h1>
+    <p class="lead">Ustaw serca, walki i sklep. Na arenie zobaczysz jeden przebieg, a wnioski pochodzą z 200 symulacji. Tak sprawdzisz, czy serwer nie skończy się po dwóch dniach.</p>
+  </div>
+
+  <div class="sim">
+    <form class="panel pad corner sim-ctrl" id="form" onsubmit="return false" aria-label="Zasady serwera">
+      <div class="sl"><label for="gracze">Gracze <b data-v="gracze"></b></label><input type="range" id="gracze" name="gracze" min="4" max="30"></div>
+      <div class="sl"><label for="start">Serca na start <b data-v="start"></b></label><input type="range" id="start" name="start" min="2" max="20"></div>
+      <div class="sl"><label for="max">Limit serc <b data-v="max"></b></label><input type="range" id="max" name="max" min="5" max="40"></div>
+      <div class="sl"><label for="walki">Walki dziennie na gracza <b data-v="walki"></b></label><input type="range" id="walki" name="walki" min="0.5" max="5" step="0.5"></div>
+      <div class="sl"><label for="umiejetnosci">Różnica umiejętności <b data-v="umiejetnosci"></b></label><input type="range" id="umiejetnosci" name="umiejetnosci" min="0" max="100" step="10"></div>
+      <div class="chips" style="margin:4px 0 14px"><label class="chip"><input type="checkbox" name="sercaPomagaja"><span>Więcej serc = łatwiej wygrać</span></label></div>
+      <div class="field"><span class="lbl">Gdy ktoś straci ostatnie serce</span>
+        <div class="chips">
+          <label class="chip"><input type="radio" name="zero" value="ban"><span>Ban do końca</span></label>
+          <label class="chip"><input type="radio" name="zero" value="powrot"><span>Wraca po kilku dniach</span></label>
+          <label class="chip"><input type="radio" name="zero" value="min1"><span>Zostaje 1 serce</span></label>
+        </div>
+      </div>
+      <div class="sl" id="powrotRow"><label for="powrot">Powrót po (dni) <b data-v="powrot"></b></label><input type="range" id="powrot" name="powrot" min="1" max="7"></div>
+      <div class="sl"><label for="odrodzenie">Przedmiot odrodzenia co (dni, 0 = brak) <b data-v="odrodzenie"></b></label><input type="range" id="odrodzenie" name="odrodzenie" min="0" max="7"></div>
+      <details class="sim-eco"><summary>Ekonomia (sklep z sercami)</summary>
+        <div class="sl"><label for="cena">Cena serca w sklepie, $ (0 = nie ma) <b data-v="cena"></b></label><input type="range" id="cena" name="cena" min="0" max="10000" step="250"></div>
+        <div class="sl"><label for="dochod">Średni zarobek dziennie z /sell, $ <b data-v="dochod"></b></label><input type="range" id="dochod" name="dochod" min="0" max="3000" step="100"></div>
+      </details>
+      <div class="sim-btns">
+        <button type="button" class="btn" id="run">▶ Puść symulację</button>
+        <button type="button" class="btn ghost sm" id="skip">Wynik od razu</button>
+        <button type="button" class="btn ghost sm" id="reset">Domyślne</button>
+      </div>
+    </form>
+
+    <div class="sim-right">
+      <div class="arena panel corner">
+        <canvas id="arena" aria-label="Arena: gracze, serca i walki"></canvas>
+        <div class="day-badge"><span>Dzień</span><b id="dayNum">0</b></div>
+      </div>
+      <div class="feed" id="feed" aria-live="polite"></div>
+      <div class="verdicts" id="verdicts" aria-live="polite"></div>
+    </div>
+  </div>
+
+  <section class="sim-charts">
+    <div class="panel pad">
+      <h2 class="section-heading">Wyniki z 200 symulacji</h2>
+      <div class="kpis" id="kpis"></div>
+      <canvas id="chart" class="chart" aria-label="Wykres: aktywni gracze i najwyższa liczba serc w kolejnych dniach"></canvas>
+      <div class="legend"><span><i style="background:var(--emerald)"></i>Aktywni gracze (pokazany przebieg)</span><span><i style="background:var(--gold)"></i>Najwięcej serc u jednego gracza</span></div>
+    </div>
+    <div class="panel pad">
+      <h2 class="section-heading">Ranking po ostatnim dniu</h2>
+      <ol class="rank-list" id="rank"></ol>
+    </div>
+  </section>
+
+  <p class="note small" style="margin-top:20px">To uproszczony model, a nie prawdziwy serwer. Prawdziwi gracze uciekają, łączą się w drużyny i mają złe dni. Traktuj wynik jako podpowiedź do zasad, a nie jako przepowiednię.</p>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="disc">NOT AN OFFICIAL MINECRAFT SERVICE. NOT APPROVED BY OR ASSOCIATED WITH MOJANG OR MICROSOFT.</div>
+    <p>KILEKCRAFT to fanowski projekt edukacyjny. © <span data-year></span></p>
+  </div>
+</footer>
+<script type="module" src="assets/js/symulator.js"></script>
+</body>
+</html>

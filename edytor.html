@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Edytor budowli 3D — KILEKCRAFT</title>
+<meta name="description" content="Buduj w 3D w przeglądarce, z symetrią i listą materiałów, a potem pobierz budowlę jako datapack na swój serwer Minecraft Java.">
+<link rel="icon" href="data:,">
+<meta name="theme-color" content="#0b1020">
+<link rel="preload" href="assets/fonts/jersey-10-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/css/style.css">
+<script type="importmap">{"imports":{"three":"./vendor/three.module.js","three/addons/":"./vendor/addons/"}}</script>
+</head>
+<body>
+<a class="skip" href="#main">Przejdź do treści</a>
+<header class="top">
+  <div class="wrap">
+    <a class="logo" href="index.html" aria-label="KILEKCRAFT — strona główna"><span class="cube"></span><span>KILEK<b>CRAFT</b></span></a>
+    <button class="menu-btn" aria-expanded="false" aria-controls="nav">Menu</button>
+    <nav class="nav" id="nav" aria-label="Główne">
+      <a href="serwer.html">Serwer</a>
+      <a href="hosting.html">Hosting</a>
+      <a href="komendy.html">Komendy</a>
+      <a href="budowle.html">Budowle</a>
+      <a href="edytor.html" aria-current="page">Edytor</a>
+      <a href="komnaty.html">Komnaty</a>
+      <a href="symulator.html">Symulator</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+  <div class="page-head">
+    <div class="eyebrow">05 · Edytor budowli</div>
+    <h1 data-anim="drop">Zbuduj i wyślij na serwer</h1>
+    <p class="lead">Klikaj, żeby stawiać bloki, a przeciągaj, żeby obracać widok. Gdy skończysz, pobierz budowlę jako datapack i postaw ją w swoim świecie jedną komendą.</p>
+  </div>
+
+  <div class="ed">
+    <div class="ed-stage panel corner" id="stage">
+      <div class="ed-hud">
+        <span class="badge info" id="hudTool">Stawianie</span>
+        <span class="badge ok" id="hudCount">0 bloków</span>
+        <span class="badge wait" id="hudSym" hidden>Symetria</span>
+      </div>
+      <div class="v-poster" id="poster">Ładowanie edytora 3D…</div>
+      <div class="ed-help muted">Klik: akcja · Przeciągnij: obrót · Kółko lub dwa palce: przybliżenie · Klawisze: B stawianie, E usuwanie, I pipeta, Ctrl+Z cofnij</div>
+    </div>
+
+    <aside class="ed-side">
+      <div class="panel pad">
+        <div class="ed-row">
+          <div class="seg" role="group" aria-label="Narzędzie">
+            <button type="button" class="tab" data-tool="build" aria-pressed="true">■ Stawiaj</button>
+            <button type="button" class="tab" data-tool="erase" aria-pressed="false">✕ Usuń</button>
+            <button type="button" class="tab" data-tool="pick" aria-pressed="false">◎ Pipeta</button>
+          </div>
+        </div>
+        <div class="ed-row">
+          <div class="seg" role="group" aria-label="Pędzel">
+            <button type="button" class="tab" data-brush="1" aria-pressed="true">Pędzel 1</button>
+            <button type="button" class="tab" data-brush="3" aria-pressed="false">3×3</button>
+            <button type="button" class="tab" data-brush="col" aria-pressed="false">Słup ×5</button>
+          </div>
+        </div>
+        <div class="ed-row">
+          <div class="seg" role="group" aria-label="Symetria">
+            <button type="button" class="tab" data-sym="none" aria-pressed="true">Bez symetrii</button>
+            <button type="button" class="tab" data-sym="x" aria-pressed="false">Lustro ↔</button>
+            <button type="button" class="tab" data-sym="xz" aria-pressed="false">Lustro ×4</button>
+          </div>
+        </div>
+        <div class="ed-row ed-acts">
+          <button type="button" class="btn sm ghost" id="undo" aria-label="Cofnij">↶ Cofnij</button>
+          <button type="button" class="btn sm ghost" id="redo" aria-label="Ponów">↷ Ponów</button>
+          <button type="button" class="btn sm ghost" id="clear">Wyczyść</button>
+        </div>
+        <label class="lbl" for="tpl" style="margin-top:6px">Zacznij od</label>
+        <select id="tpl">
+          <option value="">— pusty plac —</option>
+        </select>
+      </div>
+
+      <div class="panel pad" style="margin-top:14px">
+        <span class="lbl">Blok</span>
+        <div class="pal" id="pal" role="radiogroup" aria-label="Wybór bloku"></div>
+        <div class="muted small" id="palName" style="margin-top:8px"></div>
+      </div>
+    </aside>
+  </div>
+
+  <section class="ed-bottom">
+    <div class="panel pad corner">
+      <h2 class="section-heading">Pobierz na serwer</h2>
+      <div class="field"><label for="name">Nazwa budowli</label><input type="text" id="name" maxlength="32" value="moja budowla"></div>
+      <div class="console" id="fnCmd"></div>
+      <div class="copy-row">
+        <button class="btn em" type="button" id="dl">⬇ Pobierz datapack</button>
+        <button class="btn ghost sm" type="button" id="copyFn">Kopiuj komendę</button>
+        <span id="packStatus"></span>
+      </div>
+      <div id="expHelp"></div>
+      <details class="small"><summary>Pokaż wszystkie komendy (<span id="lineCount">0</span>)</summary><pre class="console ed-lines" id="lines"></pre><button type="button" class="btn sm ghost" id="copyLines">Kopiuj wszystkie</button></details>
+    </div>
+    <div class="panel pad">
+      <h2 class="section-heading">Materiały</h2>
+      <ul class="mats" id="mats"></ul>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="disc">NOT AN OFFICIAL MINECRAFT SERVICE. NOT APPROVED BY OR ASSOCIATED WITH MOJANG OR MICROSOFT.</div>
+    <p>Twoja budowla zapisuje się tylko w tej przeglądarce. Tekstury bloków są własnym projektem KILEKCRAFT. © <span data-year></span></p>
+  </div>
+</footer>
+<script type="module" src="assets/js/edytor.js"></script>
+</body>
+</html>

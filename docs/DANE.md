@@ -31,3 +31,21 @@ Test sprawdza **składnię**, a nie efekt w grze. Efekt (np. czy napis wygląda 
 
 ## Budowle
 `assets/js/builds.js` generuje 4 budowle kodem (deterministycznie). Format: `{ blocks: [[x,y,z,typ]...], size: [x,y,z] }`. Typy bloków i ich identyfikatory z gry są w `BLOCKS`. Import `.schem` z Kilek World to zadanie B3.
+
+## `data/datapack.json`
+Zawartość `pack.mcmeta` dla datapacków z edytora i generatora komnat. Zapisuje ją `tools/test_commands.py` po udanym teście (`"sprawdzone": true`). Wcześniejsza wartość to tylko przypuszczenie.
+
+## Eksport budowli (`assets/js/export.js`)
+- Sąsiednie bloki tego samego typu w rzędzie (oś X) łączymy w `fill`, a pojedyncze bloki to `setblock`.
+- Współrzędne są względne (`~`). Budowla stoi 2 bloki w stronę +X od gracza.
+- Plik: `data/kilekcraft/function/<nazwa>.mcfunction`, uruchamiany przez `/function kilekcraft:<nazwa>`.
+- Portal Netheru pomijamy, bo trzeba go zapalić krzesiwem.
+
+## Komnaty (`assets/js/komnaty-gen.js`)
+Kod komnaty `P8-N-4821` = typ (P parkour, L labirynt), trudność, motyw (K/N/L/E), ziarno. Ten sam kod daje zawsze tę samą komnatę. Zasady skoków (przerwy 1–3 bloki, +1 w górę maks. 2) są **do sprawdzenia w grze** (zadanie A4).
+
+## Symulator (`assets/js/lifesteal-sim.js`)
+Uproszczony model: losowe pary walczą, szansa wygranej zależy od umiejętności (rozkład normalny) i opcjonalnie od liczby serc. Wynik to 1 przebieg na arenie i 200 przebiegów do wniosków. To nie jest przepowiednia, tylko podpowiedź do zasad.
+
+## Poziom gracza (`assets/js/xp.js`)
+XP i odznaki w `localStorage` pod kluczem `kc:xp`. Próg poziomu: 25·n·(n−1). Nic nie wychodzi poza przeglądarkę.

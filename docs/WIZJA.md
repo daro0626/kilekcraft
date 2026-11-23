@@ -18,7 +18,11 @@
 | Przepis „Pierwszy serwer” w 9 szortach | `serwer.html` | gotowe, czeka na test Piotrka |
 | Doradca hostingu z cenami | `hosting.html` | gotowe, ceny z datami |
 | Kreator komend z podglądem | `komendy.html` | gotowe, komendy czekają na test CI |
-| Wielkie budowle 3D warstwa po warstwie | `budowle.html` | gotowe (4 budowle generowane kodem) |
+| Wielkie budowle 3D warstwa po warstwie | `budowle.html` | gotowe (4 budowle generowane kodem + 2 filmy) |
+| Edytor budowli 3D z eksportem do datapacka | `edytor.html` | gotowe, datapack czeka na test CI |
+| Generator komnat-wyzwań (parkour, labirynt) | `komnaty.html` | gotowe, skoki do sprawdzenia w grze |
+| Symulator LifeSteal | `symulator.html` | gotowe (model uproszczony) |
+| Poziom gracza: XP i 12 odznak | wszystkie strony | gotowe |
 
 ## Decyzje właściciela (23.11.2026)
 1. Odbiorca: Piotrek + koledzy jako testerzy, treść publiczna: **tak**.

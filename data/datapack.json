@@ -1,0 +1,7 @@
+{
+  "_opis": "Zawartość pack.mcmeta dla eksportowanych datapacków. Plik nadpisuje tools/test_commands.py po udanym teście datapacka na serwerze. Do tego czasu wartość jest niepewna.",
+  "pack": { "pack_format": 95, "min_format": 95, "max_format": 999 },
+  "sprawdzone": false,
+  "wersja": null,
+  "data": null
+}

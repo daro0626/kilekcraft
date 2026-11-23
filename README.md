@@ -11,7 +11,10 @@ Polska, fanowska akademia serwerowców Minecraft Java. Animowana, ale przede wsz
 | `serwer.html` | Przepis „Pierwszy serwer z kolegami” w 9 szortach |
 | `hosting.html` | Doradca: 4 pytania → 3 najlepsze hostingi z kosztem miesięcznym |
 | `komendy.html` | Kreator komend z podglądem w „grze” i nowymi nazwami gamerule |
-| `budowle.html` | 4 wielkie budowle 3D warstwa po warstwie, z mapą i listą bloków |
+| `budowle.html` | 4 wielkie budowle 3D warstwa po warstwie, z mapą i listą bloków, oraz 2 filmy |
+| `edytor.html` | Edytor 3D z symetrią i cofaniem, eksport do datapacka |
+| `komnaty.html` | Generator parkourów i labiryntów 1–10 z kodem komnaty |
+| `symulator.html` | Symulator zasad LifeSteal: arena, wykres, wnioski z 200 przebiegów |
 
 ## Uruchomienie lokalnie
 ```bash

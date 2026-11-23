@@ -2,7 +2,7 @@
 // KILEKCRAFT — doradca hostingu.
 // Dane: data/hostingi.json (z datami i źródłami).
 // =========================================================
-import { reduced } from './core.js';
+import { reduced, award, badge } from './core.js';
 
 const res = await fetch('data/hostingi.json');
 const DATA = await res.json();
@@ -111,5 +111,5 @@ function render() {
 
 document.getElementById('allTbl').innerHTML = `<thead><tr><th>Hosting</th><th>Typ</th><th>Cena</th><th>Gdzie</th><th>Sprawdzono</th></tr></thead><tbody>${H.map(h => `<tr><td><b>${h.nazwa}</b></td><td>${{ darmowy: 'darmowy', godzinowy: 'za godziny', abonament: 'abonament', wlasny: 'własny' }[h.typ]}</td><td>${h.cena_opis}</td><td>${h.kraj}</td><td>${date(h.sprawdzono)}${h.pewnosc === 'niska' ? ' <span class="badge warn">niepewne</span>' : ''}</td></tr>`).join('')}</tbody>`;
 
-form.addEventListener('change', render);
+form.addEventListener('change', () => { render(); if (award('doradca', 20)) badge('doradca'); });
 render();

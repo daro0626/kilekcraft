@@ -1,7 +1,7 @@
 // =========================================================
 // KILEKCRAFT — przeglądarka budowli warstwa po warstwie.
 // =========================================================
-import { store, reduced, xpBurst } from './core.js';
+import { store, reduced, xpBurst, award, badge } from './core.js';
 import { BUILDS, BLOCKS, getBuild } from './builds.js';
 
 const $ = (s) => document.querySelector(s);
@@ -46,7 +46,7 @@ function setL(v, fromSlider) {
   drawMap(shown); mats(shown);
 }
 function toLayerMode() { if (matMode !== 'layer') { matMode = 'layer'; document.querySelectorAll('.mat-tabs .tab').forEach(x => x.setAttribute('aria-pressed', x.dataset.m === 'layer')); } }
-slider.addEventListener('input', () => { toLayerMode(); setL(+slider.value, true); });
+slider.addEventListener('input', () => { toLayerMode(); setL(+slider.value, true); if (+slider.value === 0 && award('warstwy:' + b.id, 15)) badge('warstwa'); });
 $('#up').addEventListener('click', () => toLayerMode() || setL((L === Infinity ? b.size[1] - 1 : L) + 1));
 $('#down').addEventListener('click', () => toLayerMode() || setL((L === Infinity ? b.size[1] - 1 : L) - 1));
 addEventListener('keydown', (e) => { if (e.target.closest('input,select,textarea')) return; if (e.key === 'ArrowUp' || e.key === 'PageUp') { e.preventDefault(); $('#up').click(); } if (e.key === 'ArrowDown' || e.key === 'PageDown') { e.preventDefault(); $('#down').click(); } });
@@ -94,7 +94,7 @@ function mats(y) {
     const t = e.target.dataset.t; if (!t) return; done[t] = e.target.checked;
     store.set('mats:' + b.id + ':' + (matMode === 'layer' ? y : 'all'), done);
     e.target.closest('li').classList.toggle('done', e.target.checked);
-    if (e.target.checked) { const r = e.target.getBoundingClientRect(); xpBurst(r.left + 8, r.top + 8, 8); }
+    if (e.target.checked) { const r = e.target.getBoundingClientRect(); xpBurst(r.left + 8, r.top + 8, 8); award('mat:' + b.id + ':' + t, 2, { from: { x: r.left, y: r.top } }); }
   };
 }
 
