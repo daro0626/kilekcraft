@@ -306,18 +306,21 @@ def command_tabs(page):
 
 def progress_backup(page):
     profile = {'xp': 120, 'badges': {'start': '2026-11-23'}, 'count': {}, 'got': {'badge:start': 1}}
-    page.evaluate("""profile => {
+    season = {'pkt': 900, 'przetrwal': True, 'miejsce': 2, 'dzien': 14}
+    page.evaluate("""([profile, season]) => {
         localStorage.setItem('kc:xp', JSON.stringify(profile));
+        localStorage.setItem('kc:sezon:rekord', JSON.stringify(season));
         localStorage.setItem('kc:pk:best:P3-K-1', '22');
         localStorage.setItem('kc:bledy:rekord', '80');
         localStorage.setItem('kc:motd', '"prywatny opis"');
-    }""", profile)
+    }""", [profile, season])
     page.reload()
     page.locator('.xp-btn').click()
     with page.expect_download() as item:
         page.get_by_role('button', name='Eksportuj postęp').click()
     exported = json.loads(Path(item.value.path()).read_text(encoding='utf-8'))
     assert exported['profil']['xp'] == 120
+    assert exported['rekordy']['sezon:rekord'] == season
     assert exported['profil']['badges'] == profile['badges']
     assert exported['rekordy']['pk:best:P3-K-1'] == 22
     assert 'prywatny opis' not in json.dumps(exported)
@@ -333,8 +336,18 @@ def progress_backup(page):
     upload({**exported, 'rekordy': {'motd': 'nie importuj'}})
     expect(page.locator('[data-backup-status]')).to_contain_text('Nie udało się')
     assert page.evaluate("JSON.parse(localStorage.getItem('kc:xp')).xp") == 120
+    bad = {**season, 'miejsce': 9}
+    upload({**exported, 'rekordy': {'sezon:rekord': bad}})
+    expect(page.locator('[data-backup-status]')).to_contain_text('Nie udało się')
+    key = 'sezon:rekord'
+    better = {**season, 'pkt': 1100}
+    exported['rekordy'][key] = better
     upload(exported)
     expect(page.locator('[data-backup-status]')).to_contain_text('Wczytano kopię')
+    exported['rekordy'][key] = season
+    upload(exported)
+    expect(page.locator('[data-backup-status]')).to_contain_text('Wczytano kopię')
+    assert page.evaluate("JSON.parse(localStorage.getItem('kc:sezon:rekord'))") == better
     assert page.evaluate("JSON.parse(localStorage.getItem('kc:xp')).xp") == 125
     assert page.evaluate("JSON.parse(localStorage.getItem('kc:pk:best:P3-K-1'))") == 18
     assert page.evaluate("localStorage.getItem('kc:pk:ghost:P3-K-1')") is None
