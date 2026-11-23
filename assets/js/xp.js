@@ -21,6 +21,7 @@ export const BADGES = [
   { id: 'komnata', name: 'Konstruktor komnat', desc: 'Wygeneruj komnatę-wyzwanie', ico: '?' },
   { id: 'hardcore', name: 'Bez litości', desc: 'Wygeneruj komnatę o trudności 9 lub 10', ico: '☠' },
   { id: 'strateg', name: 'Strateg LifeSteal', desc: 'Przetestuj zasady w symulatorze', ico: '♥' },
+  { id: 'sezon', name: 'Ocalały', desc: 'Przetrwaj 14 dni w grze Sezon LifeSteal', ico: '⚔' },
   { id: 'balans', name: 'Mistrz balansu', desc: 'Ustaw zasady, przy których po 14 dniach gra ponad połowa graczy', ico: '⚖' },
   { id: 'wladca', name: 'Władca serc', desc: 'Przejdź cały przepis LifeSteal w szortach', ico: '❦' },
   { id: 'lowca', name: 'Łowca błędów', desc: 'Zdobądź 2500 punktów w jednej grze Znajdź błąd', ico: '!' },

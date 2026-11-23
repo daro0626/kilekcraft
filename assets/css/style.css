@@ -845,3 +845,55 @@ body.touch .pk-touch{display:block}
 .pk-over:not([hidden]) ~ .pk-touch{display:none!important}
 body.touch .pk-keys div:not(.touch-only){display:none}
 @media (prefers-reduced-motion:reduce){.pk-card{animation:none}}
+
+/* ---------- Sezon LifeSteal (gra na stronie symulatora) ---------- */
+.sz{margin-bottom:34px}
+.sz h3{font:700 18px var(--font);margin:0 0 10px}
+.sz-intro p{max-width:68ch}
+.sz-rules{margin:0 0 12px;padding-left:20px;line-height:1.6}
+.sz-rec{margin-top:14px;color:var(--gold)}
+.sz-me{display:grid;grid-template-columns:auto repeat(7,minmax(0,1fr));gap:8px;margin-bottom:14px}
+@media (max-width:900px){.sz-me{grid-template-columns:repeat(3,minmax(0,1fr))}.sz-day{grid-row:span 1}}
+.sz-day{display:flex;flex-direction:column;align-items:center;justify-content:center;background:#070b16;border:1px solid var(--redstone);padding:6px 14px;border-radius:var(--radius)}
+.sz-day b{font:400 40px/1 var(--font-px);color:var(--redstone)}
+.sz-day span{font-size:12px;color:var(--muted)}
+.sz-stat{background:var(--bg-2);border:1px solid var(--line-strong);border-radius:var(--radius);padding:8px 10px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.sz-stat span{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.sz-stat b{font-size:17px;overflow-wrap:anywhere}
+.sz-stat-h{grid-column:span 2}
+@media (max-width:900px){.sz-stat-h{grid-column:span 2}}
+.sz .sz-hearts{color:var(--redstone);font-size:15px;letter-spacing:1px;line-height:1.1;overflow-wrap:anywhere}
+.sz .sz-hearts i{color:#3a2330;font-style:normal}
+.sz-event{background:rgba(255,201,74,.10);border:1px solid var(--gold);border-radius:var(--radius);padding:10px 14px;margin-bottom:14px}
+.sz-event b{color:var(--gold);margin-right:6px}
+.sz-grid{display:grid;grid-template-columns:1.5fr 1fr;gap:20px;align-items:start}
+@media (max-width:900px){.sz-grid{grid-template-columns:1fr}}
+.sz-acts,.sz-targets{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.sz-acts h3,.sz-pick h3{grid-column:1/-1}
+@media (max-width:560px){.sz-acts,.sz-targets{grid-template-columns:1fr}}
+.sz-act,.sz-target{text-align:left;background:var(--bg-2);border:1px solid var(--line-strong);color:var(--text);padding:12px 14px;border-radius:var(--radius);cursor:pointer;display:flex;flex-direction:column;gap:4px;font:16px var(--font);transition:border-color .2s,transform .2s}
+.sz-act:hover:not(:disabled),.sz-target:hover{border-color:var(--redstone);transform:translateY(-2px)}
+.sz-act:focus-visible,.sz-target:focus-visible,.sz-buy:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.sz-act b,.sz-target b{font-size:17px}
+.sz-act span,.sz-target span{font-size:14px;color:var(--muted);line-height:1.35}
+.sz-act:disabled{opacity:.55;cursor:not-allowed}
+.sz-target em{font-style:normal;font-size:14px;color:var(--gold)}
+.sz-pick .btn{margin-top:12px}
+.sz-shop{margin-top:18px;border-top:1px solid var(--line);padding-top:14px;display:flex;flex-wrap:wrap;gap:10px;align-items:stretch}
+.sz-shop h3,.sz-shop p{flex-basis:100%;margin:0}
+.sz-buy{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;min-width:150px}
+.sz-buy span{font-size:13px;color:var(--muted);font-weight:400}
+.sz-buy em{font-style:normal;color:var(--gold)}
+.sz-buy:disabled{opacity:.5;cursor:not-allowed}
+.sz-side h3{margin-top:4px}
+.sz-rank li.me b{color:var(--gold)}
+.sz-rank li.out{opacity:.5}
+.sz-log{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.sz-log li{background:rgba(7,11,22,.85);border-left:3px solid var(--line-strong);padding:6px 10px;font-size:14px;line-height:1.4}
+.sz-log li span{color:var(--dim);margin-right:6px;font-size:12px}
+.sz-log li.ok{border-left-color:var(--emerald)} .sz-log li.zle{border-left-color:var(--redstone)} .sz-log li.ev{border-left-color:var(--gold)}
+.sz-end .sz-pts b{font:400 44px/1 var(--font-px);color:var(--gold)}
+.sz-end.zle .sz-pts b{color:var(--redstone)}
+.sz-tips{padding-left:20px;line-height:1.6;margin:0 0 16px}
+.sz-foot{margin:14px 0 0;text-align:right}
+.sz-admin-head{margin-top:10px}

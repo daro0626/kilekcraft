@@ -22,8 +22,8 @@
 | Wielkie budowle 3D warstwa po warstwie | `budowle.html` | gotowe (20 budowli w 6 kategoriach + 2 filmy, datapack do każdej) |
 | Edytor budowli 3D z eksportem do datapacka | `edytor.html` | gotowe; całość, animacja i warstwy sprawdzone na serwerze 26.3 |
 | Generator komnat-wyzwań (parkour, góra, labirynt) | `komnaty.html` | gotowe, skoki do sprawdzenia w grze |
-| Symulator LifeSteal | `symulator.html` | gotowe (model uproszczony) |
-| Poziom gracza: XP i 19 odznak | wszystkie strony | gotowe |
+| Gra „Sezon LifeSteal” (14 dni przeciw 7 botom) + symulator zasad | `symulator.html` | gotowe (model uproszczony) |
+| Poziom gracza: XP i 20 odznak | wszystkie strony | gotowe |
 | Wyścig parkour w przeglądarce (klawiatura, mysz bez trzymania przycisku, dotyk, widok 1. i 3. osoby) | `parkour.html` | gotowe, fizyka do porównania z grą |
 | Gra „Znajdź błąd” (63 pytania, 5 na grę, rekord czasu) | `bledy.html` | gotowe, 63/63 pytań sprawdzone na serwerze 26.3 |
 | Koło wyzwań budowlanych ze stoperem | `kolo.html` | gotowe |

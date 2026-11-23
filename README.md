@@ -21,7 +21,7 @@ Polska, fanowska akademia serwerowców Minecraft Java. Animowana, ale przede wsz
 | `bledy.html` | Gra: znajdź błąd w komendzie — 5 losowych pytań z 63, bez powtórek, stoper i rekord czasu (pytania sprawdzane na serwerze) |
 | `kolo.html` | Koło wyzwań budowlanych ze stoperem |
 | `motd.html` | Kolorowy opis serwera i ikona 64×64 z podglądem listy serwerów |
-| `symulator.html` | Symulator zasad LifeSteal: arena, wykres, wnioski z 200 przebiegów |
+| `symulator.html` | Gra „Sezon LifeSteal”: 14 dni decyzji przeciw 7 botom, rekord i odznaka. Pod nią symulator zasad dla admina: arena, wykres, wnioski z 200 przebiegów |
 
 ## Uruchomienie lokalnie
 ```bash

@@ -16,7 +16,7 @@ READY = {
     'budowle': '#viewer canvas, #poster:text("Użyj mapy")',
     'edytor': '#stage canvas',
     'komnaty': '#stats .panel',
-    'symulator': '#kpis .kpi',
+    'symulator': '#kpis .kpi, #szStart',
     'gry': '.tool-card',
     'bledy': '#start',
     'parkour': '#gl',
@@ -306,6 +306,44 @@ def budowle(page):
     expect(page.locator('#picker .pick')).to_have_count(len(info))
 
 
+def sezon(page):
+    # Model: 300 sezonów z losowymi decyzjami kończy się zawsze i serca zostają w zakresie.
+    bad = page.evaluate("""async () => {
+      const M = await import('./assets/js/sezon-model.js');
+      const errs = [];
+      for (let seed = 1; seed <= 300; seed++) {
+        const st = M.nowySezon(seed * 7919); let n = 0;
+        while (!st.koniec && n++ < 40) {
+          const alive = st.boty.filter(b => b.zyje), keys = Object.keys(M.AKCJE);
+          const a = keys[(seed + n) % keys.length], c = alive[(seed * n) % alive.length]?.id;
+          ['sprzet', 'totem', 'jablko'].forEach(r => M.kup(st, r));
+          if (!M.dzien(st, a, c)) M.dzien(st, 'farma');
+          for (const p of [st.ja, ...st.boty]) if (p.serca < 0 || p.serca > M.MAX || p.sprzet < 1 || p.sprzet > 4) errs.push([seed, p.nick, p.serca]);
+        }
+        if (!st.koniec || !st.wynik) errs.push([seed, 'bez końca']);
+      }
+      return errs.slice(0, 5);
+    }""")
+    assert not bad, bad
+    # Interfejs: cały sezon klawiaturą/dotykiem, aż do ekranu wyniku.
+    page.evaluate("localStorage.removeItem('kc:sezon:stan')")
+    page.reload()
+    page.locator('#szStart').click()
+    expect(page.locator('.sz-day b')).to_have_text('1')
+    page.locator('[data-akcja="walka"]').click()
+    expect(page.locator('.sz-target').first).to_contain_text('szansa wygranej')
+    page.locator('#szBack').click()
+    for _ in range(M_DNI):
+        if page.locator('#szAgain').count():
+            break
+        page.locator('[data-akcja="baza"]').click()
+    expect(page.locator('#szAgain')).to_be_visible()
+    expect(page.locator('.sz-tips li').first).to_be_visible()
+
+
+M_DNI = 14
+
+
 def run(browser, width, height):
     mobile = width == 390
     context = browser.new_context(viewport={'width': width, 'height': height},
@@ -325,6 +363,8 @@ def run(browser, width, height):
             hosting(page)
         if name == 'budowle':
             budowle(page)
+        if name == 'symulator':
+            sezon(page)
         if name == 'edytor':
             export_parity(page)
         if name == 'motd':
