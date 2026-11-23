@@ -22,6 +22,8 @@ READY = {
     'parkour': '#gl',
     'kolo': '#r0 div',
     'motd': '#pvMotd div',
+    'lifesteal': '#shorts .short',
+    'wyzwanie': '#gl',
 }
 
 # Nazwy typów z assets/js/builds.js dla próbki z test_commands.SAMPLE
@@ -66,6 +68,26 @@ def parkour(page, mobile):
     expect(page.locator('#play')).to_be_focused()
     expect(page.locator('#ovTitle')).to_have_text('Pauza')
 
+
+
+def wyzwanie(page, mobile):
+    code = page.locator('#dzienKod').inner_text()
+    assert code and code != '—', code
+    expect(page.locator('#ovText')).to_contain_text(code)
+    expect(page.locator('#play')).to_be_visible()
+    if mobile:
+        page.locator('#play').tap()
+        expect(page.locator('#jumpBtn')).to_be_visible()
+        page.locator('#jumpBtn').tap()
+        expect(page.locator('#time')).not_to_have_text('0,00')
+    else:
+        page.locator('#play').press('Enter')
+        expect(page.locator('#gl')).to_be_focused()
+        page.keyboard.press('Space')
+        expect(page.locator('#time')).not_to_have_text('0,00')
+    page.locator('#gl').press('Escape')
+    expect(page.locator('#play')).to_be_focused()
+    expect(page.locator('#ovTitle')).to_have_text('Pauza')
 
 
 def hosting(page):
@@ -167,6 +189,98 @@ def browser_commands(page, modern):
     page.locator('#nicks').fill('Test_Gracz')
     page.locator('#owner').fill('Test_Gracz')
     collect('whitelist')
+
+    tab('attribute')
+    chip('cel', '@a')
+    for hearts in ('1', '3.5', '8', '9', '10', '20'):
+        page.locator('#hearts').evaluate(
+            '(el, v) => { el.value = v; el.dispatchEvent(new Event("input", { bubbles: true })); }', hearts)
+        collect('attribute')
+    page.locator('[name="reset"] + span').click()
+    collect('attribute')
+    chip('cel', '@p')
+    collect('attribute')
+
+    def slider(selector, value):
+        page.locator(selector).evaluate(
+            '(el, v) => { el.value = v; el.dispatchEvent(new Event("input", { bubbles: true })); }', value)
+
+    tab('gamemode')
+    chip('cel', '@a')
+    for mode in DATA['tryby']:
+        chip('mode', mode['id'])
+        collect('gamemode')
+
+    tab('time')
+    for pora in DATA['pory']:
+        chip('pora', pora['id'])
+        collect('time')
+
+    tab('weather')
+    for weather in DATA['pogoda']:
+        chip('pog', weather['id'])
+        collect('weather')
+    chip('pog', 'rain')
+    page.locator('[name="dur"] + span').click()
+    collect('weather')
+
+    tab('difficulty')
+    for level in DATA['trudnosci']:
+        chip('diff', level['id'])
+        collect('difficulty')
+
+    tab('summon')
+    for mob in DATA['moby']:
+        page.locator('#mob').select_option(mob['id'])
+        collect('summon')
+    page.locator('#mob').select_option('wolf')
+    page.locator('#mname').fill('Żółw Burek')
+    collect('summon')
+
+    tab('enchant')
+    chip('cel', '@a')
+    for ench in DATA['zaklecia']:
+        page.locator('#ench').select_option(ench['id'])
+        slider('#elvl', '1')
+        collect('enchant')
+        slider('#elvl', str(ench['max']))
+        collect('enchant')
+
+    tab('xp')
+    chip('cel', '@a')
+    page.locator('#xn').fill('5')
+    collect('xp')
+    chip('xu', 'points')
+    page.locator('#xn').fill('100')
+    collect('xp')
+    chip('xop', 'set')
+    chip('xu', 'levels')
+    page.locator('#xn').fill('0')
+    collect('xp')
+
+    tab('kill')
+    for index, _ in enumerate(DATA['kill_cele']):
+        chip('kc', str(index))
+        collect('kill')
+
+    tab('clear')
+    chip('cel', '@a')
+    collect('clear')
+    page.locator('#citem').select_option('diamond')
+    collect('clear')
+
+    tab('worldborder')
+    collect('worldborder')
+    page.locator('#wx').fill('-100')
+    page.locator('#wz').fill('200')
+    slider('#wb', '2500')
+    collect('worldborder')
+
+    tab('spawnpoint')
+    chip('cel', '@a')
+    collect('spawnpoint')
+    chip('sp', 'swiat')
+    collect('spawnpoint')
     return result
 
 
@@ -183,6 +297,8 @@ def run(browser, width, height):
         smoke(page, name)
         if name == 'parkour':
             parkour(page, mobile)
+        if name == 'wyzwanie':
+            wyzwanie(page, mobile)
         if name == 'hosting':
             hosting(page)
         if name == 'edytor':

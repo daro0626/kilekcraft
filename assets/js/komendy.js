@@ -24,7 +24,8 @@ verSel.addEventListener('change', () => { ver = verSel.value; store.set('ver', v
 // ---------- zakładki ----------
 const tabs = $('#tabs');
 tabs.innerHTML = D.szablony.map(s => `<button role="tab" class="tab" data-id="${s.id}" aria-selected="${s.id === tpl}"><span class="ti">${s.ikona}</span>${s.nazwa}</button>`).join('');
-tabs.addEventListener('click', (e) => { const b = e.target.closest('.tab'); if (!b) return; tpl = b.dataset.id; store.set('tpl', tpl); tabs.querySelectorAll('.tab').forEach(t => t.setAttribute('aria-selected', t === b)); buildForm(); });
+requestAnimationFrame(() => { const sel = tabs.querySelector('[aria-selected="true"]'); if (sel && tabs.scrollWidth > tabs.clientWidth) tabs.scrollLeft = sel.offsetLeft - 8; });
+tabs.addEventListener('click', (e) => { const b = e.target.closest('.tab'); if (!b) return; b.scrollIntoView({ block: 'nearest', inline: 'nearest' }); tpl = b.dataset.id; store.set('tpl', tpl); tabs.querySelectorAll('.tab').forEach(t => t.setAttribute('aria-selected', t === b)); buildForm(); });
 
 // ---------- wspólne pola ----------
 const targetField = (name = 'cel', all = true) => `
@@ -39,6 +40,8 @@ const targetField = (name = 'cel', all = true) => `
   </div>`;
 const readTarget = (f) => { const v = f.get('cel'); if (v !== 'nick') return { t: v }; const n = (f.get('nick') || '').trim(); return { t: n || 'Nick', bad: !NICK.test(n) }; };
 
+const chips = (name, list, sel, lab = (x) => x.nazwa) => `<div class="chips">${list.map((x, i) => `<label class="chip"><input type="radio" name="${name}" value="${x.id}" ${(sel ? x.id === sel : i === 0) ? 'checked' : ''}><span>${lab(x)}</span></label>`).join('')}</div>`;
+const num = (id, label, value, min, max) => `<div class="field"><label for="${id}">${label}</label><input type="number" id="${id}" name="${id}" value="${value}" min="${min}" max="${max}"></div>`;
 const titleTimes = { fi: 10, sy: 70, fo: 20 };
 const FORMS = {
   give: () => `${targetField()}
@@ -75,6 +78,39 @@ Kolega123</textarea></div>
     <div class="field"><label for="owner">Twój nick (dostanie OP, czyli uprawnienia admina)</label><input type="text" id="owner" name="owner" value="Piotrek_PL" maxlength="16"></div>
     <div class="chips"><label class="chip"><input type="checkbox" name="on" checked><span>włącz białą listę</span></label></div>
     <p class="note small" style="margin-top:14px">Od wersji 26.3 nowe serwery mają białą listę włączoną od razu. OP dawaj tylko sobie. Admin może wszystko, także zniszczyć świat.</p>`,
+  attribute: () => `${targetField()}
+    <div class="field"><label for="hearts">Ile serc maksymalnie: <b id="heartsV">10</b></label><input type="range" id="hearts" name="hearts" min="1" max="20" step="0.5" value="10"></div>
+    <div class="chips"><label class="chip"><input type="checkbox" name="reset"><span>przywróć zwykłe 10 serc</span></label></div>
+    <p class="note small" style="margin-top:14px">1 serce to 2 punkty zdrowia. Komenda zmienia tylko maksimum. Jeśli obniżysz je graczowi z pełnym zdrowiem, gra może dalej pokazywać stare serca, dopóki gracz nie oberwie albo się nie wyleczy (znany błąd gry).</p>`,
+  gamemode: () => `${targetField()}
+    <div class="field"><span class="lbl">Tryb</span>${chips('mode', D.tryby)}</div>`,
+  time: () => `<div class="field"><span class="lbl">Pora</span>${chips('pora', D.pory)}</div>
+    <p class="muted small">Zmienia czas dla całego świata, nie dla jednego gracza.</p>`,
+  weather: () => `<div class="field"><span class="lbl">Pogoda</span>${chips('pog', D.pogoda)}</div>
+    <div class="chips" style="margin-bottom:14px"><label class="chip"><input type="checkbox" name="dur"><span>tylko na chwilę</span></label></div>
+    <div class="field"><label for="durS">Na ile sekund: <b id="durSV">300</b></label><input type="range" id="durS" name="durS" min="30" max="1800" step="30" value="300"></div>`,
+  difficulty: () => `<div class="field"><span class="lbl">Trudność</span>${chips('diff', D.trudnosci)}</div>`,
+  summon: () => `<div class="field"><label for="mob">Mob</label><select id="mob" name="mob">${D.moby.map(m => `<option value="${m.id}">${m.nazwa}</option>`).join('')}</select></div>
+    <div class="field"><label for="mname">Imię nad głową (opcjonalnie)</label><input type="text" id="mname" name="mname" maxlength="24" placeholder="np. Burek" autocomplete="off"></div>
+    <p class="muted small">Mob pojawi się dokładnie tam, gdzie stoisz (<code>~ ~ ~</code>).</p>`,
+  enchant: () => `${targetField()}
+    <div class="field"><label for="ench">Zaklęcie</label><select id="ench" name="ench">${D.zaklecia.map(z => `<option value="${z.id}">${z.nazwa} (${z.na})</option>`).join('')}</select></div>
+    <div class="field"><label for="elvl">Poziom: <b id="elvlV">1</b></label><input type="range" id="elvl" name="elvl" min="1" max="5" value="1"></div>
+    <p class="muted small">Gracz musi trzymać przedmiot w ręce. Komenda nie da wyższego poziomu niż w grze i nie zaklnie przedmiotu, który się nie nadaje.</p>`,
+  xp: () => `${targetField()}
+    <div class="field"><span class="lbl">Co zrobić</span><div class="chips"><label class="chip"><input type="radio" name="xop" value="add" checked><span>dodaj</span></label><label class="chip"><input type="radio" name="xop" value="set"><span>ustaw dokładnie</span></label></div></div>
+    <div class="row2">${num('xn', 'Ile', 5, 0, 10000)}
+    <div class="field"><span class="lbl">Czego</span><div class="chips"><label class="chip"><input type="radio" name="xu" value="levels" checked><span>poziomów</span></label><label class="chip"><input type="radio" name="xu" value="points"><span>punktów</span></label></div></div></div>`,
+  kill: () => `<div class="field"><span class="lbl">Co usunąć</span><div class="chips">${D.kill_cele.map((k, i) => `<label class="chip"><input type="radio" name="kc" value="${i}" ${i === 0 ? 'checked' : ''}><span>${k.nazwa}</span></label>`).join('')}</div></div>
+    <p class="muted small">Gracze zostają. Komenda działa w całym wczytanym świecie.</p>`,
+  clear: () => `${targetField()}
+    <div class="field"><label for="citem">Co zabrać</label><select id="citem" name="citem"><option value="">wszystko z ekwipunku</option>${D.przedmioty.map(p => `<option value="${p.id}">tylko: ${p.nazwa}</option>`).join('')}</select></div>`,
+  worldborder: () => `<div class="field"><label for="wb">Szerokość świata: <b id="wbV">1000</b> bloków</label><input type="range" id="wb" name="wb" min="100" max="10000" step="100" value="1000"></div>
+    <div class="row2">${num('wx', 'Środek X', 0, -30000000, 30000000)}${num('wz', 'Środek Z', 0, -30000000, 30000000)}</div>
+    <p class="muted small">Granica to kwadrat. 1000 bloków szerokości to 500 w każdą stronę od środka.</p>`,
+  spawnpoint: () => `<div class="field"><span class="lbl">Dla kogo?</span><div class="chips"><label class="chip"><input type="radio" name="sp" value="gracz" checked><span>jeden gracz albo wszyscy</span></label><label class="chip"><input type="radio" name="sp" value="swiat"><span>cały świat (nowi gracze)</span></label></div></div>
+    <div id="spTarget">${targetField()}</div>
+    <div class="row3">${num('sx', 'X', 0, -30000000, 30000000)}${num('sy2', 'Y', 64, -64, 320)}${num('sz', 'Z', 0, -30000000, 30000000)}</div>`,
 };
 
 // ---------- budowanie komend ----------
@@ -123,6 +159,56 @@ function build(f) {
     if (bad.length) out.warn = `Te nicki wyglądają źle: ${bad.join(', ')}. Nick ma 3–16 znaków: litery, cyfry albo _.`;
     out.pv = { nicks, owner };
   }
+  if (tpl === 'attribute') {
+    const tg = readTarget(f), reset = !!f.get('reset'), hearts = reset ? 10 : +f.get('hearts');
+    // attribute działa na jednego gracza naraz; dla wszystkich powtarzamy ją przez execute as @a
+    const head = tg.t === '@a' ? '/execute as @a run attribute @s' : `/attribute ${tg.t}`;
+    out.cmds.push(reset ? `${head} minecraft:max_health base reset` : `${head} minecraft:max_health base set ${hearts * 2}`);
+    out.pv = { hearts, reset };
+    if (hearts < 2 && !reset) out.warn = 'Przy 1 sercu jeden cios kończy grę. W LifeSteal to zwykle ostatnia chwila przed eliminacją.';
+    if (tg.bad) out.warn = 'Nick musi mieć 3–16 znaków: litery, cyfry albo _.';
+  }
+  if (tpl === 'gamemode') {
+    const tg = readTarget(f), m = D.tryby.find(x => x.id === f.get('mode'));
+    out.cmds.push(`/gamemode ${m.id} ${tg.t}`); out.pv = { m };
+    if (tg.bad) out.warn = 'Nick musi mieć 3–16 znaków: litery, cyfry albo _.';
+  }
+  if (tpl === 'time') { const p = D.pory.find(x => x.id === f.get('pora')); out.cmds.push(`/time set ${p.id}`); out.pv = { p }; }
+  if (tpl === 'weather') {
+    const w = D.pogoda.find(x => x.id === f.get('pog')), dur = f.get('dur') ? +f.get('durS') : 0;
+    out.cmds.push(`/weather ${w.id}${dur ? ` ${dur}s` : ''}`); out.pv = { w, dur };
+  }
+  if (tpl === 'difficulty') { const d = D.trudnosci.find(x => x.id === f.get('diff')); out.cmds.push(`/difficulty ${d.id}`); out.pv = { d }; }
+  if (tpl === 'summon') {
+    const m = D.moby.find(x => x.id === f.get('mob')), name = (f.get('mname') || '').trim();
+    out.cmds.push(`/summon minecraft:${m.id} ~ ~ ~${name ? ` {CustomName:${JSON.stringify(name)}}` : ''}`); out.pv = { m, name };
+  }
+  if (tpl === 'enchant') {
+    const tg = readTarget(f), z = D.zaklecia.find(x => x.id === f.get('ench')), lvl = Math.min(z.max, +f.get('elvl') || 1);
+    out.cmds.push(`/enchant ${tg.t} minecraft:${z.id} ${lvl}`); out.pv = { z, lvl };
+    if (tg.bad) out.warn = 'Nick musi mieć 3–16 znaków: litery, cyfry albo _.';
+  }
+  if (tpl === 'xp') {
+    const tg = readTarget(f), op = f.get('xop'), unit = f.get('xu'), n = Math.max(0, Math.round(+f.get('xn') || 0));
+    out.cmds.push(`/xp ${op} ${tg.t} ${n} ${unit}`); out.pv = { op, unit, n };
+    if (tg.bad) out.warn = 'Nick musi mieć 3–16 znaków: litery, cyfry albo _.';
+  }
+  if (tpl === 'kill') { const k = D.kill_cele[+f.get('kc') || 0]; out.cmds.push(`/kill ${k.sel}`); out.pv = { k }; if (k.uwaga) out.warn = k.uwaga; }
+  if (tpl === 'clear') {
+    const tg = readTarget(f), it = D.przedmioty.find(p => p.id === f.get('citem'));
+    out.cmds.push(`/clear ${tg.t}${it ? ` minecraft:${it.id}` : ''}`); out.pv = { it };
+    if (tg.bad) out.warn = 'Nick musi mieć 3–16 znaków: litery, cyfry albo _.';
+  }
+  if (tpl === 'worldborder') {
+    const size = +f.get('wb'), x = Math.round(+f.get('wx') || 0), z = Math.round(+f.get('wz') || 0);
+    out.cmds.push(`/worldborder center ${x} ${z}`, `/worldborder set ${size}`); out.pv = { size, x, z };
+  }
+  if (tpl === 'spawnpoint') {
+    const world = f.get('sp') === 'swiat', tg = readTarget(f);
+    const c = [Math.round(+f.get('sx') || 0), Math.round(+f.get('sy2') || 0), Math.round(+f.get('sz') || 0)];
+    out.cmds.push(world ? `/setworldspawn ${c.join(' ')}` : `/spawnpoint ${tg.t} ${c.join(' ')}`); out.pv = { world, c };
+    if (!world && tg.bad) out.warn = 'Nick musi mieć 3–16 znaków: litery, cyfry albo _.';
+  }
   return out;
 }
 
@@ -131,7 +217,7 @@ function hl(cmd) {
   if (cmd.startsWith('#')) return `<span class="hc">${esc(cmd)}</span>`;
   return esc(cmd)
     .replace(/^(\/\w+)/, '<span class="hk">$1</span>')
-    .replace(/(@[pas])/g, '<span class="hs">$1</span>')
+    .replace(/(@[pase])/g, '<span class="hs">$1</span>')
     .replace(/(minecraft:\w+)/g, '<span class="hi">$1</span>')
     .replace(/(\{.*\})/, '<span class="hj">$1</span>')
     .replace(/(?<![\w:"])(~?-?\d+|~)(?![\w"])/g, '<span class="hn">$1</span>');
@@ -179,6 +265,30 @@ function preview(o) {
   if (tpl === 'whitelist') {
     scr.innerHTML = `<div class="pv-wl"><b>Biała lista</b>${p.nicks.map((n, i) => `<div style="--i:${i}"><span class="ok">✓</span>${esc(n)}${n === p.owner ? ' <em>OP</em>' : ''}</div>`).join('')}<div class="lock">Obcy: „You are not white-listed on this server!”</div></div>`;
   }
+  if (tpl === 'attribute') {
+    const full = Math.floor(p.hearts), half = p.hearts % 1 !== 0;
+    const cells = Array.from({ length: Math.ceil(p.hearts) }, (_, i) => `<i class="ht${i === full && half ? ' half' : ''}" style="--i:${i}"></i>`).join('');
+    // polska odmiana: 1 serce, 2–4 serca, 5 serc; ułamki: 6,5 serca
+    const pl = (n, one, few, many) => n % 1 ? few : n === 1 ? one : [2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100) ? few : many;
+    const hp = p.hearts * 2;
+    scr.innerHTML = `<div class="pv-hearts"><div class="row">${cells}</div><span>${String(p.hearts).replace('.', ',')} ${pl(p.hearts, 'serce', 'serca', 'serc')} · ${hp} ${pl(hp, 'punkt', 'punkty', 'punktów')} zdrowia</span></div>`;
+  }
+  previewMore(p);
+}
+
+function previewMore(p) {
+  const card = (ico, big, small, cls = '') => `<div class="pv-card ${cls}"><i class="pv-ico">${ico}</i><b>${esc(big)}</b>${small ? `<span>${esc(small)}</span>` : ''}</div>`;
+  if (tpl === 'gamemode') scr.innerHTML = card('◐', `Tryb: ${p.m.nazwa}`, p.m.opis, 'gm-' + p.m.id);
+  if (tpl === 'time') scr.innerHTML = `<div class="pv-sky t-${p.p.id}"><i class="orb"></i></div>${card('☀', p.p.nazwa, '')}`;
+  if (tpl === 'weather') scr.innerHTML = `<div class="pv-sky w-${p.w.id}">${p.w.id === 'clear' ? '<i class="orb"></i>' : Array.from({ length: reduced ? 0 : 26 }, (_, i) => `<i class="drop" style="--x:${(i * 37) % 100}%;--d:${((i * 13) % 10) / 10}s"></i>`).join('')}</div>${card('☂', p.w.nazwa, p.dur ? `przez ${p.dur} s, potem pogoda zmieni się sama` : 'do następnej zmiany pogody')}`;
+  if (tpl === 'difficulty') scr.innerHTML = card('☠', `Trudność: ${p.d.nazwa}`, p.d.opis, 'df-' + p.d.id);
+  if (tpl === 'summon') scr.innerHTML = `<div class="pv-mob">${p.name ? `<span class="tag">${esc(p.name)}</span>` : ''}<i style="background:${p.m.kolor}"></i><b>${esc(p.m.nazwa)}</b></div>`;
+  if (tpl === 'enchant') scr.innerHTML = `<div class="pv-ench"><i></i><b>${esc(p.z.nazwa)} ${['I', 'II', 'III', 'IV', 'V'][p.lvl - 1]}</b><span>na: ${esc(p.z.na)} · najwyżej ${['I', 'II', 'III', 'IV', 'V'][p.z.max - 1]}</span></div>`;
+  if (tpl === 'xp') scr.innerHTML = `<div class="pv-xp"><b>${p.unit === 'levels' ? (p.op === 'add' ? '+' : '') + p.n : '+'}</b><div class="bar"><i style="width:${p.unit === 'points' ? Math.min(100, p.n) : 35}%"></i></div><span>${p.op === 'add' ? 'dodaj' : 'ustaw'} ${p.n} ${p.unit === 'levels' ? 'poziomów' : 'punktów'}</span></div>`;
+  if (tpl === 'kill') scr.innerHTML = card('✕', 'Usunięte:', p.k.nazwa, p.k.uwaga ? 'danger' : '');
+  if (tpl === 'clear') scr.innerHTML = `<div class="pv-tip">${p.it ? 'Zabrane: ' + esc(p.it.nazwa) : 'Ekwipunek pusty'}</div><div class="hotbar pv-hot">${'<div class="slot"></div>'.repeat(9)}</div>`;
+  if (tpl === 'worldborder') scr.innerHTML = `<div class="pv-wb"><i></i><span>${p.size} × ${p.size} bloków · środek ${p.x}, ${p.z}</span></div>`;
+  if (tpl === 'spawnpoint') scr.innerHTML = card('⌂', p.world ? 'Spawn świata' : 'Punkt odrodzenia gracza', `XYZ: ${p.c.join(' / ')}`);
 }
 
 // ---------- wyjście ----------
@@ -210,8 +320,15 @@ function update() {
   const f = new FormData(form);
   // pola zależne
   const nick = form.querySelector('[name=nick]'); if (nick) nick.style.display = f.get('cel') === 'nick' ? 'block' : 'none';
+  const hv = form.querySelector('#heartsV'); if (hv) hv.textContent = f.get('reset') ? '10' : form.querySelector('#hearts').value.replace('.', ',');
   ['count', 'sec', 'lvl'].forEach(k => { const v = form.querySelector('#' + k + 'V'); if (v) v.textContent = f.get(k); });
   const sec = form.querySelector('#sec'); if (sec) sec.disabled = !!f.get('inf');
+  const hearts = form.querySelector('#hearts'); if (hearts) hearts.disabled = !!f.get('reset');
+  const durS = form.querySelector('#durS'); if (durS) { durS.disabled = !f.get('dur'); $('#durSV').textContent = durS.value; }
+  const wb = form.querySelector('#wb'); if (wb) $('#wbV').textContent = (+wb.value).toLocaleString('pl-PL');
+  const elvl = form.querySelector('#elvl');
+  if (elvl) { const z = D.zaklecia.find(x => x.id === f.get('ench')); elvl.max = z.max; elvl.disabled = z.max === 1; if (+elvl.value > z.max) elvl.value = z.max; $('#elvlV').textContent = elvl.value; }
+  const spT = form.querySelector('#spTarget'); if (spT) spT.hidden = f.get('sp') === 'swiat';
   if (tpl === 'gamerule') {
     const z = D.zasady[+f.get('rule') || 0], box = $('#ruleVal');
     if (box.dataset.rule !== String(f.get('rule'))) {

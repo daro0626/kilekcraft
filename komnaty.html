@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Generator komnat-wyzwań — KILEKCRAFT</title>
-<meta name="description" content="Wygeneruj parkour albo labirynt o trudności 1–10, obejrzyj w 3D i wgraj na swój serwer Minecraft Java jako datapack.">
+<meta name="description" content="Wygeneruj parkour, górę do wspinaczki albo labirynt o trudności 1–10, obejrzyj w 3D i wgraj na swój serwer Minecraft Java jako datapack.">
 <link rel="icon" href="data:,">
 <meta name="theme-color" content="#0b1020">
 <link rel="preload" href="assets/fonts/jersey-10-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
@@ -34,7 +34,7 @@
   <div class="page-head">
     <div class="eyebrow">06 · Generator komnat</div>
     <h1 data-anim="drop">Komnaty, które nie padną w 20 sekund</h1>
-    <p class="lead">Wybierz parkour albo labirynt i ustaw trudność. Każda komnata ma swój kod. Podaj go koledze, a dostanie dokładnie taką samą.</p>
+    <p class="lead">Wybierz parkour, wspinaczkę na górę albo labirynt i ustaw trudność. Każda komnata ma swój kod. Podaj go koledze, a dostanie dokładnie taką samą.</p>
   </div>
 
   <div class="km">
@@ -42,6 +42,7 @@
       <div class="field"><span class="lbl">Rodzaj</span>
         <div class="chips">
           <label class="chip"><input type="radio" name="type" value="parkour" checked><span>Parkour</span></label>
+          <label class="chip"><input type="radio" name="type" value="gora"><span>Góra</span></label>
           <label class="chip"><input type="radio" name="type" value="labirynt"><span>Labirynt</span></label>
         </div>
       </div>
@@ -57,7 +58,7 @@
       <div class="field">
         <label for="code" class="lbl">Kod komnaty</label>
         <div class="code-row"><input type="text" id="code" autocomplete="off" spellcheck="false" aria-describedby="codeHelp"><button type="button" class="btn sm ghost" id="load">Wczytaj</button></div>
-        <p class="muted small" id="codeHelp">Np. P8-N-4821: parkour, trudność 8, Nether, numer 4821.</p>
+        <p class="muted small" id="codeHelp">Np. P8-N-4821: parkour, trudność 8, Nether, numer 4821. G to góra, L to labirynt.</p>
       </div>
       <button type="button" class="btn" id="roll" style="width:100%;justify-content:center">Losuj nową komnatę</button>
     </form>
