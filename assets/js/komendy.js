@@ -75,6 +75,10 @@ Kolega123</textarea></div>
     <div class="field"><label for="owner">Twój nick (dostanie OP, czyli uprawnienia admina)</label><input type="text" id="owner" name="owner" value="Piotrek_PL" maxlength="16"></div>
     <div class="chips"><label class="chip"><input type="checkbox" name="on" checked><span>włącz białą listę</span></label></div>
     <p class="note small" style="margin-top:14px">Od wersji 26.3 nowe serwery mają białą listę włączoną od razu. OP dawaj tylko sobie. Admin może wszystko, także zniszczyć świat.</p>`,
+  attribute: () => `${targetField()}
+    <div class="field"><label for="hearts">Ile serc maksymalnie: <b id="heartsV">10</b></label><input type="range" id="hearts" name="hearts" min="1" max="20" step="0.5" value="10"></div>
+    <div class="chips"><label class="chip"><input type="checkbox" name="reset"><span>przywróć zwykłe 10 serc</span></label></div>
+    <p class="note small" style="margin-top:14px">1 serce to 2 punkty zdrowia. Komenda zmienia tylko maksimum. Jeśli obniżysz je graczowi z pełnym zdrowiem, gra może dalej pokazywać stare serca, dopóki gracz nie oberwie albo się nie wyleczy (znany błąd gry).</p>`,
 };
 
 // ---------- budowanie komend ----------
@@ -122,6 +126,13 @@ function build(f) {
     const bad = [...nicks, owner].filter(n => n && !NICK.test(n));
     if (bad.length) out.warn = `Te nicki wyglądają źle: ${bad.join(', ')}. Nick ma 3–16 znaków: litery, cyfry albo _.`;
     out.pv = { nicks, owner };
+  }
+  if (tpl === 'attribute') {
+    const tg = readTarget(f), reset = !!f.get('reset'), hearts = reset ? 10 : +f.get('hearts');
+    out.cmds.push(reset ? `/attribute ${tg.t} minecraft:max_health base reset` : `/attribute ${tg.t} minecraft:max_health base set ${hearts * 2}`);
+    out.pv = { hearts, reset };
+    if (hearts < 2 && !reset) out.warn = 'Przy 1 sercu jeden cios kończy grę. W LifeSteal to zwykle ostatnia chwila przed eliminacją.';
+    if (tg.bad) out.warn = 'Nick musi mieć 3–16 znaków: litery, cyfry albo _.';
   }
   return out;
 }
@@ -179,6 +190,14 @@ function preview(o) {
   if (tpl === 'whitelist') {
     scr.innerHTML = `<div class="pv-wl"><b>Biała lista</b>${p.nicks.map((n, i) => `<div style="--i:${i}"><span class="ok">✓</span>${esc(n)}${n === p.owner ? ' <em>OP</em>' : ''}</div>`).join('')}<div class="lock">Obcy: „You are not white-listed on this server!”</div></div>`;
   }
+  if (tpl === 'attribute') {
+    const full = Math.floor(p.hearts), half = p.hearts % 1 !== 0;
+    const cells = Array.from({ length: Math.ceil(p.hearts) }, (_, i) => `<i class="ht${i === full && half ? ' half' : ''}" style="--i:${i}"></i>`).join('');
+    // polska odmiana: 1 serce, 2–4 serca, 5 serc; ułamki: 6,5 serca
+    const pl = (n, one, few, many) => n % 1 ? few : n === 1 ? one : [2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100) ? few : many;
+    const hp = p.hearts * 2;
+    scr.innerHTML = `<div class="pv-hearts"><div class="row">${cells}</div><span>${String(p.hearts).replace('.', ',')} ${pl(p.hearts, 'serce', 'serca', 'serc')} · ${hp} ${pl(hp, 'punkt', 'punkty', 'punktów')} zdrowia</span></div>`;
+  }
 }
 
 // ---------- wyjście ----------
@@ -210,8 +229,10 @@ function update() {
   const f = new FormData(form);
   // pola zależne
   const nick = form.querySelector('[name=nick]'); if (nick) nick.style.display = f.get('cel') === 'nick' ? 'block' : 'none';
+  const hv = form.querySelector('#heartsV'); if (hv) hv.textContent = f.get('reset') ? '10' : form.querySelector('#hearts').value.replace('.', ',');
   ['count', 'sec', 'lvl'].forEach(k => { const v = form.querySelector('#' + k + 'V'); if (v) v.textContent = f.get(k); });
   const sec = form.querySelector('#sec'); if (sec) sec.disabled = !!f.get('inf');
+  const hearts = form.querySelector('#hearts'); if (hearts) hearts.disabled = !!f.get('reset');
   if (tpl === 'gamerule') {
     const z = D.zasady[+f.get('rule') || 0], box = $('#ruleVal');
     if (box.dataset.rule !== String(f.get('rule'))) {

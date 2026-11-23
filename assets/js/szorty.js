@@ -1,10 +1,22 @@
 // =========================================================
-// KILEKCRAFT — przepis „Pierwszy serwer” w formie szortów.
+// KILEKCRAFT — przepisy w formie szortów: „Pierwszy serwer” i „LifeSteal”.
 // Treść kroków jest tutaj, a źródła faktów w docs/ZRODLA.md.
+// Strona wybiera przepis przez <body data-przepis="…">.
 // =========================================================
 import { split, store, copyText, xpBurst, reduced, toast, award, badge } from './core.js';
 
-const STEPS = [
+let TESTS = {};
+try { const r = await fetch('data/testy.json', { cache: 'no-store' }); if (r.ok) TESTS = await r.json(); } catch { /* brak wyników testów */ }
+// Status komendy waniliowej pochodzi wyłącznie z testu na serwerze (AGENTS.md, zasada 2).
+function testBadge(tpl) {
+  const t = TESTS?.wyniki?.[tpl];
+  if (t && t.ok) return `<span class="badge ok">komenda sprawdzona · ${t.wersja}</span>`;
+  if (t && !t.ok) return '<span class="badge warn">test komendy nieudany</span>';
+  return '<span class="badge wait">komenda czeka na test</span>';
+}
+const PLUGIN = '<span class="badge wait">plugin: nie testowaliśmy go na naszym serwerze</span>';
+
+const SERWER = [
   {
     t: 'Wszyscy na tej samej wersji',
     p: 'Ty i koledzy gracie na Javie, więc serwer też musi być na Javie. Wersja serwera musi się zgadzać z wersją gry, np. 26.3. Jeśli się nie zgadza, gra pokaże błąd o nieaktualnej wersji.',
@@ -58,8 +70,89 @@ const STEPS = [
   },
 ];
 
+// ---------- przepis 2: LifeSteal z ekonomią serc ----------
+const LIFESTEAL = [
+  {
+    t: 'Najpierw zasady, potem serwer',
+    p: 'Ustal trzy liczby: ile serc ma nowy gracz, ile najwięcej można zebrać i co się dzieje przy zerze. Symulator pokaże, czy po dwóch tygodniach ktoś jeszcze gra.',
+    v: `<div class="v-ls-rules"><div><b>10</b><span>na start</span></div><div><b>20</b><span>maksimum</span></div><div><b>0</b><span>koniec gry</span></div></div>`,
+    a: { href: 'symulator.html', label: 'Otwórz symulator' },
+  },
+  {
+    t: 'Dwie drogi: ręcznie albo plugin',
+    p: 'Ręcznie: po każdej walce admin wpisuje jedną komendę. Działa nawet bez pluginów, ale ktoś musi pilnować. Plugin: serwer liczy serca sam, przez całą dobę. Potrzebny jest silnik z pluginami, np. Paper.',
+    v: `<div class="v-ls-fork"><div class="way"><b>/</b><span>ręcznie</span></div><div class="way pl"><b>⚙</b><span>plugin</span></div></div>`,
+  },
+  {
+    t: 'Ręcznie: wszyscy na start',
+    p: 'Komenda attribute ustawia, ile zdrowia gracz może mieć najwięcej. 1 serce to 2 punkty, więc 10 serc to 20. Ta komenda daje wszystkim po 10 serc. W konsoli piszesz bez ukośnika.',
+    cmd: 'attribute @a minecraft:max_health base set 20',
+    test: 'attribute',
+    v: `<div class="v-ls-bar">${'<i></i>'.repeat(10)}</div>`,
+    a: { href: 'komendy.html', label: 'Kreator serc' },
+  },
+  {
+    t: 'Ręcznie: po każdej walce',
+    p: 'Przegrany traci serce, zwycięzca zyskuje. Przegranemu z 10 sercami ustaw 9, czyli 18 punktów. Zwycięzcy ustaw 11, czyli 22. Zamiast Nick wpisz prawdziwy nick.',
+    cmd: 'attribute Nick minecraft:max_health base set 18',
+    test: 'attribute',
+    note: 'Znany błąd gry: gracz z pełnym zdrowiem może dalej widzieć stare serca, dopóki nie oberwie albo się nie wyleczy.',
+    v: `<div class="v-ls-duel"><div class="pl lose"><b>9</b><span>−1 ❤</span></div><div class="sw">VS</div><div class="pl win"><b>11</b><span>+1 ❤</span></div></div>`,
+  },
+  {
+    t: 'Plugin: LifeStealZ',
+    p: 'LifeStealZ to darmowy plugin. Zabójca dostaje serce ofiary, a gracz z zerem odpada. Pobierz plik .jar z Modrinth albo Hangar, wrzuć do folderu plugins i zrestartuj serwer.',
+    note: 'Najpierw kopia zapasowa. Sprawdź też wersję: 23.11.2026 Modrinth podawał 26.3, a Hangar tylko do 26.1.2. Jeśli twojej wersji brak, zapytaj starszego.',
+    plugin: true,
+    v: `<div class="v-puzzle"><div class="core">PAPER</div><i class="pz p1">LifeStealZ</i><i class="pz p2">❤ serca</i><i class="pz p3">ożywienie</i></div>`,
+    a: { href: 'https://modrinth.com/plugin/lifestealz', label: 'Strona pluginu', ext: true },
+  },
+  {
+    t: 'Ustaw liczby z symulatora',
+    p: 'Po pierwszym starcie plugin tworzy plik config.yml w swoim folderze. Znajdź startHearts (domyślnie 10) i maxHearts (domyślnie 20). Wpisz liczby z symulatora i zrestartuj serwer.',
+    note: 'preventTotems: true wyłącza totemy nieśmiertelności. Domyślnie totemy działają.',
+    plugin: true,
+    v: `<div class="v-ls-cfg"><div><span>startHearts:</span> <b>10</b></div><div><span>maxHearts:</span> <b>20</b></div><div><span>preventTotems:</span> <b>false</b></div></div>`,
+  },
+  {
+    t: 'Ekonomia serc',
+    p: 'Serce można wypłacić jako przedmiot: dać koledze, wymienić na diamenty albo schować. Plugin ma też przepisy na nowe serca i przedmiot ożywienia dla wyeliminowanych.',
+    note: 'Nazwę komendy do wypłaty sprawdź w pomocy pluginu. Nie wpisujemy jej, dopóki jej nie przetestujemy.',
+    plugin: true,
+    v: `<div class="v-ls-trade"><div class="it heart">❤</div><div class="arr">⇄</div><div class="it dia">◆</div></div>`,
+  },
+  {
+    t: 'Komendy, które musisz znać',
+    p: 'Gracz sprawdza serca komendą /hearts. Admin przywraca wyeliminowanego przez /revive i dodaje serca przez lifestealz hearts add. Nether i End zostają włączone: tam są najlepsze łupy.',
+    cmd: 'lifestealz hearts add NickGracza 1',
+    plugin: true,
+    v: `<div class="v-ls-cmds"><div>/hearts</div><div>/revive</div><div>/lifestealz hearts add</div></div>`,
+  },
+  {
+    t: 'Próba z kolegą, potem start',
+    p: 'Umów się z jednym kolegą na próbę. Niech jeden pokona drugiego. Sprawdźcie, czy serce przeszło od przegranego do zwycięzcy. Dopiero wtedy ogłoś start napisem na ekranie.',
+    cmd: 'title @a title {"text":"LIFESTEAL START!","color":"gold","bold":true}',
+    test: 'title',
+    v: `<div class="v-ls-start">LIFESTEAL<br>START!</div>`,
+    a: { href: 'komendy.html', label: 'Kreator napisów' },
+    final: true,
+  },
+];
+
+const RECIPES = {
+  serwer: { steps: SERWER, key: 'szorty', xp: 'szort:', all: 'serwerowiec',
+    done: 'Wszystkie 9 kroków zrobione. Brawo, serwerowcu!',
+    final: '<b>Masz serwer!</b> Następny przepis: <a href="lifesteal.html">LifeSteal z ekonomią serc →</a>' },
+  lifesteal: { steps: LIFESTEAL, key: 'szorty-lifesteal', xp: 'szort-ls:', all: 'wladca',
+    done: 'Cały przepis LifeSteal zrobiony. Niech serca krążą!',
+    final: '<b>LifeSteal gotowy!</b> Zapisz zasady na kartce albo w opisie serwera, żeby każdy je znał. <a href="motd.html">Ustaw opis serwera →</a>' },
+};
+const R = RECIPES[document.body.dataset.przepis] || RECIPES.serwer;
+const STEPS = R.steps;
+
+const esc = (t) => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const root = document.getElementById('shorts'), dots = document.getElementById('dots');
-const done = store.get('szorty', {});
+const done = store.get(R.key, {});
 root.innerHTML = STEPS.map((s, i) => `
   <article class="short" id="k${i + 1}" data-i="${i}" aria-label="Krok ${i + 1} z ${STEPS.length}">
     <div class="segs">${STEPS.map((_, j) => `<i class="${j < i ? 'past' : j === i ? 'now' : ''}"></i>`).join('')}</div>
@@ -68,13 +161,14 @@ root.innerHTML = STEPS.map((s, i) => `
     <h2 class="s-title">${s.t}</h2>
     <p class="s-text">${s.p}</p>
     ${s.note ? `<p class="note small">${s.note}</p>` : ''}
-    ${s.cmd ? `<div class="console s-cmd"><span class="pr">›</span> ${s.cmd}</div>` : ''}
+    ${s.test || s.plugin ? `<div class="s-badges">${s.test ? testBadge(s.test) : ''}${s.plugin ? PLUGIN : ''}</div>` : ''}
+    ${s.cmd ? `<div class="console s-cmd"><span class="pr">›</span> ${esc(s.cmd)}</div>` : ''}
     <div class="s-act">
       <label class="chip"><input type="checkbox" data-i="${i}" ${done[i] ? 'checked' : ''}><span>✓ Zrobione</span></label>
-      ${s.cmd ? `<button class="btn sm ghost" data-copy="${s.cmd}" type="button">Kopiuj</button>` : ''}
-      ${s.a ? `<a class="btn sm ghost" href="${s.a.href}">${s.a.label} →</a>` : ''}
+      ${s.cmd ? `<button class="btn sm ghost" data-copy="${esc(s.cmd)}" type="button">Kopiuj</button>` : ''}
+      ${s.a ? `<a class="btn sm ghost" href="${s.a.href}"${s.a.ext ? ' target="_blank" rel="noopener"' : ''}>${s.a.label} ${s.a.ext ? '↗' : '→'}</a>` : ''}
     </div>
-    ${i < STEPS.length - 1 ? '<div class="s-next" aria-hidden="true">przewiń ↓</div>' : '<div class="s-final"><b>Masz serwer!</b> Następny przepis to LifeSteal z ekonomią. Jest w przygotowaniu.</div>'}
+    ${i < STEPS.length - 1 ? '<div class="s-next" aria-hidden="true">przewiń ↓</div>' : `<div class="s-final">${R.final}</div>`}
   </article>`).join('');
 dots.innerHTML = STEPS.map((s, i) => `<a href="#k${i + 1}" aria-label="Krok ${i + 1}: ${s.t}" class="${done[i] ? 'done' : ''}"></a>`).join('');
 
@@ -85,13 +179,12 @@ count();
 
 root.addEventListener('change', (e) => {
   const i = e.target.dataset.i; if (i == null) return;
-  done[i] = e.target.checked; store.set('szorty', done);
+  done[i] = e.target.checked; store.set(R.key, done);
   dots.children[i].classList.toggle('done', e.target.checked);
   if (e.target.checked) {
     const r = e.target.closest('.chip').getBoundingClientRect(); xpBurst(r.left + r.width / 2, r.top, 16);
-    award('szort:' + i, 15, { from: { x: r.left + r.width / 2, y: r.top } }); badge('start');
-    if (Object.values(done).filter(Boolean).length === STEPS.length) badge('serwerowiec');
-    if (count() === STEPS.length) toast('Wszystkie 9 kroków zrobione. Brawo, serwerowcu!');
+    award(R.xp + i, 15, { from: { x: r.left + r.width / 2, y: r.top } }); badge('start');
+    if (count() === STEPS.length) { badge(R.all); toast(R.done); }
   } else count();
 });
 root.addEventListener('click', (e) => { const b = e.target.closest('[data-copy]'); if (b) copyText(b.dataset.copy, b); });

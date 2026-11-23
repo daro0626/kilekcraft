@@ -10,7 +10,8 @@
     { "id": "title", "nazwa": "Napis na ekranie", "ikona": "T", "opis": "Wielki napis na środku ekranu, idealny na start eventu.", "zrodlo": "https://minecraft.wiki/w/Commands/title" },
     { "id": "tp", "nazwa": "Teleport", "ikona": "➜", "opis": "Przenosi gracza na podane współrzędne.", "zrodlo": "https://minecraft.wiki/w/Commands/teleport" },
     { "id": "gamerule", "nazwa": "Zasady gry", "ikona": "⚙", "opis": "Zmienia zasady świata. Od 1.21.11 mają nowe nazwy!", "zrodlo": "https://minecraft.wiki/w/Game_rule" },
-    { "id": "whitelist", "nazwa": "Biała lista", "ikona": "✓", "opis": "Wpuszcza na serwer tylko twoich kolegów.", "zrodlo": "https://minecraft.wiki/w/Commands/whitelist" }
+    { "id": "whitelist", "nazwa": "Biała lista", "ikona": "✓", "opis": "Wpuszcza na serwer tylko twoich kolegów.", "zrodlo": "https://minecraft.wiki/w/Commands/whitelist" },
+    { "id": "attribute", "nazwa": "Serca (LifeSteal)", "ikona": "♥", "opis": "Ustawia graczowi maksymalną liczbę serc. Tak ręcznie prowadzisz LifeSteal bez pluginu.", "zrodlo": "https://minecraft.wiki/w/Commands/attribute" }
   ],
   "przedmioty": [
     { "id": "diamond", "nazwa": "Diament", "kolor": "#5fe3e0", "max": 64 },

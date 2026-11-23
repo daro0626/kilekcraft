@@ -22,13 +22,14 @@ export const BADGES = [
   { id: 'hardcore', name: 'Bez litości', desc: 'Wygeneruj komnatę o trudności 9 lub 10', ico: '☠' },
   { id: 'strateg', name: 'Strateg LifeSteal', desc: 'Przetestuj zasady w symulatorze', ico: '♥' },
   { id: 'balans', name: 'Mistrz balansu', desc: 'Ustaw zasady, przy których po 14 dniach gra ponad połowa graczy', ico: '⚖' },
+  { id: 'wladca', name: 'Władca serc', desc: 'Przejdź cały przepis LifeSteal w szortach', ico: '❦' },
   { id: 'lowca', name: 'Łowca błędów', desc: 'Zdobądź 1500 punktów w grze Znajdź błąd', ico: '!' },
   { id: 'parkour', name: 'Skoczek', desc: 'Ukończ wyścig parkour w przeglądarce', ico: '↗' },
   { id: 'speedrun', name: 'Speedrunner', desc: 'Ukończ wyścig o trudności 7 lub więcej', ico: '⏱' },
   { id: 'kolo', name: 'Szczęśliwy los', desc: 'Zakręć kołem wyzwań', ico: '◎' },
   { id: 'odkrywca', name: 'Odkrywca', desc: 'Odwiedź wszystkie strony KILEKCRAFT', ico: '✦' },
 ];
-const PAGES = ['index', 'serwer', 'hosting', 'komendy', 'budowle', 'edytor', 'komnaty', 'symulator', 'gry', 'bledy', 'parkour', 'kolo', 'motd'];
+const PAGES = ['index', 'serwer', 'hosting', 'komendy', 'budowle', 'edytor', 'komnaty', 'symulator', 'gry', 'bledy', 'parkour', 'kolo', 'motd', 'lifesteal'];
 
 // próg XP potrzebny na dany poziom: 0, 50, 150, 300, 500, 750…
 export const xpFor = (lvl) => 25 * lvl * (lvl - 1);

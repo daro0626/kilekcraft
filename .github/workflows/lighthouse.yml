@@ -13,13 +13,13 @@ jobs:
           node-version: '24'
       - name: Przygotuj Lighthouse
         run: npm install --prefix "$RUNNER_TEMP/audyt" --no-audit --no-fund lighthouse@13.6.0
-      - name: Zmierz 13 stron
+      - name: Zmierz 14 stron
         env:
           CHROME_PATH: /usr/bin/google-chrome
         run: |
           python3 -m http.server 8000 --bind 127.0.0.1 &
           mkdir -p "$RUNNER_TEMP/raporty"
-          for page in index serwer hosting komendy budowle edytor komnaty symulator gry bledy parkour kolo motd; do
+          for page in index serwer hosting komendy budowle edytor komnaty symulator gry bledy parkour kolo motd lifesteal; do
             "$RUNNER_TEMP/audyt/node_modules/.bin/lighthouse" "http://127.0.0.1:8000/$page.html" \
               --only-categories=performance,accessibility --chrome-flags="--headless --enable-unsafe-swiftshader" \
               --quiet --output=json --output=html --output-path="$RUNNER_TEMP/raporty/$page"
