@@ -920,11 +920,6 @@ def parkour_recovery(page, mobile):
     page.wait_for_function('(p) => recoveryProbe.state().p.some((x,i) => Math.abs(p[i]-x) > .04)', arg=respawned['p'])
     move_end()
 
-    for mode in ('pierwsza', 'rece', 'trzecia'):
-        click(page.locator('.pk-view'))
-        click(page.locator(f'[data-camera={mode}]'))
-        expect(page.locator(f'[data-camera={mode}]')).to_have_attribute('aria-pressed', 'true')
-        assert state()['first'] == (mode != 'trzecia')
     if not mobile:
         page.keyboard.press('r')
         assert state()['p'] == respawned['p'] and state()['deaths'] == 1
@@ -992,6 +987,11 @@ def parkour_routes(page, mobile):
     expect(page.locator('#ovText')).to_contain_text(route)
     click(page.locator('#play'))
     expect(page.locator('[data-camera=trzecia]')).to_have_attribute('aria-pressed', 'true')
+    for mode in ('pierwsza', 'rece', 'trzecia'):
+        click(page.locator('.pk-view'))
+        expect(page.locator('.pk-view')).to_have_attribute('aria-expanded', 'true')
+        click(page.locator(f'[data-camera={mode}]'))
+        expect(page.locator(f'[data-camera={mode}]')).to_have_attribute('aria-pressed', 'true')
     if mobile:
         click(page.locator('.pk-view'))
         click(page.locator('[data-camera=rece]'))
