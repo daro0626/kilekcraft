@@ -395,6 +395,9 @@ table.tbl{width:100%;border-collapse:collapse;font-size:15px}
 .pick[aria-selected=true]{border-color:var(--portal);background:rgba(160,107,255,.12);box-shadow:0 5px 0 #5b33a8}
 .pick[aria-selected=true] .pn{color:var(--portal)}
 @media (max-width:560px){.pick .pd{display:none}}
+.kat-bar{margin-bottom:12px}
+.kat-bar .tab small{font-weight:400;opacity:.8}
+@media (max-width:700px){.kat-bar{flex-wrap:nowrap;overflow-x:auto;scroll-snap-type:x proximity;padding-bottom:8px;margin-inline:-4px;padding-inline:4px;scrollbar-width:thin}.kat-bar .tab{flex:0 0 auto;scroll-snap-align:start}}
 .bld{display:grid;grid-template-columns:1.6fr 1fr;gap:18px;align-items:start}
 @media (max-width:900px){.bld{grid-template-columns:1fr}}
 .viewer{position:relative;aspect-ratio:4/3.4;overflow:hidden;background:radial-gradient(ellipse at 50% 30%,rgba(160,107,255,.16),transparent 70%),linear-gradient(180deg,#121a30,#0a0f1e)}

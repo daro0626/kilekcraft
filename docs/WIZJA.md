@@ -19,7 +19,7 @@
 | Przepis „LifeSteal z ekonomią serc” w 9 szortach | `lifesteal.html` | gotowe, komenda serc czeka na test CI, plugin opisany ze źródeł |
 | Doradca hostingu z cenami | `hosting.html` | gotowe, ceny z datami |
 | Kreator komend z podglądem (18 rodzajów) | `komendy.html` | gotowe, wszystkie 18 sprawdzone na serwerze 26.3 |
-| Wielkie budowle 3D warstwa po warstwie | `budowle.html` | gotowe (8 budowli + 2 filmy, datapack do każdej) |
+| Wielkie budowle 3D warstwa po warstwie | `budowle.html` | gotowe (20 budowli w 6 kategoriach + 2 filmy, datapack do każdej) |
 | Edytor budowli 3D z eksportem do datapacka | `edytor.html` | gotowe; całość, animacja i warstwy sprawdzone na serwerze 26.3 |
 | Generator komnat-wyzwań (parkour, góra, labirynt) | `komnaty.html` | gotowe, skoki do sprawdzenia w grze |
 | Symulator LifeSteal | `symulator.html` | gotowe (model uproszczony) |

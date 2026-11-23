@@ -4,7 +4,7 @@ import os
 
 from playwright.sync_api import expect, sync_playwright
 
-from test_commands import DATA, commands, export_lines, layer_functions, SAMPLE, motd_property, MOTD_SAMPLE
+from test_commands import DATA, commands, export_lines, layer_functions, SAMPLE, motd_property, MOTD_SAMPLE, palette_ids
 
 
 BASE = 'http://127.0.0.1:8000'
@@ -286,6 +286,26 @@ def browser_commands(page, modern):
     return result
 
 
+def budowle(page):
+    # Każda budowla ma kategorię, a każdy jej blok jest w palecie testowanej na serwerze.
+    info = page.evaluate("""async () => {
+      const m = await import('./assets/js/builds.js');
+      const kats = new Set(m.KATEGORIE.map(k => k.id));
+      return m.BUILDS.map(b => ({ id: b.id, kat: kats.has(b.kat), ids: [...new Set(m.getBuild(b.id).blocks.map(x => m.BLOCKS[x[3]]?.id))] }));
+    }""")
+    pal = set(palette_ids())
+    for b in info:
+        assert b['kat'], ('brak kategorii', b['id'])
+        missing = [i for i in b['ids'] if i is not None and i not in pal]
+        assert not missing, (b['id'], missing)
+    # Filtr kategorii: LifeSteal pokazuje tylko swoje budowle i wybiera pierwszą z nich.
+    page.locator('.kat-bar [data-k="lifesteal"]').click()
+    expect(page.locator('#picker .pick')).to_have_count(sum(1 for b in info if b['id'] in ('arena', 'oltarz', 'bazar')))
+    expect(page.locator('#picker .pick[aria-selected=true]')).to_have_count(1)
+    page.locator('.kat-bar [data-k="all"]').click()
+    expect(page.locator('#picker .pick')).to_have_count(len(info))
+
+
 def run(browser, width, height):
     mobile = width == 390
     context = browser.new_context(viewport={'width': width, 'height': height},
@@ -303,6 +323,8 @@ def run(browser, width, height):
             wyzwanie(page, mobile)
         if name == 'hosting':
             hosting(page)
+        if name == 'budowle':
+            budowle(page)
         if name == 'edytor':
             export_parity(page)
         if name == 'motd':

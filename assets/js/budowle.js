@@ -3,21 +3,44 @@
 // =========================================================
 import { store, reduced, xpBurst, award, badge, copyText, toast } from './core.js';
 import { datapack, download, safeName, packStatusHTML, exportPanelHTML, modesHTML } from './export.js';
-import { BUILDS, BLOCKS, getBuild } from './builds.js';
+import { BUILDS, BLOCKS, KATEGORIE, getBuild } from './builds.js';
 
 const $ = (s) => document.querySelector(s);
 let id = (location.hash || '').slice(1);
 if (!BUILDS.some(b => b.id === id)) id = store.get('build', 'miecz');
 let b = getBuild(id), L = Infinity, viewer = null, matMode = 'all';
 
-// ---------- wybór budowli ----------
-const picker = $('#picker');
-picker.innerHTML = BUILDS.map((x, i) => `<button role="tab" class="pick" data-id="${x.id}" aria-selected="${x.id === id}"><span class="pn">0${i + 1}</span><b>${x.name}</b><span class="pd">${x.desc}</span></button>`).join('');
+// ---------- kategorie i wybór budowli ----------
+const picker = $('#picker'), katBar = $('#kategorie');
+const katName = (k) => (KATEGORIE.find(x => x.id === k) || {}).name || '';
+// Domyślnie widać kategorię wybranej budowli, żeby podgląd 3D był blisko kart.
+let kat = store.get('build:kat', null);
+if (kat !== 'all') kat = BUILDS.find(x => x.id === id)?.kat || 'all';
+katBar.innerHTML = [{ id: 'all', name: 'Wszystkie' }, ...KATEGORIE].map(k => {
+  const n = k.id === 'all' ? BUILDS.length : BUILDS.filter(x => x.kat === k.id).length;
+  return `<button type="button" class="tab" data-k="${k.id}" aria-pressed="${k.id === kat}">${k.name} <small>${n}</small></button>`;
+}).join('');
+function renderPicker() {
+  const list = BUILDS.filter(x => kat === 'all' || x.kat === kat);
+  picker.innerHTML = list.map(x => `<button role="tab" class="pick" data-id="${x.id}" aria-selected="${x.id === id}"><span class="pn">${String(BUILDS.indexOf(x) + 1).padStart(2, '0')} · ${katName(x.kat)}</span><b>${x.name}</b><span class="pd">${x.desc}</span></button>`).join('');
+}
+function choose(newId) {
+  id = newId; store.set('build', id); history.replaceState(null, '', '#' + id);
+  picker.querySelectorAll('.pick').forEach(p => p.setAttribute('aria-selected', p.dataset.id === id));
+  b = getBuild(id); load(true);
+}
+renderPicker();
+katBar.addEventListener('click', (e) => {
+  const t = e.target.closest('[data-k]'); if (!t) return;
+  kat = t.dataset.k; store.set('build:kat', kat);
+  katBar.querySelectorAll('[data-k]').forEach(x => x.setAttribute('aria-pressed', x === t));
+  renderPicker();
+  const first = picker.querySelector('.pick');
+  if (first && !picker.querySelector(`[data-id="${id}"]`)) choose(first.dataset.id);
+});
 picker.addEventListener('click', (e) => {
   const t = e.target.closest('.pick'); if (!t) return;
-  id = t.dataset.id; store.set('build', id); history.replaceState(null, '', '#' + id);
-  picker.querySelectorAll('.pick').forEach(p => p.setAttribute('aria-selected', p === t));
-  b = getBuild(id); load(true);
+  choose(t.dataset.id);
 });
 
 const clips = $('#filmy');
@@ -27,6 +50,7 @@ clips.addEventListener('play', ({ target }) => {
 clips.addEventListener('click', event => {
   const button = event.target.closest('button[data-model]');
   if (!button) return;
+  if (!picker.querySelector(`[data-id="${button.dataset.model}"]`)) katBar.querySelector('[data-k="all"]').click();
   const tab = picker.querySelector(`[data-id="${button.dataset.model}"]`);
   clips.querySelectorAll('video').forEach(video => video.pause());
   tab.click();
@@ -127,6 +151,8 @@ function expUpdate() {
   const wet = b.blocks.some(x => x[3] === 'lava' || x[3] === 'water');
   $('#bdWarn').hidden = !wet;
   if (wet) $('#bdWarn').textContent = 'Ta budowla ma lawę albo wodę. W grze będą płynąć, więc stawiaj ją z dala od drewna i domów.';
+  const want = b.id;
+  packStatusHTML(b.blocks.map(x => BLOCKS[x[3]].id)).then(h => { if (b.id === want) $('#packStatus').innerHTML = h; });
 }
 $('#expHelp').innerHTML = exportPanelHTML();
 $('#copyFn').addEventListener('click', (e) => copyText(`/function kilekcraft:${fnOf()}/animacja`, e.currentTarget));
@@ -137,7 +163,6 @@ $('#dl').addEventListener('click', async (e) => {
   award('bd:eksport:' + b.id, 30, { from: { x: r.left + r.width / 2, y: r.top } });
   toast('Datapack gotowy. Jeśli plik się nie pobrał, otwórz stronę w zwykłej przeglądarce.');
 });
-packStatusHTML().then(h => { $('#packStatus').innerHTML = h; });
 
 const play = $('#play');
 play.disabled = true;
