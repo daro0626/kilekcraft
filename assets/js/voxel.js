@@ -4,10 +4,13 @@
 // =========================================================
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/OrbitControls.js';
-import { createScene } from './voxel-scene.js';
 
 export function webglOK() {
-  try { const c = document.createElement('canvas'); return !!(window.WebGLRenderingContext && (c.getContext('webgl2') || c.getContext('webgl'))); }
+  try {
+    const context = document.createElement('canvas').getContext('webgl2');
+    context?.getExtension('WEBGL_lose_context')?.loseContext();
+    return !!context;
+  }
   catch { return false; }
 }
 
@@ -47,6 +50,7 @@ async function openScene(container, options) {
       canvas = document.createElement('canvas');
     }
   }
+  const { createScene } = await import('./voxel-scene.js');
   const scene = createScene(canvas, options, ratio);
   container.appendChild(canvas);
   return { ...scene, canvas, draw(frame) { scene.draw(frame); return true; } };
