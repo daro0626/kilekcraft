@@ -88,13 +88,24 @@ def parkour_input(page, verify_physics=True):
               const ceiling = Math.floor(pos.y) + 2;
               solid.set(k3(x, ceiling, z), 'stone');
               jumpBuffer = .12;
+              const render = renderer.render;
+              renderer.render = () => {};
               let maximum = 0;
-              for (let i = 0; i < 60; i++) {
-                step(tick);
-                draw(performance.now(), true);
-                const corner = new THREE.Vector3(1, 1, -1).unproject(camera);
-                maximum = Math.max(maximum, camera.position.y, corner.y);
-              }
+              try {
+                for (let i = 0; i < 60; i++) {
+                  step(tick);
+                  for (const angle of [-1.45, -.85, 0, .85, 1.45]) {
+                    pitch = angle;
+                    draw(performance.now(), true);
+                    camera.updateMatrixWorld();
+                    maximum = Math.max(maximum, camera.position.y);
+                    for (const sx of [-1, 1]) for (const sy of [-1, 1]) {
+                      const corner = new THREE.Vector3(sx, sy, -1).unproject(camera);
+                      maximum = Math.max(maximum, corner.y);
+                    }
+                  }
+                }
+              } finally { renderer.render = render; }
               return maximum < ceiling;
             },
             longGhost() {

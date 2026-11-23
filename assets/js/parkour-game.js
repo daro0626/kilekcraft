@@ -393,7 +393,6 @@ export function initGame(onNext) {
     viewBtn.textContent = fp ? '👁 1. osoba' : '👁 3. osoba';
     viewBtn.setAttribute('aria-label', fp ? 'Widok z pierwszej osoby. Zmień na widok zza postaci (V)' : 'Widok zza postaci. Zmień na pierwszą osobę (V)');
     camera.fov = fp ? 78 : 65;
-    camera.near = fp ? .05 : .1;
     camera.updateProjectionMatrix();
   }
   function toggleView() {
