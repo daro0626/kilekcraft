@@ -78,7 +78,8 @@ let routes = 0, steps = 0;
 for (let seed = 1; seed <= count; seed++) {
   for (let diff = 1; diff <= 10; diff++) {
     const theme = themes[(seed + diff) % themes.length];
-    for (const type of Object.keys(KINDS)) {
+    // komnaty mistrzowskie (M) ma osobny test z botem: tools/test_mistrz.mjs
+    for (const type of Object.keys(KINDS).filter(k => k !== 'mistrz')) {
       const state = { seed, diff, theme, type };
       const label = encode(state);
       const room = generate(state);

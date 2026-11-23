@@ -7,10 +7,10 @@ import { store, reduced, award, badge, sfx, xpBurst, toast } from './core.js';
 import { BLOCKS } from './blocks.js';
 import { materialFor } from './voxel-scene.js';
 import { generate, encode, kindName } from './komnaty-gen.js';
+import { createRun, CRACK } from './fizyka.js';
+import { MISTRZ } from './komnaty-mistrz.js';
 
 const $ = (s) => document.querySelector(s);
-const G = 28, JUMP = 8.4, SPEED = 5.6, ACC_G = 40, ACC_A = 14, W = .3, HGT = 1.8;
-const PASS = new Set(['lava', 'portal', 'water']);
 
 // ---------- scena ----------
 const canvas = $('#gl');
@@ -53,7 +53,9 @@ export function initGame(onNext) {
   gmk(.16, .62, .2, 1.05, -.37); gmk(.16, .62, .2, 1.05, .37);
 
   // ---------- świat ----------
-  let solid = new Map(), room = null, spawn = new THREE.Vector3(), minY = 0;
+  let solid = new Map(), room = null, spawn = new THREE.Vector3(), minY = 0, run = null;
+  // kruszące się bloki mają własne siatki (znikają i wracają), lawa rośnie jako osobna płyta
+  const dyn = new Map(); let lavaSheet = null;
   const lavaMats = new Set();
   const k3 = (x, y, z) => x + ',' + y + ',' + z;
   const faceSteps = [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]];
@@ -86,10 +88,14 @@ export function initGame(onNext) {
     const chunkShift = mountain ? 4 : 3;
     for (const [x, y, z, type] of room.blocks) {
       const materials = materialFor(type);
+      if (type === CRACK) {
+        const mesh = new THREE.Mesh(box, materials); mesh.position.set(x + .5, y + .5, z + .5);
+        dyn.set(k3(x, y, z), mesh); level.add(mesh); continue;
+      }
       origin.set(x, y, z);
       for (const [face, [dx, dy, dz]] of faceSteps.entries()) {
         const adjacent = solid.get(k3(x + dx, y + dy, z + dz));
-        if (adjacent && (!BLOCKS[adjacent].alpha && BLOCKS[adjacent].pat !== 'leaves' ||
+        if (adjacent && adjacent !== CRACK && (!BLOCKS[adjacent].alpha && BLOCKS[adjacent].pat !== 'leaves' ||
                          mountain && adjacent === type && type === 'water')) continue;
         const material = Array.isArray(materials) ? materials[face] : materials;
         const rendered = mountain ? repeatTexture(material) : material;
@@ -155,14 +161,21 @@ export function initGame(onNext) {
     room = generate(state);
     renderer.setPixelRatio(coarse && state.type === 'gora' ? Math.min(.72, ratio) : ratio);
     const code = encode(state);
-    for (const mesh of level.children) mesh.geometry.dispose();
-    level.clear(); solid = new Map(); lavaMats.clear();
-    for (const [x, y, z, type] of room.blocks) solid.set(k3(x, y, z), type);
+    for (const mesh of level.children) if (mesh.geometry !== box) mesh.geometry.dispose();
+    level.clear(); dyn.clear(); lavaMats.clear();
+    // fizyka i zasady komnaty: wspólny kod z testem bota (fizyka.js)
+    run = createRun(room, state.type, () => new THREE.Vector3());
+    solid = run.solid; pos = run.pos; vel = run.vel; minY = run.minY;
+    spawn.set(run.spawn.x, run.spawn.y, run.spawn.z);
     buildMeshes();
-    // start: złoty blok (parkour) albo szmaragd (labirynt)
-    const st = room.blocks.find(b => b[3] === 'gold') || room.blocks.find(b => b[3] === 'emerald') || room.blocks[0];
-    spawn.set(st[0] + .5, st[1] + 1, st[2] + .5);
-    minY = Math.min(...room.blocks.map(b => b[1]));
+    const R = run.rules;
+    if (lavaSheet) { scene.remove(lavaSheet); lavaSheet.geometry.dispose(); lavaSheet = null; }
+    if (R.lava) {
+      const mat = materialFor('lava'); lavaMats.add(Array.isArray(mat) ? mat[2] : mat);
+      lavaSheet = new THREE.Mesh(new THREE.BoxGeometry(room.size[0] + 6, 1, room.size[2] + 6), mat);
+      lavaSheet.position.set(room.size[0] / 2, R.lava.y0 - .5, room.size[2] / 2); scene.add(lavaSheet);
+    }
+    const lavaTile = $('#lavaTile'); if (lavaTile) lavaTile.hidden = !R.lava;
     best = store.get('pk:best:' + code, null);
     $('#best').textContent = best ? fmt(best) : '—';
     const savedGhost = store.get('pk:ghost:' + code, null);
@@ -175,6 +188,11 @@ export function initGame(onNext) {
     scene.background.set(sky ? 0x4a6fa5 : 0x0d1428); scene.fog.color.copy(scene.background);
     scene.fog.near = sky ? 40 : 30; scene.fog.far = sky ? 140 : 90;
     hemi.intensity = sky ? 3.2 : 2.0; sun.intensity = sky ? 3.0 : 2.4;
+    if (run.rules.fog) {
+      // ciemność: widać tylko kilka bloków, świecące platformy pokazują drogę
+      scene.background.set(0x05070d); scene.fog.color.copy(scene.background);
+      scene.fog.near = 1; scene.fog.far = run.rules.fog; hemi.intensity = 1.5; sun.intensity = 1.6;
+    }
     yaw = -Math.PI / 2; pitch = fp ? .15 : mz ? .85 : .38;
     if (gora) {
       // na górze patrz wzdłuż trasy (przeciwnie do ruchu wskazówek zegara) i trochę na zbocze
@@ -186,12 +204,14 @@ export function initGame(onNext) {
     }
     reset(true);
     const ghostTxt = ghostData ? ` · 👻 obok pobiegnie twój duch (${fmt(ghostData[ghostData.length - 1][0])} s)` : '';
-    showOver('Gotowy?', `${kindName(state.type)} · trudność ${state.diff} · kod ${code}${ghostTxt}`, false);
+    const mi = state.type === 'mistrz' ? MISTRZ[state.diff] : null;
+    showOver(mi ? `M${state.diff} · ${mi.name}` : 'Gotowy?', mi ? `${mi.zasada} Pułapka: ${mi.pulapka}${ghostTxt}`
+      : `${kindName(state.type)} · trudność ${state.diff} · kod ${code}${ghostTxt}`, false);
     resize(true);
   }
 
   // ---------- stan gry ----------
-  const pos = new THREE.Vector3(), vel = new THREE.Vector3();
+  let pos = new THREE.Vector3(), vel = new THREE.Vector3();
   let onGround = false, yaw = -Math.PI / 2, pitch = .38, running = false, started = false, finished = false;
   let tNow = 0, deaths = 0, best = null, checkpoint = null, walkPhase = 0, faceYaw = 0;
   // klawisze po kodzie fizycznym: Shift, Caps Lock ani polski Alt (ą, ę, ś) nie zmieniają ich nazwy,
@@ -215,46 +235,29 @@ export function initGame(onNext) {
     return { x: a[1] + (b[1] - a[1]) * f, y: a[2] + (b[2] - a[2]) * f, z: a[3] + (b[3] - a[3]) * f, yaw: a[4] + dy * f };
   }
 
+  function syncRun() {
+    tNow = run.t; deaths = run.deaths; started = run.started; finished = run.finished; onGround = run.body.onGround;
+  }
+  function showBlocks(ev) {
+    for (const k of ev.crumbled) { const m = dyn.get(k); if (m) m.visible = false; }
+    for (const k of ev.restored) { const m = dyn.get(k); if (m) m.visible = true; }
+  }
   function reset(full) {
-    if (full) { checkpoint = spawn.clone(); deaths = 0; started = false; finished = false; tNow = 0; recording = []; recTimer = 0; recInterval = REC_DT; ghostIdx = 0; }
-    pos.copy(checkpoint || spawn); vel.set(0, 0, 0); onGround = true;
-    jumpBuffer = 0;
+    if (full) { recording = []; recTimer = 0; recInterval = REC_DT; ghostIdx = 0; }
+    showBlocks({ crumbled: [], ...run.reset(full) });
+    checkpoint = run.checkpoint; jumpBuffer = 0; syncRun(); updateLava();
     $('#deaths').textContent = deaths; $('#time').textContent = fmt(tNow);
   }
-  function die() {
-    deaths++; sfx('lava'); $('#deaths').textContent = deaths;
-    if (!reduced) $('#flash').animate([{ opacity: 1 }, { opacity: 0 }], 450);
-    reset(false);
+  function updateLava() {
+    if (!lavaSheet) return;
+    lavaSheet.position.y = run.lavaY - .47;
+    const gap = Math.max(0, Math.floor(pos.y - run.lavaY));
+    const el = $('#lava'); if (el) el.textContent = run.started ? gap + ' bl.' : '—';
   }
+  const DEATH = { lawa: 'Lawa cię dogoniła!', magma: 'Za długo na magmie!' };
 
-  // ---------- kolizje ----------
-  const isSolid = (x, y, z) => { const t = solid.get(k3(x, y, z)); return t && !PASS.has(t); };
-  function overlaps(px, py, pz) {
-    for (let x = Math.floor(px - W); x <= Math.floor(px + W - 1e-6); x++)
-      for (let y = Math.floor(py); y <= Math.floor(py + HGT - 1e-6); y++)
-        for (let z = Math.floor(pz - W); z <= Math.floor(pz + W - 1e-6); z++) if (isSolid(x, y, z)) return { x, y, z };
-    return null;
-  }
-  function moveAxis(axis, d) {
-    if (!d) return;
-    pos[axis] += d;
-    const hit = overlaps(pos.x, pos.y, pos.z); if (!hit) return;
-    if (axis === 'y') {
-      if (d < 0) { pos.y = hit.y + 1; onGround = true; } else pos.y = hit.y - HGT - 1e-4;
-      vel.y = 0;
-    } else {
-      const c = hit[axis];
-      pos[axis] = d > 0 ? c - W - 1e-4 : c + 1 + W + 1e-4;
-      vel[axis] = 0;
-    }
-  }
-  function feetBlock() { return solid.get(k3(Math.floor(pos.x), Math.floor(pos.y - .05), Math.floor(pos.z))); }
-  function touching(type) {
-    for (let x = Math.floor(pos.x - W); x <= Math.floor(pos.x + W - 1e-6); x++)
-      for (let z = Math.floor(pos.z - W); z <= Math.floor(pos.z + W - 1e-6); z++)
-        for (let y = Math.floor(pos.y - .05); y <= Math.floor(pos.y + .5); y++) if (solid.get(k3(x, y, z)) === type) return true;
-    return false;
-  }
+  // ---------- kolizje (do kamery i cienia) ----------
+  const isSolid = (x, y, z) => run.world.solid(x, y, z);
 
   function step(dt) {
     // wejście
@@ -264,32 +267,23 @@ export function initGame(onNext) {
     if (held('tl')) yaw += dt * 2.2; if (held('tr')) yaw -= dt * 2.2;
     const fx = Math.sin(yaw + Math.PI), fz = Math.cos(yaw + Math.PI); // kierunek „do przodu” od kamery
     const rx = -fz, rz = fx;
-    const tx = (fx * iz + rx * ix) * SPEED, tz = (fz * iz + rz * ix) * SPEED;
-    if (ix || iz) started = true;
-    const acc = (onGround ? ACC_G : ACC_A) * dt;
-    vel.x += Math.max(-acc, Math.min(acc, tx - vel.x));
-    vel.z += Math.max(-acc, Math.min(acc, tz - vel.z));
-    if (ix || iz) { faceYaw = Math.atan2(tx, tz); walkPhase += dt * 11 * (onGround ? 1 : .3); } else walkPhase *= .9;
-    if (jumpBuffer > 0 && onGround) {
-      vel.y = JUMP; onGround = false; jumpBuffer = 0; started = true; sfx('jump');
+    const mx = fx * iz + rx * ix, mz = fz * iz + rz * ix;
+    const jump = jumpBuffer > 0; jumpBuffer = 0;
+    if (started) run.started = true; // np. test, który sam ustawia start biegu
+    const ev = run.step({ mx, mz, jump }, dt);
+    showBlocks(ev);
+    if (ix || iz) { faceYaw = Math.atan2(mx, mz); walkPhase += dt * 11 * (run.body.onGround ? 1 : .3); } else walkPhase *= .9;
+    if (ev.jumped) sfx('jump');
+    if (ev.landed && !ev.died) sfx('land');
+    if (ev.died) {
+      sfx('lava'); syncRun(); $('#deaths').textContent = deaths;
+      if (!reduced) $('#flash').animate([{ opacity: 1 }, { opacity: 0 }], 450);
+      if (DEATH[ev.died]) toast(DEATH[ev.died]);
+      if (!run.rules.checkpoints) { recording = []; recTimer = 0; recInterval = REC_DT; ghostIdx = 0; run.t = 0; run.started = false; }
+      syncRun(); updateLava(); return;
     }
-    jumpBuffer = Math.max(0, jumpBuffer - dt);
-    if (started) tNow += dt;
-    vel.y -= G * dt; vel.y = Math.max(vel.y, -40);
-    const was = onGround; onGround = false;
-    moveAxis('x', vel.x * dt); moveAxis('z', vel.z * dt); moveAxis('y', vel.y * dt);
-    if (onGround && !was) sfx('land');
-    // zdarzenia
-    // lawa zawsze, a woda pod trasą parkouru i góry oznacza upadek
-    const climb = state.type !== 'labirynt';
-    if (touching('lava') || (climb && touching('water')) || pos.y < minY - 4) { die(); return; }
-    // parkour i góra: dotknięcie podłogi = upadek, wracasz do punktu kontrolnego
-    if (climb && onGround && pos.y < minY + 1.5) { die(); return; }
-    const fb = onGround ? feetBlock() : null;
-    if (fb === 'emerald') {
-      const cp = new THREE.Vector3(Math.floor(pos.x) + .5, Math.floor(pos.y), Math.floor(pos.z) + .5);
-      if (!checkpoint || checkpoint.distanceTo(cp) > 1.5) { checkpoint = cp; sfx('checkpoint'); toast('Punkt kontrolny!'); }
-    }
+    syncRun(); updateLava();
+    if (ev.checkpoint) { checkpoint = run.checkpoint; sfx('checkpoint'); toast('Punkt kontrolny!'); }
     // nagrywanie trajektorii do ducha (tylko gdy bieg trwa)
     if (started) {
       if (!recording.length) recording.push([0, pos.x, pos.y, pos.z, faceYaw]);
@@ -303,7 +297,7 @@ export function initGame(onNext) {
         recTimer += recInterval;
       }
     }
-    if (fb === 'diamond' && started && !finished) win();
+    if (ev.win) win();
   }
 
   function win() {
@@ -378,7 +372,8 @@ export function initGame(onNext) {
     if (c === 'Escape') { showOver('Pauza', 'Odpocznij chwilę.', false, true); return; }
     if (e.getModifierState('AltGraph') || e.altKey || e.ctrlKey || e.metaKey) return;
     if (c === 'KeyV') { e.preventDefault(); if (!e.repeat) toggleView(); return; }
-    if (c === 'KeyR') { e.preventDefault(); reset(false); return; }
+    // R: powrót do punktu kontrolnego; w komnatach bez punktów kontrolnych start od zera
+    if (c === 'KeyR') { e.preventDefault(); reset(!run.rules.checkpoints); return; }
     if (c === 'Space') { e.preventDefault(); if (!e.repeat) jumpBuffer = .12; return; }
     if (!KEYMAP[c]) return;
     e.preventDefault(); keys.add(c);

@@ -44,6 +44,9 @@ Zawartość `pack.mcmeta` dla datapacków z edytora i generatora komnat. Zapisuj
 ## Komnaty (`assets/js/komnaty-gen.js`)
 Kod komnaty `P8-N-4821` = typ (P parkour, L labirynt), trudność, motyw (K/N/L/E), ziarno. Ten sam kod daje zawsze tę samą komnatę. Zasady skoków (przerwy 1–3 bloki, +1 w górę maks. 2) są **do sprawdzenia w grze** (zadanie A4).
 
+## Komnaty mistrzowskie (`assets/js/komnaty-mistrz.js`, fizyka `assets/js/fizyka.js`)
+Typ `mistrz` (kod `M1`–`M10`). Układ jest stały, motyw zmienia tylko kolory zwykłych platform, a ziarno w kodzie jest zawsze 1, więc rekordy porównuje się na tej samej komnacie. Każda komnata zwraca `rules`: `fog` (zasięg widzenia), `lava` (`delay`, `every`, `y0`: lawa rośnie o 1 blok co `every` s po `delay` s od startu albo upadku), `crumble` (`after`, `back`: popękany blok znika po `after` s od wejścia i wraca po `back` s), `checkpoints` (false = upadek wraca na start i zeruje czas), `noFloor`. Powierzchnie w fizyce: ubity lód (rozpędzanie i hamowanie 5 zamiast 40), miód (prędkość ×0,4, skok ×0,39), szlam (odbicie ×0,82 przy upadku szybszym niż 6 bl./s, bez odbicia przy wciśniętym skoku), magma (0,8 s stania = upadek). `createRun` w `fizyka.js` łączy fizykę z zasadami. Używa go gra i bot w `tools/test_mistrz.mjs`.
+
 ## Symulator (`assets/js/lifesteal-sim.js`)
 Uproszczony model: losowe pary walczą, szansa wygranej zależy od umiejętności (rozkład normalny) i opcjonalnie od liczby serc. Wynik to 1 przebieg na arenie i 200 przebiegów do wniosków. To nie jest przepowiednia, tylko podpowiedź do zasad.
 

@@ -67,6 +67,14 @@ Wytyczne mogą się zmienić. Przed publicznym otwarciem strony przeczytaj je po
 - Topola ma identyfikatory do weryfikacji i cenę pustą. Jej bloki wyłączono z płatnych grup drewna. Bambusowe deski są w osobnej pozycji. Arkusz nie przypisuje płyt muzycznych do dwóch grup cenowych. Obie kwoty zachowano, a listy identyfikatorów czekają na decyzję właściciela.
 
 
+## Bloki w komnatach mistrzowskich (B4)
+Zachowanie bloków opisane na stronie i przybliżone w `assets/js/fizyka.js`. Liczby w fizyce przeglądarki są nasze, nie z gry. Identyfikatory bloków sprawdza test „paleta” na serwerze.
+- Szlam: upadek na szlam nie zadaje obrażeń i odbija na wysokość zależną od prędkości upadku. Skradanie wyłącza odbicie, a skok wciśnięty przy lądowaniu daje zwykły skok. Źródła: https://minecraft.wiki/w/Slime_block i kopia minecraft.wiki z 11.2025 (https://wiki.ronlab.site/content/minecraftwiki_en_all_maxi_2025-11/Slime_Block), odczyt 23.11.2026.
+- Magma: skradanie chroni przed obrażeniami od magmy. Źródło: https://minecraft.wiki/w/Sneak (sekcja o skradaniu), odczyt 23.11.2026.
+- Miód: wszystko, co idzie po bloku miodu, porusza się dużo wolniej i nie może normalnie skakać. Źródło: Minecraft.net, „Block of the Week: Honey”, https://www.minecraft.net/es-es/article/block-week--honey, odczyt 23.11.2026.
+- Lód: lód i ubity lód są śliskie (śliskość 0,98, niebieski lód 0,989). Źródło: https://minecraft.fandom.com/wiki/Blue_Ice oraz kopia minecraft.wiki z 11.2025 (https://wiki.ronlab.site/content/minecraftwiki_en_all_maxi_2025-11/Blue_ice), odczyt 23.11.2026.
+- Kruszenie, rosnąca lawa i ciemność to mechaniki przeglądarki. W grze wymagałyby komend, których nie przygotowaliśmy ani nie przetestowaliśmy.
+
 ## Ekonomia (do testu na serwerze właściciela)
 
 Sprawdzone 2026-11-23 w katalogach twórców. Wersje poniżej opisują deklarowaną zgodność i dostępne polecenia. Rzeczywiste nazwy oraz wersje na serwerze ustali właściciel w [liście prób](EKONOMIA_TEST.md). Przy komendach z manifestu użyto pliku `plugin.yml` z podanego wydania.

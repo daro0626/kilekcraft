@@ -21,7 +21,7 @@
 | Kreator komend z podglądem (18 rodzajów) | `komendy.html` | gotowe, wszystkie 18 sprawdzone na serwerze 26.3 |
 | Wielkie budowle 3D warstwa po warstwie | `budowle.html` | gotowe (23 budowle w 6 kategoriach + 2 filmy, datapack do każdej) |
 | Edytor budowli 3D z eksportem do datapacka | `edytor.html` | gotowe; całość, animacja i warstwy sprawdzone na serwerze 26.3 |
-| Generator komnat-wyzwań (parkour, góra, labirynt) | `komnaty.html` | gotowe, skoki do sprawdzenia w grze |
+| Generator komnat-wyzwań (parkour, góra, labirynt) i 10 komnat mistrzowskich M1–M10 | `komnaty.html`, `parkour.html` | gotowe w przeglądarce, skoki i mechaniki do sprawdzenia w grze |
 | Gra „Sezon LifeSteal” (14 dni przeciw 7 botom) + symulator zasad | `symulator.html` | gotowe (model uproszczony) |
 | Poziom gracza: XP i 20 odznak | wszystkie strony | gotowe |
 | Wyścig parkour w przeglądarce (klawiatura, mysz bez trzymania przycisku, dotyk, widok 1. i 3. osoby) | `parkour.html` | gotowe, fizyka do porównania z grą |

@@ -1,6 +1,7 @@
 // Ekran startowy jest dostępny przed pobraniem silnika 3D.
 import { store, toast } from './core.js';
 import { encode, decode, kindName } from './komnaty-gen.js';
+import { MISTRZ } from './komnaty-mistrz.js';
 
 const codeIn = document.getElementById('code');
 const play = document.getElementById('play');
@@ -17,7 +18,9 @@ function loadLevel(next) {
   store.set('komnata', state);
   if (game) game.loadLevel(state);
   else {
-    document.getElementById('ovText').textContent = `${kindName(state.type)} · trudność ${state.diff} · kod ${code}`;
+    const mi = state.type === 'mistrz' ? MISTRZ[state.diff] : null;
+    document.getElementById('ovTitle').textContent = mi ? `M${state.diff} · ${mi.name}` : 'Gotowy?';
+    document.getElementById('ovText').textContent = mi ? `${mi.zasada} Pułapka: ${mi.pulapka}` : `${kindName(state.type)} · trudność ${state.diff} · kod ${code}`;
   }
 }
 document.querySelectorAll('[data-q]').forEach(button => button.addEventListener('click', () => {
