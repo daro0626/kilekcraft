@@ -109,8 +109,19 @@ Każde zadanie kończy się dopiero, gdy spełnia kryteria akceptacji **oraz** b
 - Budowle z Kilek World (spawn, lobby, komnaty) jako pliki w `data/budowle/`.
 - **Akceptacja:** spawn Kilek World wyświetla się poprawnie, a lista materiałów zgadza się z grą.
 
-### B4 [Claude] Komnaty-wyzwania z Kilek World
-- Komnaty V1/V2 były za łatwe (około 20 sekund). Zaprojektować 10 trudniejszych na papierze, z rosnącą trudnością, a potem pokazać je w przeglądarce.
+### B4 [Claude] Komnaty-wyzwania z Kilek World — gotowe w przeglądarce, czeka na test w grze
+- Komnaty V1/V2 były za łatwe (około 20 sekund). Jest 10 komnat mistrzowskich M1–M10 (typ „Mistrzowska” w generatorze, kod `M1-K-1`… `M10-K-1`): lód, miód, szlam, skoki dookoła muru, magma, ciemność, kruszący się most, rosnąca lawa, „Żywioły” i finał. Każda ma cel, zasadę, pułapkę, tempo (hipotezę) i opis sprawdzenia w grze (`assets/js/komnaty-mistrz.js`).
+- Grywalne w przeglądarce. Fizyka i zasady są w `assets/js/fizyka.js`, wspólne dla gry i testu. `tools/test_mistrz.mjs`: bot przechodzi każdą komnatę w 4 motywach, a lawa, magma i kruszenie karzą za postój.
+- Czasy w opisach to hipotezy. Bot przechodzi komnaty w 9–17 s, ale to dolna granica, nie przewidywany czas gracza.
+- **Do zrobienia przez Piotrka w Minecrafcie** (pobierz datapack komnaty z generatora):
+  - M1 Lodowy zjazd: czy da się wyhamować na 2 kamiennych blokach przed zakrętem.
+  - M2 Miodowe bagno: czy przerwy 2 i 3 bloki da się przeskoczyć z kamienia na końcu miodu.
+  - M3 Trampoliny: czy odbicie ze szlamu z wysokości 5–6 bloków doleci do półki.
+  - M4 Neo-mury: czy skoki dookoła muru wychodzą z rozbiegu.
+  - M5 Rozżarzona ścieżka: ile serc zabiera bieg bez skradania (w grze magma rani, nie zabija od razu).
+  - M9 Żywioły: cała komnata na czas.
+  - Zapisz czasy przejścia każdej komnaty. Na ich podstawie poprawimy opisane tempo.
+- **Tylko w przeglądarce:** M6 (ciemność), M7 (kruszenie), M8 (lawa), M10 (wszystko naraz). W grze potrzebne są komendy (efekt ciemności, znikające bloki, rosnąca lawa). Bez nich datapack stawia samą mapę.
 
 ## D: oprawa
 

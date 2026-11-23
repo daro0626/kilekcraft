@@ -14,7 +14,7 @@ Polska, fanowska akademia serwerowców Minecraft Java. Animowana, ale przede wsz
 | `komendy.html` | Kreator komend z podglądem w „grze”: 18 rodzajów (przedmioty, efekty, napisy, teleport, zasady, biała lista, serca, tryb gry, pora dnia, pogoda, trudność, moby, zaklęcia, XP, usuwanie bytów, czyszczenie ekwipunku, granica świata, spawn) |
 | `budowle.html` | 23 budowle 3D w 6 kategoriach (Średniowiecze, Natura, Fantasy, Przetrwanie, Miasto i kosmos, LifeSteal), warstwa po warstwie, z mapą i listą bloków, 2 filmy i datapack do każdej budowli |
 | `edytor.html` | Edytor 3D z symetrią i cofaniem, eksport do datapacka (całość, animacja albo warstwa po warstwie) |
-| `komnaty.html` | Generator parkourów, gór do wspinaczki i labiryntów 1–10 z kodem komnaty |
+| `komnaty.html` | Generator parkourów, gór do wspinaczki i labiryntów 1–10 z kodem komnaty oraz 10 komnat mistrzowskich M1–M10 (lód, miód, szlam, magma, ciemność, kruszenie, rosnąca lawa) |
 | `gry.html` | Zbiór gier: wyścig parkour, Znajdź błąd, koło wyzwań, wygląd serwera |
 | `parkour.html` | Wyścig 3D po komnatach z generatora, stoper, rekordy, duch najlepszego przejazdu, widok z 1. i 3. osoby, mysz jak w grze |
 | `wyzwanie.html` | Wyzwanie dnia: jedna komnata dziennie (parkour, góra albo labirynt), ta sama dla wszystkich, licząca się z datą |
