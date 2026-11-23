@@ -64,10 +64,11 @@ def smoke(page, name):
 
 
 def parkour(page, mobile):
+    page.locator('#chooseLevel').click()
     code = page.locator('#code')
     code.fill('L4-K-4821')
     code.press('Enter')
-    expect(page.locator('#ovText')).to_contain_text('Labirynt')
+    expect(page.locator('#ovTitle')).to_have_text('Labirynt')
     expect(page.locator('#play')).to_be_visible()
     if mobile:
         page.locator('#play').tap()
@@ -87,6 +88,7 @@ def parkour(page, mobile):
 
 def mistrz_parkour(page, mobile):
     # Komnata mistrzowska w grze: opis zasady na starcie i licznik lawy w M8.
+    page.locator('#chooseLevel').click()
     code = page.locator('#code')
     code.fill('M8-K-77')
     code.press('Enter')
@@ -803,7 +805,7 @@ def parkour_recovery(page, mobile):
         hook = """
           window.recoveryProbe = {
             state: () => ({p: pos.toArray(), spawn: run.spawn, cp: run.checkpoint, grounded: onGround,
-                           deaths, keys: [...keys], joy, started, first: fp,
+                           deaths, keys: [...keys], joy, started,
                            vel: vel.toArray(), supported: isSolid(Math.floor(pos.x), pos.y - 1, Math.floor(pos.z))}),
             corner() {
               clearInput();
@@ -918,14 +920,16 @@ def parkour_recovery(page, mobile):
     page.wait_for_function('(p) => recoveryProbe.state().p.some((x,i) => Math.abs(p[i]-x) > .04)', arg=respawned['p'])
     move_end()
 
-    first = state()['first']
-    click(page.locator('.pk-view'))
-    page.wait_for_function('(first) => recoveryProbe.state().first !== first', arg=first)
     if not mobile:
         page.keyboard.press('r')
         assert state()['p'] == respawned['p'] and state()['deaths'] == 1
     click(page.locator('.pk-pause'))
     expect(page.locator('#ovTitle')).to_have_text('Pauza')
+    expect(page.locator('#play')).to_have_text('Wznów')
+    expect(page.locator('#restartHint')).to_contain_text('Rekord zostaje')
+    click(page.locator('#play'))
+    assert state()['deaths'] == 1 and state()['cp'] == cp
+    click(page.locator('.pk-pause'))
     click(page.locator('#restartLevel'))
     expect(page.locator('#over')).to_be_hidden()
     assert state()['deaths'] == 0 and state()['cp'] == state()['spawn']
@@ -937,9 +941,72 @@ def parkour_recovery(page, mobile):
     page.wait_for_function('recoveryProbe.state().started')
     page.evaluate('recoveryProbe.nearFinish()')
     expect(page.locator('#ovTitle')).to_have_text('Nowy rekord!')
-    click(page.locator('#play'))
+    record = page.locator('#best').inner_text()
+    assert record != '—'
+    click(page.locator('#restartLevel'))
     expect(page.locator('#deaths')).to_have_text('0')
+    expect(page.locator('#best')).to_have_text(record)
     page.unroute('**/assets/js/parkour-game.js')
+
+
+def parkour_routes(page, mobile):
+    click = lambda locator: locator.tap() if mobile else locator.click()
+    page.add_init_script('HTMLCanvasElement.prototype.requestPointerLock = undefined')
+    page.goto(f'{BASE}/parkour.html#P1-K-4821')
+    expect(page.locator('#ovText')).to_contain_text('P1-K-4821')
+    page.evaluate("localStorage.removeItem('kc:pk:widok')")
+    click(page.locator('#play'))
+    click(page.locator('.pk-pause'))
+    expect(page.locator('#play')).to_be_focused()
+    click(page.locator('.pk-help summary'))
+    expect(page.locator('#keys')).to_be_visible()
+    click(page.locator('#chooseLevel'))
+    expect(page.locator('#levelKind')).to_be_focused()
+    expect(page.locator('#levelKind option')).to_have_count(4)
+    expect(page.locator('#levelDiff option')).to_have_count(10)
+    page.locator('#levelKind').select_option('gora')
+    page.locator('#levelDiff').select_option('4')
+    click(page.locator('#levelForm button'))
+    route = page.locator('#code').input_value()
+    assert route.startswith('G4-K-') and page.url.endswith('#' + route)
+    expect(page.locator('#ovTitle')).to_have_text('Góra')
+    page.go_back(wait_until='commit')
+    expect(page.locator('#ovText')).to_contain_text('P1-K-4821')
+    page.go_forward(wait_until='commit')
+    expect(page.locator('#ovText')).to_contain_text(route)
+    click(page.locator('.pk-card').get_by_role('link', name='Menu gier'))
+    expect(page.locator('a[href="parkour.html"]')).to_be_visible()
+    click(page.locator('a[href="parkour.html"]'))
+    expect(page.locator('#play')).to_have_text('Kontynuuj ostatnią')
+    expect(page.locator('#ovText')).to_contain_text(route)
+    page.reload()
+    expect(page.locator('#play')).to_have_text('Kontynuuj ostatnią')
+    expect(page.locator('#ovText')).to_contain_text(route)
+    click(page.locator('main a[href="komnaty.html"]'))
+    expect(page.locator('#playLink')).to_have_attribute('href', 'parkour.html#' + route)
+    click(page.locator('#playLink'))
+    expect(page.locator('#ovText')).to_contain_text(route)
+    click(page.locator('#play'))
+    expect(page.locator('[data-camera=trzecia]')).to_have_attribute('aria-pressed', 'true')
+    for mode in ('pierwsza', 'rece', 'trzecia'):
+        click(page.locator('.pk-view'))
+        expect(page.locator('.pk-view')).to_have_attribute('aria-expanded', 'true')
+        click(page.locator(f'[data-camera={mode}]'))
+        expect(page.locator(f'[data-camera={mode}]')).to_have_attribute('aria-pressed', 'true')
+    if mobile:
+        click(page.locator('.pk-view'))
+        click(page.locator('[data-camera=rece]'))
+    else:
+        page.keyboard.press('v')
+        expect(page.locator('[data-camera=pierwsza]')).to_have_attribute('aria-pressed', 'true')
+        page.keyboard.press('v')
+    expect(page.locator('[data-camera=rece]')).to_have_attribute('aria-pressed', 'true')
+    page.reload()
+    click(page.locator('#play'))
+    expect(page.locator('[data-camera=rece]')).to_have_attribute('aria-pressed', 'true')
+    page.goto(f'{BASE}/parkour.html#P1-K-4821')
+    click(page.locator('#randomLevel'))
+    expect(page.locator('#ovText')).to_contain_text(page.locator('#code').input_value())
 
 
 def editor_layers(page, mobile):
@@ -1127,6 +1194,7 @@ def run(browser, width, height):
             mistrz_parkour(page, mobile)
             parkour(page, mobile)
             parkour_recovery(page, mobile)
+            parkour_routes(page, mobile)
         if name == 'komnaty':
             mistrz_komnaty(page)
             if not mobile:

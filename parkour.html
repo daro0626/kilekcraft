@@ -37,17 +37,23 @@
     <p class="lead">Każda komnata z generatora jest grywalna tutaj. Skacz po blokach, omijaj lawę i dotknij diamentowej mety. Szmaragdy to punkty kontrolne.</p>
   </div>
 
-  <div class="pk-bar panel pad">
-    <div class="code-row"><label class="sr" for="code">Kod komnaty</label><input type="text" id="code" autocomplete="off" spellcheck="false" placeholder="P3-K-4821"><button type="button" class="btn sm ghost" id="load">Wczytaj</button></div>
+  <section class="pk-bar panel pad" id="levelPicker" aria-labelledby="levelPickerTitle" hidden>
+    <h2 id="levelPickerTitle">Wybierz poziom</h2>
+    <form id="levelForm" class="pk-levels">
+      <label>Typ komnaty <select id="levelKind"></select></label>
+      <label>Poziom <select id="levelDiff"></select></label>
+      <button type="submit" class="btn sm">Wybierz</button>
+    </form>
+    <div class="code-row"><label class="sr" for="code">Kod komnaty</label><input type="text" id="code" autocomplete="off" spellcheck="false" placeholder="P1-K-4821"><button type="button" class="btn sm ghost" id="load">Wczytaj kod</button></div>
     <div class="pk-quick" role="group" aria-label="Szybki wybór">
       <button type="button" class="tab" data-q="P2">Łatwy</button>
       <button type="button" class="tab" data-q="G4">Góra</button>
       <button type="button" class="tab" data-q="P8">Trudny</button>
       <button type="button" class="tab" data-q="L4">Labirynt</button>
       <button type="button" class="tab" data-q="M1">Mistrzowskie</button>
-      <button type="button" class="tab" data-q="rand">Losowy</button>
     </div>
-  </div>
+    <button type="button" class="btn sm ghost" id="closePicker">Wróć</button>
+  </section>
 
   <div class="pk-game panel corner" id="wrapG">
     <canvas id="gl" aria-label="Gra parkour" aria-describedby="keys"></canvas>
@@ -63,14 +69,15 @@
       <div class="pk-card">
         <h2 id="ovTitle">Gotowy?</h2>
         <p id="ovText" role="status">Kliknij albo dotknij, żeby zacząć.</p>
-        <div class="pk-keys" id="keys">
+        <div class="pk-ovbtns"><button type="button" class="btn" id="play">Graj</button><button type="button" class="btn ghost" id="restartLevel" aria-describedby="restartHint" hidden>Od początku</button><button type="button" class="btn ghost" id="chooseLevel" aria-controls="levelPicker">Wybierz poziom</button><button type="button" class="btn ghost" id="randomLevel">Losowa</button><a class="btn ghost" href="gry.html">Menu gier</a><button type="button" class="btn ghost" id="nextLvl" hidden>Trudniej →</button></div>
+        <p class="small pk-restart-hint" id="restartHint" hidden>Zeruje bieżącą próbę. Rekord zostaje.</p>
+        <details class="pk-help"><summary>Sterowanie</summary><div class="pk-keys" id="keys">
           <div><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> albo strzałki: ruch</div>
-          <div><kbd>Spacja</kbd>: skok · ruch myszy: obrót kamery · <kbd>V</kbd>: 1. albo 3. osoba</div>
+          <div><kbd>Spacja</kbd>: skok · ruch myszy: obrót kamery · <kbd>V</kbd>: zmiana kamery</div>
           <div><kbd>R</kbd>: powrót do punktu kontrolnego · <kbd>Esc</kbd>: pauza</div>
           <div class="touch-only">Na telefonie: lewy kciuk to ruch, prawy przycisk to skok</div>
           <div>Masz już rekord na tej trasie? Przy tobie pobiegnie półprzezroczysty duch twojego najlepszego przejazdu.</div>
-        </div>
-        <div class="pk-ovbtns"><button type="button" class="btn" id="play">▶ Graj</button><button type="button" class="btn ghost" id="restartLevel" hidden>Od początku</button><button type="button" class="btn ghost" id="nextLvl" hidden>Trudniej →</button></div>
+        </div></details>
       </div>
     </div>
     <div class="pk-touch" id="touch">

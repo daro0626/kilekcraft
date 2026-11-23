@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { decode, generate } from '../assets/js/komnaty-gen.js';
-import { createRun } from '../assets/js/fizyka.js';
+import { createRun, PHYS } from '../assets/js/fizyka.js';
 
 const dt = 1 / 120;
 const idle = { mx: 0, mz: 0 };
@@ -67,6 +67,30 @@ for (const code of ['P6-K-319', 'P8-N-15723', 'P9-E-205', 'G8-K-321', 'L4-K-4821
 }
 assert(count >= 20);
 
+let atSpeed = 0;
+for (const [x, y, z] of reported.room.blocks.filter(block => block[3] === 'emerald')) {
+  const run = reported.run;
+  for (const [dx, dz] of [[1, 0], [0, -1], [-1, 1], [1, 1]]) {
+    const length = Math.hypot(dx, dz);
+    run.reset(true);
+    Object.assign(run.pos, { x: x + .5 + dx * .69, y: y + 1.02, z: z + .5 + dz * .69 });
+    Object.assign(run.vel, { x: -dx * PHYS.SPEED / length, y: -4, z: -dz * PHYS.SPEED / length });
+    run.body.onGround = false;
+    const event = run.step({ mx: -dx / length, mz: -dz / length, jump: true }, dt);
+    if (!event.checkpoint) continue;
+    const cp = run.checkpoint;
+    assert.equal(run.world.type(Math.floor(cp.x), cp.y - 1, Math.floor(cp.z)), 'emerald');
+    assert(Math.hypot(cp.x - run.pos.x, cp.z - run.pos.z) <= Math.SQRT2 * (.5 + PHYS.W));
+    for (let death = 1; death <= 5; death++) {
+      fall(run);
+      assert.deepEqual({ ...run.pos }, { ...run.checkpoint });
+      assert.equal(run.deaths, death);
+    }
+    atSpeed++;
+  }
+}
+assert(atSpeed >= 4, 'brak udanych lądowań z rozpędem na krawędzi');
+
 {
   const room = { blocks: [[0, 2, 0, 'gold'], [3, 2, 0, 'emerald'], [6, 2, 0, 'emerald'], [9, 2, 0, 'emerald'], [9, 4, 0, 'stone']], rules: { noFloor: true } };
   const run = createRun(room, 'parkour');
@@ -84,4 +108,4 @@ assert(count >= 20);
   assert.deepEqual({ ...run.pos }, run.spawn);
   assert(run.body.onGround);
 }
-console.log(`Checkpointy: ${count} prób, w tym ${corners} prób narożnikiem na P4-N-40606; stabilny respawn, skok i powrót awaryjny.`);
+console.log(`Checkpointy: ${count} prób, w tym ${corners} narożnikiem; ${atSpeed} lądowań z rozpędem i po 5 odrodzeń na P4-N-40606.`);
