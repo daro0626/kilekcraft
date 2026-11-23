@@ -3,21 +3,59 @@
 // =========================================================
 import { store, reduced, xpBurst, award, badge, copyText, toast } from './core.js';
 import { datapack, download, safeName, packStatusHTML, exportPanelHTML, modesHTML } from './export.js';
-import { BUILDS, BLOCKS, getBuild } from './builds.js';
+import { BUILDS, BLOCKS, KATEGORIE, getBuild } from './builds.js';
 
 const $ = (s) => document.querySelector(s);
-let id = (location.hash || '').slice(1);
-if (!BUILDS.some(b => b.id === id)) id = store.get('build', 'miecz');
-let b = getBuild(id), L = Infinity, viewer = null, matMode = 'all';
+const modelFromHash = () => BUILDS.find(build => build.id === location.hash.slice(1));
+const startModel = modelFromHash();
+let b = getBuild(startModel?.id || store.get('build', 'miecz')), id = b.id, L = Infinity, viewer = null, matMode = 'all';
 
-// ---------- wybór budowli ----------
-const picker = $('#picker');
-picker.innerHTML = BUILDS.map((x, i) => `<button role="tab" class="pick" data-id="${x.id}" aria-selected="${x.id === id}"><span class="pn">0${i + 1}</span><b>${x.name}</b><span class="pd">${x.desc}</span></button>`).join('');
+// ---------- kategorie i wybór budowli ----------
+const picker = $('#picker'), katBar = $('#kategorie');
+const katName = (k) => (KATEGORIE.find(x => x.id === k) || {}).name || '';
+// Domyślnie widać kategorię wybranej budowli, żeby podgląd 3D był blisko kart.
+let kat = store.get('build:kat', null);
+if (startModel || kat !== 'all') kat = b.kat;
+katBar.innerHTML = [{ id: 'all', name: 'Wszystkie' }, ...KATEGORIE].map(k => {
+  const n = k.id === 'all' ? BUILDS.length : BUILDS.filter(x => x.kat === k.id).length;
+  return `<button type="button" class="tab" data-k="${k.id}" aria-pressed="${k.id === kat}">${k.name} <small>${n}</small></button>`;
+}).join('');
+function renderPicker() {
+  const list = BUILDS.filter(x => kat === 'all' || x.kat === kat);
+  picker.innerHTML = list.map(x => `<button role="tab" class="pick" data-id="${x.id}" aria-selected="${x.id === id}"><span class="pn">${String(BUILDS.indexOf(x) + 1).padStart(2, '0')} · ${katName(x.kat)}</span><b>${x.name}</b><span class="pd">${x.desc}</span></button>`).join('');
+}
+function showCategory(category) {
+  kat = category;
+  store.set('build:kat', kat);
+  katBar.querySelectorAll('[data-k]').forEach(button => button.setAttribute('aria-pressed', button.dataset.k === kat));
+  renderPicker();
+}
+function showModel(model) {
+  if (kat !== 'all' && kat !== model.kat) showCategory(model.kat);
+  choose(model.id);
+}
+addEventListener('hashchange', () => {
+  const model = modelFromHash();
+  if (model) {
+    if (kat !== model.kat) showCategory(model.kat);
+    choose(model.id);
+  }
+});
+function choose(newId) {
+  id = newId; store.set('build', id); history.replaceState(null, '', '#' + id);
+  picker.querySelectorAll('.pick').forEach(p => p.setAttribute('aria-selected', p.dataset.id === id));
+  b = getBuild(id); load(true);
+}
+renderPicker();
+katBar.addEventListener('click', (e) => {
+  const t = e.target.closest('[data-k]'); if (!t) return;
+  showCategory(t.dataset.k);
+  const first = picker.querySelector('.pick');
+  if (first && !picker.querySelector(`[data-id="${id}"]`)) choose(first.dataset.id);
+});
 picker.addEventListener('click', (e) => {
   const t = e.target.closest('.pick'); if (!t) return;
-  id = t.dataset.id; store.set('build', id); history.replaceState(null, '', '#' + id);
-  picker.querySelectorAll('.pick').forEach(p => p.setAttribute('aria-selected', p === t));
-  b = getBuild(id); load(true);
+  choose(t.dataset.id);
 });
 
 const clips = $('#filmy');
@@ -27,9 +65,11 @@ clips.addEventListener('play', ({ target }) => {
 clips.addEventListener('click', event => {
   const button = event.target.closest('button[data-model]');
   if (!button) return;
-  const tab = picker.querySelector(`[data-id="${button.dataset.model}"]`);
+  const model = BUILDS.find(build => build.id === button.dataset.model);
+  if (!model) return;
   clips.querySelectorAll('video').forEach(video => video.pause());
-  tab.click();
+  showModel(model);
+  const tab = picker.querySelector('[aria-selected=true]');
   tab.focus({ preventScroll: true });
   tab.scrollIntoView({ block: 'center', behavior: reduced ? 'instant' : 'smooth' });
 });
@@ -56,7 +96,10 @@ addEventListener('keydown', (e) => { if (e.target.closest('input,select,textarea
 const map = $('#map'), mx = map.getContext('2d');
 function drawMap(y) {
   const [sx, , sz] = b.size, dpr = Math.min(devicePixelRatio || 1, 2);
-  const W = map.clientWidth, cell = Math.max(2, Math.floor(W / Math.max(sx, sz)));
+  const box = map.parentElement;
+  const style = getComputedStyle(box);
+  const available = box.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
+  const cell = Math.max(2, Math.floor((available - 2) / Math.max(sx, sz)));
   map.width = sx * cell * dpr; map.height = sz * cell * dpr; map.style.height = (sz * cell) + 'px'; map.style.width = (sx * cell) + 'px';
   mx.setTransform(dpr, 0, 0, dpr, 0, 0);
   mx.fillStyle = '#070b16'; mx.fillRect(0, 0, sx * cell, sz * cell);
@@ -111,12 +154,13 @@ async function load(animate) {
   if (animate && viewer && !reduced) build3d();
 }
 function build3d() {
-  viewer.animateBuild(Math.min(4200, 900 + b.size[1] * 55));
-  // suwak goni animację
-  const t0 = performance.now(), dur = Math.min(4200, 900 + b.size[1] * 55);
-  const step = (n) => { const p = Math.min(1, (n - t0) / dur), e = 1 - Math.pow(1 - p, 2.2), y = Math.floor(e * b.size[1]) - 1;
-    if (p < 1) { slider.value = Math.max(0, y); $('#lNum').textContent = Math.max(1, y + 1); requestAnimationFrame(step); } else setL(Infinity); };
-  requestAnimationFrame(step);
+  const duration = Math.min(4200, 900 + b.size[1] * 55);
+  viewer.animateBuild(duration, () => setL(Infinity), layer => {
+    if (layer === Infinity) return;
+    const shown = Math.max(0, layer);
+    slider.value = shown;
+    $('#lNum').textContent = shown + 1;
+  });
 }
 // ---------- datapack: postaw na serwerze ----------
 const fnOf = () => safeName(b.short);
@@ -127,17 +171,19 @@ function expUpdate() {
   const wet = b.blocks.some(x => x[3] === 'lava' || x[3] === 'water');
   $('#bdWarn').hidden = !wet;
   if (wet) $('#bdWarn').textContent = 'Ta budowla ma lawę albo wodę. W grze będą płynąć, więc stawiaj ją z dala od drewna i domów.';
+  const want = b.id;
+  packStatusHTML(b.blocks.map(x => BLOCKS[x[3]].id)).then(h => { if (b.id === want) $('#packStatus').innerHTML = h; });
 }
 $('#expHelp').innerHTML = exportPanelHTML();
 $('#copyFn').addEventListener('click', (e) => copyText(`/function kilekcraft:${fnOf()}/animacja`, e.currentTarget));
 $('#dl').addEventListener('click', async (e) => {
-  const { blob } = await datapack(b.blocks, b.short);
-  download(blob, `kilekcraft_${fnOf()}.zip`);
-  const r = e.currentTarget.getBoundingClientRect();
-  award('bd:eksport:' + b.id, 30, { from: { x: r.left + r.width / 2, y: r.top } });
+  const button = e.currentTarget, model = b;
+  const { blob, name } = await datapack(model.blocks, model.short);
+  download(blob, `kilekcraft_${name}.zip`);
+  const r = button.getBoundingClientRect();
+  award('bd:eksport:' + model.id, 30, { from: { x: r.left + r.width / 2, y: r.top } });
   toast('Datapack gotowy. Jeśli plik się nie pobrał, otwórz stronę w zwykłej przeglądarce.');
 });
-packStatusHTML().then(h => { $('#packStatus').innerHTML = h; });
 
 const play = $('#play');
 play.disabled = true;

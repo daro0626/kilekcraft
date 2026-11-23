@@ -33,7 +33,8 @@ function costOf(h, a, ram) {
   }
   // host z kilkoma planami: najmniejszy, który ma dość RAM i miejsc dla graczy
   if (h.plany) {
-    const p = h.plany.find(x => x.ram >= ram && x.gracze >= a.gracze) || h.plany[h.plany.length - 1];
+    const p = h.plany.filter(x => x.ram >= ram && x.gracze >= a.gracze).sort((x, y) => x.cena - y.cena)[0];
+    if (!p) return null;
     return { pln: p.cena, txt: `plan ${p.nazwa}: ${p.ram} GB RAM, do ${p.gracze >= 999 ? 'bez limitu' : p.gracze} graczy, ${zl(p.cena)} / 30 dni z VAT`, plan: p };
   }
   if (h.cena_eur_mies) return { pln: h.cena_eur_mies * KURS, txt: `${eur(h.cena_eur_mies)} (plan ${h.ram} GB)`, eur: h.cena_eur_mies };
@@ -41,7 +42,12 @@ function costOf(h, a, ram) {
 }
 
 function rate(h, a, ram) {
-  const c = costOf(h, a, ram); let s = 100; const why = [];
+  const c = costOf(h, a, ram);
+  if (!c || (h.gracze_max && h.gracze_max < a.gracze)) return null;
+  const available = c.plan?.ram ?? (h.typ === 'godzinowy' ? ram : h.ram);
+  if (available != null && available < ram) return null;
+  if (available == null && (a.gracze > 10 || a.dodatki === 3 || a.czas === 720)) return null;
+  let s = 100; const why = [];
   const tooExpensive = c.pln > a.budzet + .5;
   if (tooExpensive) { s -= 60; why.push('przekracza twój budżet'); }
   if (h.id === 'aternos') {
@@ -77,7 +83,8 @@ function rate(h, a, ram) {
     s -= c.pln / 10;
   }
   if (h.id === 'wlasny') { s -= 40; why.length = 0; why.push('darmowe, ale wymaga pomocy rodzica (router, adres IP domu)'); }
-  return { h, c, s, why };
+  if (available == null) why.unshift('przed wyborem sprawdź dostępny RAM');
+  return { h, c, s, why, available };
 }
 
 // ---------- renderowanie ----------
@@ -96,10 +103,11 @@ function render() {
   const a = ans(); const { ram, why } = ramFor(a);
   ramNum.textContent = ram; ramWhy.textContent = why;
   [...ramBar.children].forEach((b, i) => b.classList.toggle('on', i < ram));
-  const list = H.map(h => rate(h, a, ram)).sort((x, y) => y.s - x.s).slice(0, 3);
+  const list = H.map(h => rate(h, a, ram)).filter(Boolean).sort((x, y) => y.s - x.s).slice(0, 3);
   // jedno zdanie na górze: co wybrać i za ile
   const top = list[0];
-  document.getElementById('pick').innerHTML = `Na początek polecamy <b>${top.h.nazwa}</b> (${top.c.pln ? 'ok. ' + zl(Math.round(top.c.pln * 100) / 100) : '0 zł'} miesięcznie, ok. ${ram} GB RAM). To propozycja na podstawie twoich odpowiedzi. Przed wyborem zajrzyj też do innych opcji.`;
+  const topRam = top.available == null ? 'RAM do sprawdzenia' : `${top.available} GB RAM`;
+  document.getElementById('pick').innerHTML = `Na początek polecamy <b>${top.h.nazwa}</b> (${top.c.pln ? 'ok. ' + zl(Math.round(top.c.pln * 100) / 100) : '0 zł'} miesięcznie, ${topRam}). To propozycja na podstawie twoich odpowiedzi. Przed wyborem zajrzyj też do innych opcji.`;
   const li = (arr) => arr.map(p => `<li>${p}</li>`).join('');
   out.innerHTML = list.map((r, i) => {
     const h = r.h, free = r.c.pln === 0, first = i === 0;
@@ -112,7 +120,7 @@ function render() {
     ].join(' ');
     // pierwsza karta pokazuje 3 plusy i 3 minusy, pozostałe tylko najważniejszy; reszta po rozwinięciu
     const n = first ? 3 : 1, more = h.plusy.length + h.minusy.length - Math.min(n, h.plusy.length) - Math.min(n, h.minusy.length);
-    return `<article class="panel res ${first ? 'res-top1' : 'res-small'} reveal in" style="--d:${i}">
+    return `<article data-host="${h.id}" data-ram="${r.available ?? ''}" class="panel res ${first ? 'res-top1' : 'res-small'} reveal in" style="--d:${i}">
       <div class="rank" aria-label="Miejsce ${i + 1}">${i + 1}</div>
       <div class="res-body">
         <div class="res-top"><h3>${h.nazwa}</h3><div class="res-badges">${badges}</div></div>

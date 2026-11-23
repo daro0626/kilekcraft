@@ -53,12 +53,13 @@ Każde zadanie kończy się dopiero, gdy spełnia kryteria akceptacji **oraz** b
 - Zapisz kody komnat, w których któryś skok jest niemożliwy albo za łatwy. Poprawimy wtedy zasady skoków w `assets/js/komnaty-gen.js`.
 - **Akceptacja:** każdy poziom trudności ma co najmniej jedną komnatę przejdzioną przez Piotrka.
 
-### A5 [Piotrek] Symulator a prawdziwy serwer
-- Porównaj wynik symulatora z tym, co działo się na serwerze LifeSteal (kto odpadł i kiedy). Jeśli model się myli, opisz jak.
+### A5 [Piotrek] Sezon LifeSteal i symulator a prawdziwy serwer
+- Zagraj kilka sezonów w „Sezon LifeSteal”. Za łatwo, za trudno, nudno? Która decyzja jest bez sensu?
+- Porównaj wynik symulatora zasad z tym, co działo się na serwerze LifeSteal (kto odpadł i kiedy). Jeśli model się myli, opisz jak.
 
 ### A3 [Claude] Przepis „LifeSteal z ekonomią” w szortach
 - **Część 1 gotowa (`lifesteal.html`):** zasady z symulatora, serca ręcznie komendą `attribute` (kreator, zakładka „Serca”), plugin LifeStealZ ze źródłami i datą, ekonomia serc (wypłata serca jako przedmiot, ożywienie), próba przed startem. Nether i End włączone.
-- **Część 2 do zrobienia:** ekonomia za monety (`/sell` z GUI, aukcje). Wymaga wyboru pluginów pod Paper 26.x z linkiem do Hangar/Modrinth i datą.
+- **Część 2 do zrobienia:** ekonomia za monety (`/sell` z GUI, aukcje, czeki). Według relacji z 23.11 Piotrek usunął serwer (niesprawdzone). Testujemy tam, gdzie wskaże właściciel. Doświadczenia z serwera Piotrka: `docs/DOSWIADCZENIA_LIFESTEAL.md`. Kolejność i zasady: zadania R2–R5 w `docs/CODEX.md`. Cennik (propozycja, niezatwierdzony): `docs/CENNIK_PROPOZYCJA.md`.
 - Komendy pluginu (`/hearts`, `/revive`, `lifestealz hearts add`) mają na stronie odznakę „nie testowaliśmy”. Zostaje, dopóki plugin nie przejdzie próby na serwerze testowym (C6).
 - **Akceptacja:** przepis przetestowany na serwerze testowym, potem przez Piotrka (A8).
 
@@ -71,6 +72,19 @@ Każde zadanie kończy się dopiero, gdy spełnia kryteria akceptacji **oraz** b
 - Opcjonalnie: workflow, który wgrywa LifeStealZ na Paper i sprawdza przez RCON `lifestealz hearts add`. Plik pluginu pobieraj tylko z Modrinth albo Hangar.
 - **Akceptacja:** `wyniki.attribute.ok` w `data/testy.json`.
 
+### C7 [Codex] Macierz testów vanilla i Paper
+- **Status:** gotowe w PR #20. Macierz 26.3 wygenerowała wspólny raport z obu silników. Każdy zaliczył 159 przypadków kreatora.
+- Po następnym przebiegu plik `testy.json` z artefaktu `wyniki-komend` dodaj do `data/` przez PR. [PR #20](https://github.com/daro0626/kilekcraft/pull/20)
+
+### C8 [Codex] Test przechodzenia komnat
+- **Status:** gotowe w PR #24. Test Node sprawdza 60 000 komnat w `test-strony.yml`. W profilowaniu G10 na emulowanym telefonie wynik po poprawkach wyniósł 53–55 FPS. [PR #24](https://github.com/daro0626/kilekcraft/pull/24)
+
+### C9 [Codex] Lokalna kopia postępu
+- **Status:** gotowe w PR #17. Panel poziomu eksportuje i importuje XP, odznaki i rekordy przez plik JSON. Playwright sprawdza import poprawnego pliku i odrzucenie niepoprawnego. [PR #17](https://github.com/daro0626/kilekcraft/pull/17)
+
+### C10 [Codex] Rozszerzona paleta edytora
+- **Status:** gotowe w PR #21. Jedenaście nowych materiałów przeszło próbę ustawienia i odczytu bloku przez datapack na Paper 26.3. Tekstury powstają z własnych wzorów. [PR #21](https://github.com/daro0626/kilekcraft/pull/21)
+
 ## B: budowle
 
 ### B2 [Piotrek] Budowanie w grze jak film
@@ -79,10 +93,12 @@ Każde zadanie kończy się dopiero, gdy spełnia kryteria akceptacji **oraz** b
 - Zapisz, czy tempo (pół sekundy na warstwę) jest dobre i czy coś stanęło w złym miejscu.
 - **Akceptacja:** obie drogi zbudowały miecz w tym samym miejscu, w którym stał gracz na starcie.
 
-### B1 [Claude] Więcej wielkich budowli
-- Pomysły dla Piotrka: smok z kamienia oplatający górę, statek na wodospadzie, zamek z mostem zwodzonym, wulkan z lawą.
-- Bez postaci i mobów z gry (np. Creepera) na stronie. To elementy marki.
-- **Akceptacja:** każda budowla < 15 000 bloków, płynna na telefonie, z opisem.
+### B1 [Claude] Więcej wielkich budowli — gotowe (20 budowli w 6 kategoriach)
+- Kategorie: Średniowiecze, Natura, Fantasy, Przetrwanie, Miasto i kosmos, LifeSteal. Każda budowla ma animację warstwa po warstwie i datapack, a każdy blok przechodzi test „paleta” na serwerze.
+- Dalej: po 1–2 budowle do słabszych kategorii (zadanie R6 w `docs/CODEX.md`). Bez postaci i mobów z gry.
+
+### B5 [Piotrek] Nowe budowle w grze
+- Wybierz 3 nowe budowle (np. wiatrak, latarnia, rakieta), pobierz datapack i postaw je animacją. Zapisz, czy coś wygląda inaczej niż w przeglądarce.
 
 ### B2 [Codex] Wydajność przeglądarki
 - Ukrywanie niewidocznych ścian (bloki otoczone z 6 stron nie muszą być rysowane), mniej instancji przy dużych budowlach.

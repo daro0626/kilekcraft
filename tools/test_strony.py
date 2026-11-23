@@ -1,10 +1,12 @@
 """Testy lokalnej strony uruchomionej przez python3 -m http.server 8000."""
 from itertools import product
 import os
+import json
+from pathlib import Path
 
 from playwright.sync_api import expect, sync_playwright
 
-from test_commands import DATA, commands, export_lines, layer_functions, SAMPLE, motd_property, MOTD_SAMPLE
+from test_commands import DATA, commands, export_lines, layer_functions, SAMPLE, motd_property, MOTD_SAMPLE, palette_ids
 
 
 BASE = 'http://127.0.0.1:8000'
@@ -16,7 +18,7 @@ READY = {
     'budowle': '#viewer canvas, #poster:text("Użyj mapy")',
     'edytor': '#stage canvas',
     'komnaty': '#stats .panel',
-    'symulator': '#kpis .kpi',
+    'symulator': '#kpis .kpi, #szStart',
     'gry': '.tool-card',
     'bledy': '#start',
     'parkour': '#gl',
@@ -36,6 +38,17 @@ def export_parity(page):
     assert actual == export_lines(SAMPLE), (actual, export_lines(SAMPLE))
     layers = page.evaluate('async b => (await import("./assets/js/export.js")).layerFunctions(b, "test")', blocks)
     assert layers == layer_functions(SAMPLE, 'test'), (layers, layer_functions(SAMPLE, 'test'))
+    from test_commands import PALETTE_SAMPLE
+    for _, _, _, block in PALETTE_SAMPLE:
+        swatch = page.locator('#pal [data-t="' + block.split(':')[1] + '"]')
+        swatch.click()
+        expect(swatch).to_have_attribute('aria-checked', 'true')
+        expect(page.locator('#palName')).to_contain_text(block)
+    actual = page.evaluate(
+        'async names => (await import("./assets/js/export.js")).exportLines(names)',
+        [[x, y, z, block.split(':')[1]] for x, y, z, block in PALETTE_SAMPLE],
+    )
+    assert actual == export_lines(PALETTE_SAMPLE), actual
 
 
 def smoke(page, name):
@@ -72,6 +85,119 @@ def parkour(page, mobile):
 
 
 
+def parkour_input(page, verify_physics=True):
+    # Diagnostyka podłączona przez Playwright do prawdziwych funkcji gry.
+    def instrument(route):
+        response = route.fetch()
+        source = response.text()
+        hook = """
+          window.parkourProbe = {
+            keys: () => [...keys],
+            xz: () => [pos.x, pos.z],
+            yaw: () => yaw,
+            roof() {
+              reset(false);
+              const x = Math.floor(pos.x), z = Math.floor(pos.z);
+              const ceiling = Math.floor(pos.y) + 2;
+              solid.set(k3(x, ceiling, z), 'stone');
+              jumpBuffer = .12;
+              const render = renderer.render;
+              renderer.render = () => {};
+              let maximum = 0;
+              try {
+                for (let i = 0; i < 60; i++) {
+                  step(tick);
+                  for (const angle of [-1.45, -.85, 0, .85, 1.45]) {
+                    pitch = angle;
+                    draw(performance.now(), true);
+                    camera.updateMatrixWorld();
+                    maximum = Math.max(maximum, camera.position.y);
+                    for (const sx of [-1, 1]) for (const sy of [-1, 1]) {
+                      const corner = new THREE.Vector3(sx, sy, -1).unproject(camera);
+                      maximum = Math.max(maximum, corner.y);
+                    }
+                  }
+                }
+              } finally { renderer.render = render; }
+              return maximum < ceiling;
+            },
+            longGhost() {
+              reset(true);
+              started = true;
+              for (let i = 0; i < 72000; i++) step(tick);
+              const count = recording.length;
+              win();
+              const data = JSON.stringify(store.get('pk:ghost:' + encode(state)));
+              return {count, bytes: data.length * 2, last: JSON.parse(data).at(-1)[0]};
+            },
+          };
+        """
+        source = source.replace('  return { loadLevel, play };', hook + '  return { loadLevel, play };')
+        route.fulfill(response=response, body=source)
+
+    page.route('**/assets/js/parkour-game.js', instrument)
+    page.add_init_script("""HTMLCanvasElement.prototype.requestPointerLock = function() {
+        return Promise.reject(new DOMException('Blokada niedostępna', 'NotAllowedError'));
+    };""")
+    page.goto(f'{BASE}/parkour.html?regresja#L4-K-4821')
+    page.locator('#play').click()
+    canvas = page.locator('#gl')
+    expect(canvas).to_be_focused()
+    hint = page.locator('.pk-hint')
+    expect(hint).to_contain_text('Przeciągnij')
+    viewport = page.viewport_size
+    page.set_viewport_size({'width': 390, 'height': 844})
+    bounds = page.locator('#wrapG').bounding_box()
+    shown = hint.bounding_box()
+    assert bounds['x'] <= shown['x'] and shown['x'] + shown['width'] <= bounds['x'] + bounds['width']
+    page.set_viewport_size(viewport)
+    origin = page.evaluate('parkourProbe.xz()')
+    canvas.dispatch_event('keydown', dict(code='KeyA', key='a'))
+    page.wait_for_function('(start) => parkourProbe.xz().some((p,i) => Math.abs(p-start[i]) > .04)', arg=origin)
+    canvas.dispatch_event('keyup', dict(code='KeyA', key='ą', altKey=True, ctrlKey=True))
+    assert page.evaluate('parkourProbe.keys()') == []
+    page.wait_for_timeout(300)
+    stopped = page.evaluate('parkourProbe.xz()')
+    page.wait_for_timeout(160)
+    assert page.evaluate('parkourProbe.xz()') == stopped
+    canvas.dispatch_event('keydown', dict(code='KeyE', key='ę', altKey=True, ctrlKey=True))
+    assert page.evaluate('parkourProbe.keys()') == []
+    before = page.evaluate('parkourProbe.yaw()')
+    box = canvas.bounding_box()
+    x, y = box['x'] + box['width'] / 2, box['y'] + box['height'] / 2
+    page.mouse.move(x, y)
+    page.mouse.down()
+    page.mouse.move(x + 64, y + 22, steps=4)
+    page.mouse.up()
+    assert page.evaluate('parkourProbe.yaw()') != before
+    canvas.dispatch_event('keydown', dict(code='KeyA', key='a'))
+    page.evaluate("window.dispatchEvent(new Event('blur'))")
+    expect(page.locator('#over')).to_be_visible()
+    assert page.evaluate('parkourProbe.keys()') == []
+    page.locator('#play').click()
+    canvas.dispatch_event('keydown', dict(code='KeyA', key='a'))
+    page.evaluate("""() => {
+        Object.defineProperty(document, 'hidden', { configurable: true, value: true });
+        document.dispatchEvent(new Event('visibilitychange'));
+        delete document.hidden;
+    }""")
+    expect(page.locator('#over')).to_be_visible()
+    assert page.evaluate('parkourProbe.keys()') == []
+    if verify_physics:
+        page.locator('#play').click()
+        page.keyboard.press('v')
+        assert page.evaluate('parkourProbe.roof()')
+        # Osobny układ z najdłuższą trasą, żeby sufit testowy nie wpłynął na zapis.
+        page.goto(f'{BASE}/parkour.html?regresja=duch#G10-K-4821')
+        page.locator('#play').click()
+        page.wait_for_function('typeof parkourProbe !== "undefined"')
+        recording = page.evaluate('parkourProbe.longGhost()')
+        assert recording['count'] < 2048 and recording['bytes'] < 200_000 and recording['last'] == 600, recording
+        print('Duch G10, 600 s:', recording['bytes'], 'B UTF-16', flush=True)
+    page.unroute('**/assets/js/parkour-game.js')
+
+
+
 def wyzwanie(page, mobile):
     code = page.locator('#dzienKod').inner_text()
     assert code and code != '—', code
@@ -100,23 +226,151 @@ def hosting(page):
     for name, value in radios:
         groups.setdefault(name, []).append(value)
     assert len(groups) == 4 and all(groups.values()), groups
-    for values in product(*groups.values()):
-        choices = dict(zip(groups, values))
-        names = page.evaluate("""choices => {
+    def results(choices):
+        return page.evaluate("""choices => {
             const old = document.querySelector('#results article');
             let changed = false;
             for (const [name, value] of Object.entries(choices)) {
-                const input = document.querySelector(`#quiz input[name="${name}"][value="${value}"]`);
-                if (!input.checked) {
-                    input.click();
-                    changed = true;
-                }
+                const input = document.querySelector('#quiz input[name="' + name + '"][value="' + value + '"]');
+                if (!input.checked) { input.click(); changed = true; }
             }
             if (changed && old.isConnected) throw Error('Brak aktualizacji wyników');
-            return [...document.querySelectorAll('#results article h3')].map(h => h.textContent.trim());
+            return {
+                need: Number(document.querySelector('#ramNum').textContent),
+                plans: [...document.querySelectorAll('#results article')].map(card => [
+                    card.dataset.host, card.dataset.ram === '' ? null : Number(card.dataset.ram),
+                ]),
+            };
         }""", choices)
-        assert len(names) == len(set(names)) == 3 and all(names), (choices, names)
 
+    for values in product(*groups.values()):
+        choices = dict(zip(groups, values))
+        result = results(choices)
+        plans = result['plans']
+        assert 1 <= len(plans) <= 3 and len(plans) == len({p[0] for p in plans}), (choices, plans)
+        assert all(ram is None or ram >= result['need'] for _, ram in plans), (choices, result)
+
+    for hours, winner in ((720, 'mchosting'), (75, 'aternos')):
+        assert results(dict(gracze=5, czas=hours, dodatki=2, budzet=20))['plans'][0][0] == winner
+    large = results(dict(gracze=40, czas=720, dodatki=3, budzet=999))
+    assert large['need'] == 12 and all(ram >= 12 for _, ram in large['plans']), large
+
+
+def bug_quiz(page, size, correct, expect_record):
+    report = page.request.get(f'{BASE}/data/testy.json').json()
+    data = page.request.get(f'{BASE}/data/bledy.json').json()
+    verified = report['wyniki']['bledy']['zweryfikowane']
+    pool = [q for q in data['pytania'] if q['id'] in verified][:size]
+    assert len(pool) == size
+    report['wyniki']['bledy']['zweryfikowane'] = [q['id'] for q in pool]
+    page.route('**/data/testy.json', lambda route: route.fulfill(json=report))
+    page.evaluate("""ids => {
+        localStorage.removeItem('kc:bledy:czas');
+        localStorage.setItem('kc:bledy:widziane', JSON.stringify(ids));
+    }""", [q['id'] for q in pool] * 30 + ['stare-pytanie'])
+    page.reload()
+    start = page.locator('#start')
+    for _ in range(2):
+        start.click()
+        for _ in range(min(5, size)):
+            tokens = page.locator('#cmd .tok')
+            question = next(q for q in pool if q['tokeny'] == tokens.all_text_contents())
+            wrong = (question['zly'] + 1) % len(question['tokeny'])
+            tokens.nth(question['zly'] if correct else wrong).click()
+            page.locator('#next').click()
+        expect(start).to_be_visible()
+        history = page.evaluate("JSON.parse(localStorage.getItem('kc:bledy:widziane'))")
+        assert len(history) == len(set(history)) <= size, history
+        assert page.evaluate("localStorage.getItem('kc:bledy:czas') !== null") == expect_record
+    page.unroute('**/data/testy.json')
+
+
+def command_tabs(page):
+    bar = page.get_by_role('tablist', name='Rodzaj komendy')
+    tabs = bar.get_by_role('tab')
+    expect(tabs).to_have_count(18)
+    tabs.first.focus()
+    tabs.first.press('ArrowLeft')
+    expect(tabs.last).to_be_focused()
+    expect(tabs.last).to_have_attribute('aria-selected', 'true')
+    expect(page.get_by_role('tabpanel')).to_have_attribute('aria-labelledby', tabs.last.get_attribute('id'))
+    assert bar.evaluate("""bar => {
+        const tab = bar.querySelector('[aria-selected=true]').getBoundingClientRect();
+        const bounds = bar.getBoundingClientRect();
+        return tab.left >= bounds.left - 1 && tab.right <= bounds.right + 1;
+    }""")
+    tabs.last.press('ArrowRight')
+    expect(tabs.first).to_be_focused()
+    expect(bar.locator('[tabindex="0"]')).to_have_count(1)
+
+
+def progress_backup(page):
+    profile = {'xp': 120, 'badges': {'start': '2026-11-23'}, 'count': {}, 'got': {'badge:start': 1}}
+    season = {'pkt': 900, 'przetrwal': True, 'miejsce': 2, 'dzien': 14}
+    page.evaluate("""([profile, season]) => {
+        localStorage.setItem('kc:xp', JSON.stringify(profile));
+        localStorage.setItem('kc:sezon:rekord', JSON.stringify(season));
+        localStorage.setItem('kc:pk:best:P3-K-1', '22');
+        localStorage.setItem('kc:bledy:rekord', '80');
+        localStorage.setItem('kc:motd', '"prywatny opis"');
+    }""", [profile, season])
+    page.reload()
+    page.locator('.xp-btn').click()
+    with page.expect_download() as item:
+        page.get_by_role('button', name='Eksportuj postęp').click()
+    exported = json.loads(Path(item.value.path()).read_text(encoding='utf-8'))
+    assert exported['profil']['xp'] == 120
+    assert exported['rekordy']['sezon:rekord'] == season
+    assert exported['profil']['badges'] == profile['badges']
+    assert exported['rekordy']['pk:best:P3-K-1'] == 22
+    assert 'prywatny opis' not in json.dumps(exported)
+    exported['profil']['xp'] = 125
+    exported['rekordy']['pk:best:P3-K-1'] = 18
+    exported['rekordy']['bledy:rekord'] = 75
+    page.evaluate("localStorage.setItem('kc:pk:ghost:P3-K-1', '[]')")
+    uploader = page.locator('.xp-panel input[type=file]')
+
+    def upload(item):
+        uploader.set_input_files(dict(name='kopia.json', mimeType='application/json',
+                                     buffer=json.dumps(item).encode()))
+    upload({**exported, 'rekordy': {'motd': 'nie importuj'}})
+    expect(page.locator('[data-backup-status]')).to_contain_text('Nie udało się')
+    assert page.evaluate("JSON.parse(localStorage.getItem('kc:xp')).xp") == 120
+    bad = {**season, 'miejsce': 9}
+    upload({**exported, 'rekordy': {'sezon:rekord': bad}})
+    expect(page.locator('[data-backup-status]')).to_contain_text('Nie udało się')
+    key = 'sezon:rekord'
+    better = {**season, 'pkt': 1100}
+    exported['rekordy'][key] = better
+    upload(exported)
+    expect(page.locator('[data-backup-status]')).to_contain_text('Wczytano kopię')
+    exported['rekordy'][key] = season
+    upload(exported)
+    expect(page.locator('[data-backup-status]')).to_contain_text('Wczytano kopię')
+    assert page.evaluate("JSON.parse(localStorage.getItem('kc:sezon:rekord'))") == better
+    assert page.evaluate("JSON.parse(localStorage.getItem('kc:xp')).xp") == 125
+    assert page.evaluate("JSON.parse(localStorage.getItem('kc:pk:best:P3-K-1'))") == 18
+    assert page.evaluate("localStorage.getItem('kc:pk:ghost:P3-K-1')") is None
+    assert page.evaluate("JSON.parse(localStorage.getItem('kc:bledy:rekord'))") == 80
+    assert page.evaluate("JSON.parse(localStorage.getItem('kc:motd'))") == 'prywatny opis'
+
+
+
+def engine_badges(page):
+    report = page.request.get(f'{BASE}/data/testy.json').json()
+    engines = report.get('silniki')
+    if not engines or not {'vanilla', 'paper'} <= engines.keys():
+        return
+    template = next(key for key in (entry['id'] for entry in DATA['szablony'])
+                    if all(engines[e]['wyniki'][key]['ok'] for e in ('vanilla', 'paper')))
+    page.locator('#ver').select_option('nowa')
+    page.locator('#tabs [data-id="' + template + '"]').click()
+    expected = 'sprawdzone' + ''.join(' · ' + e + ' ' + engines[e]['wyniki'][template]['wersja']
+                                      for e in ('vanilla', 'paper'))
+    expect(page.locator('#status')).to_have_text(expected)
+    page.locator('#ver').select_option('stara')
+    expect(page.locator('#status')).to_have_text('czeka na test')
+    page.locator('#ver').select_option('nowa')
 
 def browser_commands(page, modern):
     # Zbieramy całe wiersze z konsoli kreatora, także kolejność komend wielowierszowych.
@@ -286,6 +540,229 @@ def browser_commands(page, modern):
     return result
 
 
+def budowle(page):
+    # Każda budowla ma kategorię, a każdy jej blok jest w palecie testowanej na serwerze.
+    info = page.evaluate("""async () => {
+      const m = await import('./assets/js/builds.js');
+      const { layerFunctions } = await import('./assets/js/export.js');
+      const kats = new Set(m.KATEGORIE.map(k => k.id));
+      return m.BUILDS.map(b => {
+        const {blocks, size} = m.getBuild(b.id);
+        const heights = new Set(blocks.map(x => x[1]));
+        const exportLevels = new Set(blocks.filter(x => m.BLOCKS[x[3]]?.id).map(x => x[1]));
+        const layers = layerFunctions(blocks, b.short).filter(f => f.path.includes('/warstwa_'));
+        return { id: b.id, kat: kats.has(b.kat), height: size[1], levels: heights.size, exportCount: layers.length,
+          exportLevels: exportLevels.size, gaps: [...Array(size[1]).keys()].filter(y => !heights.has(y)),
+          minimum: Math.min(...heights), count: blocks.length, ids: [...new Set(blocks.map(x => m.BLOCKS[x[3]]?.id))] };
+      });
+    }""")
+    pal = set(palette_ids())
+    for b in info:
+        assert 0 < b['count'] < 15000 and b['minimum'] == 0, b
+        assert b['exportCount'] == b['exportLevels'], b
+        assert b['levels'] + len(b['gaps']) == b['height'], b
+        if b['gaps']:
+            print('Puste poziomy podglądu:', b['id'], [y + 1 for y in b['gaps']], flush=True)
+        assert b['kat'], ('brak kategorii', b['id'])
+        missing = [i for i in b['ids'] if i is not None and i not in pal]
+        assert not missing, (b['id'], missing)
+    # Filtr kategorii: LifeSteal pokazuje tylko swoje budowle i wybiera pierwszą z nich.
+    page.locator('.kat-bar [data-k="lifesteal"]').click()
+    expect(page.locator('#picker .pick')).to_have_count(page.evaluate("async () => (await import('./assets/js/builds.js')).BUILDS.filter(b => b.kat === 'lifesteal').length"))
+    expect(page.locator('#picker .pick[aria-selected=true]')).to_have_count(1)
+    page.locator('.kat-bar [data-k="all"]').click()
+    expect(page.locator('#picker .pick')).to_have_count(len(info))
+    page.goto(f'{BASE}/budowle.html?link#rakieta')
+    expect(page.locator('[data-k="miasto"]')).to_have_attribute('aria-pressed', 'true')
+    expect(page.locator('.pick[data-id="rakieta"]')).to_have_attribute('aria-selected', 'true')
+    page.locator('[data-k="lifesteal"]').press('Enter')
+    page.locator('#filmy [data-model="miecz"]').press('Enter')
+    expect(page.locator('.pick[data-id="miecz"]')).to_be_focused()
+    expect(page.locator('.pick[data-id="miecz"]')).to_have_attribute('aria-selected', 'true')
+    page.locator('[data-k="all"]').press('Enter')
+    page.locator('.pick[data-id="wulkan"]').press('Enter')
+    expect(page.locator('.pick[data-id="wulkan"]')).to_have_attribute('aria-selected', 'true')
+    gap = next(b['gaps'][0] for b in info if b['id'] == 'wulkan')
+    page.locator('[data-m="layer"]').click()
+    page.locator('#layer').evaluate("(slider, value) => { slider.value = value; slider.dispatchEvent(new Event('input')); }", gap)
+    expect(page.locator('#lNum')).to_have_text(str(gap + 1))
+    expect(page.locator('#mats')).to_contain_text('Ta warstwa jest pusta.')
+    with page.expect_download() as download:
+        page.locator('#dl').click()
+    assert download.value.suggested_filename.startswith('kilekcraft_wulkan')
+    expect(page.locator('.toast')).to_contain_text('Datapack gotowy')
+
+
+def sezon(page):
+    # Model: 300 sezonów z losowymi decyzjami kończy się zawsze i serca zostają w zakresie.
+    bad = page.evaluate("""async () => {
+      const M = await import('./assets/js/sezon-model.js');
+      const errs = [];
+      for (const smart of [false, true]) for (let seed = 1; seed <= 300; seed++) {
+        const st = M.nowySezon(seed * 7919); let n = 0;
+        while (!st.koniec && n++ < 40) {
+          const alive = st.boty.filter(b => b.zyje), keys = Object.keys(M.AKCJE);
+          const a = keys[(seed + n) % keys.length], c = alive[(seed * n) % alive.length]?.id;
+          if (smart) {
+            M.kup(st, 'sprzet');
+            if (st.ja.serca <= 3) M.kup(st, 'totem');
+            const target = alive.find(b => M.szansa(st, st.ja, b, false) >= .75);
+            if (st.ja.obrona < 2) M.dzien(st, 'baza');
+            else if (target && st.ja.serca >= 4) M.dzien(st, 'walka', target.id);
+            else M.dzien(st, 'farma');
+          } else {
+            ['sprzet', 'totem', 'jablko'].forEach(r => M.kup(st, r));
+            if (!M.dzien(st, a, c)) M.dzien(st, 'farma');
+          }
+          if (st.ja.sojusz && !M.bot(st, st.ja.sojusz)?.zyje) errs.push([seed, 'martwy sojusznik']);
+          for (const p of [st.ja, ...st.boty]) if (p.serca < 0 || p.serca > M.MAX || p.sprzet < 1 || p.sprzet > 4) errs.push([seed, p.nick, p.serca]);
+        }
+        if (!st.koniec || !st.wynik) errs.push([seed, 'bez końca']);
+      }
+      for (let seed=1; seed<=100; seed++) {
+        const st = M.nowySezon(seed), ally = st.boty[0];
+        st.ja.sojusz = ally.id; ally.sojusz = true; ally.serca = 1;
+        M.dzien(st, 'baza');
+        if (!ally.zyje && (st.ja.sojusz === ally.id || ally.sojusz)) errs.push([seed, 'sojusz po odpadnięciu']);
+      }
+      const unknown = M.nowySezon(1);
+      if (M.dzien(unknown, 'toString') || M.kup(unknown, 'toString')) errs.push('nieznany ruch');
+      return errs.slice(0, 5);
+    }""")
+    assert not bad, bad
+    # Interfejs: cały sezon klawiaturą/dotykiem, aż do ekranu wyniku.
+    page.evaluate("localStorage.removeItem('kc:sezon:stan')")
+    page.reload()
+    page.locator('#szStart').press('Enter')
+    expect(page.locator('.sz-day b')).to_have_text('1')
+    expect(page.locator('.sz-act').first).to_be_focused()
+    page.evaluate("""() => {
+        const past = JSON.parse(localStorage.getItem('kc:sezon:stan'));
+        delete past.statystyki.ataki;
+        delete past.statystyki.atakiW;
+        past.ja.kasa = 1000;
+        past.ja.sprzet = 1;
+        localStorage.setItem('kc:sezon:stan', JSON.stringify(past));
+    }""")
+    page.reload()
+    status = page.locator('#szOstatni')
+    page.evaluate("window.liveSeason = document.querySelector('#szOstatni')")
+    page.locator('[data-buy="totem"]').press('Enter')
+    expect(page.locator('.sz-act').first).to_be_focused()
+    expect(status).to_contain_text('Kupujesz totem')
+    page.locator('[data-akcja="walka"]').press('Enter')
+    expect(page.locator('.sz-target').first).to_be_focused()
+    expect(page.locator('.sz-target').first).to_contain_text('szansa wygranej')
+    page.locator('.sz-target').first.press('Enter')
+    state = page.evaluate("JSON.parse(localStorage.getItem('kc:sezon:stan'))")
+    assert state['statystyki']['ataki'] == 1 and state['statystyki']['atakiW'] in (0, 1), state['statystyki']
+    assert page.evaluate("window.liveSeason === document.querySelector('#szOstatni')")
+    expect(page.locator('.sz-log')).not_to_have_attribute('aria-live', 'polite')
+    for _ in range(M_DNI):
+        if page.locator('#szAgain').count():
+            break
+        expect(page.locator('.sz-act').first).to_be_focused()
+        page.locator('[data-akcja="baza"]').press('Enter')
+    expect(page.locator('#szAgain')).to_be_focused()
+    expect(page.locator('.sz-tips li').first).to_be_visible()
+
+
+M_DNI = 14
+
+
+def symulator_admin(page):
+    form = page.locator('#form')
+    form.scroll_into_view_if_needed()
+    expect(page.locator('#kpis .kpi')).to_have_count(4)
+    expect(page.locator('#dayNum')).to_have_text('14')
+    field = form.locator('#gracze')
+    field.press('End')
+    expect(form.locator('[data-v=gracze]')).to_have_text('30')
+    form.locator('#run').press('Enter')
+    expect(page.locator('#dayNum')).to_have_text('1')
+    form.locator('#run').press('Enter')
+    form.locator('#skip').press('Enter')
+    expect(page.locator('#dayNum')).to_have_text('14')
+    expect(page.locator('#rank li')).to_have_count(8)
+
+
+def cennik(page):
+    from playwright.sync_api import expect
+
+    box = page.locator('#ceny-sprzedazy')
+    search = box.get_by_role('searchbox')
+    category = box.get_by_role('combobox')
+    rows = box.locator('tbody tr')
+    expect(box.get_by_text('Propozycja do zatwierdzenia, nie działa jeszcze na serwerze')).to_be_visible()
+    expect(rows).to_have_count(176)
+    category.select_option(label='Drewno i dekoracje')
+    expect(rows).to_have_count(19)
+    search.fill('topoli')
+    expect(rows).to_have_count(1)
+    expect(rows.first).to_contain_text('niesprzedawalny')
+    search.fill('diament')
+    expect(rows).to_have_count(0)
+    expect(box.get_by_role('status')).to_have_text('Brak pasujących pozycji.')
+    category.select_option('')
+    search.fill('wegiel')
+    expect(rows).to_have_count(2)
+    search.fill('netherite_ingot')
+    expect(rows).to_have_count(1)
+    expect(rows.first).to_contain_text('Netherite Ingot')
+    report = json.loads(Path('data/testy.json').read_text(encoding='utf-8'))
+    expect(rows.first).to_contain_text(f"identyfikator sprawdzony · {report['wyniki']['cennik']['wersja']}")
+    if page.viewport_size['width'] == 390:
+        assert rows.first.evaluate("r => getComputedStyle(r).display") == 'grid'
+    search.fill('plyta muzyczna')
+    expect(rows).to_have_count(2)
+    expect(rows.get_by_text('czeka na test', exact=True)).to_have_count(2)
+
+
+def sezon_code(page):
+    from playwright.sync_api import expect
+
+    # Osobne konteksty naśladują dwóch graczy, z dostępem do schowka w przeglądarce testowej.
+    browser = page.context.browser
+    options = dict(viewport=page.viewport_size, reduced_motion='reduce')
+    with browser.new_context(permissions=['clipboard-read', 'clipboard-write'], **options) as local:
+        player = local.new_page()
+        player.goto(f'{BASE}/symulator.html')
+        player.evaluate("""async () => {
+          const M = await import('./assets/js/sezon-model.js');
+          localStorage.setItem('kc:sezon:stan', JSON.stringify(M.nowySezon(123)));
+        }""")
+        player.reload()
+        player.locator('[data-akcja="farma"]').click()
+        player.locator('[data-buy="jablko"]').click()
+        player.locator('[data-akcja="walka"]').click()
+        player.locator('.sz-target').first.click()
+        while player.locator('#szAgain').count() == 0:
+            player.locator('[data-akcja="baza"]').click()
+        player.locator('#szCopy').click()
+        expect(player.locator('#szCopyStatus')).to_have_text('Kod wyniku skopiowany.')
+        code = player.evaluate('navigator.clipboard.readText()')
+        assert code == player.locator('#szOwnCode').input_value()
+        score = player.locator('.sz-pts b').inner_text()
+        player.reload()
+        expect(player.locator('#szOwnCode')).to_have_value(code)
+    with browser.new_context(**options) as remote:
+        friend = remote.new_page()
+        friend.goto(f'{BASE}/symulator.html')
+        assert friend.evaluate("localStorage.getItem('kc:sezon:stan')") is None
+        field = friend.locator('#szFriendCode')
+        bad = code[:10] + ('A' if code[10] != 'A' else 'B') + code[11:]
+        field.fill(bad)
+        field.press('Enter')
+        expect(field).to_have_attribute('aria-invalid', 'true')
+        expect(friend.locator('#szFriendScore')).to_have_count(0)
+        field.fill(code)
+        field.press('Enter')
+        expect(friend.locator('#szFriendScore')).to_have_text(score)
+        assert friend.evaluate("localStorage.getItem('kc:sezon:rekord')") is None
+        friend.locator('#szSame').click()
+        assert friend.evaluate("JSON.parse(localStorage.getItem('kc:sezon:stan')).seed") == 123
+
+
 def run(browser, width, height):
     mobile = width == 390
     context = browser.new_context(viewport={'width': width, 'height': height},
@@ -297,18 +774,36 @@ def run(browser, width, height):
         page.on('console', lambda msg: errors.append(msg.text) if msg.type == 'error' else None)
         page.on('response', lambda r: errors.append(f'{r.status} {r.url}') if r.status >= 400 else None)
         smoke(page, name)
+        if name == 'bledy' and not mobile:
+            bug_quiz(page, 4, True, False)
+            bug_quiz(page, 5, False, False)
+            bug_quiz(page, 5, True, True)
+        if name == 'kolo':
+            progress_backup(page)
         if name == 'parkour':
             parkour(page, mobile)
+            if not mobile:
+                parkour_input(page)
         if name == 'wyzwanie':
             wyzwanie(page, mobile)
         if name == 'hosting':
             hosting(page)
+        if name == 'budowle':
+            budowle(page)
+        if name == 'symulator':
+            sezon(page)
+            symulator_admin(page)
+            sezon_code(page)
         if name == 'edytor':
             export_parity(page)
+        if name == 'lifesteal':
+            cennik(page)
         if name == 'motd':
             actual = page.evaluate('async s => (await import("./assets/js/motd.js")).motdProperty(s)', MOTD_SAMPLE)
             assert actual == motd_property(MOTD_SAMPLE), (actual, motd_property(MOTD_SAMPLE))
         if name == 'komendy':
+            command_tabs(page)
+            engine_badges(page)
             # Przeładuj moduł z wyłączonym efektem maszynopisania.
             page.emulate_media(reduced_motion='reduce')
             page.reload()

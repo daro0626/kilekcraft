@@ -23,9 +23,43 @@ verSel.addEventListener('change', () => { ver = verSel.value; store.set('ver', v
 
 // ---------- zakładki ----------
 const tabs = $('#tabs');
-tabs.innerHTML = D.szablony.map(s => `<button role="tab" class="tab" data-id="${s.id}" aria-selected="${s.id === tpl}"><span class="ti">${s.ikona}</span>${s.nazwa}</button>`).join('');
-requestAnimationFrame(() => { const sel = tabs.querySelector('[aria-selected="true"]'); if (sel && tabs.scrollWidth > tabs.clientWidth) tabs.scrollLeft = sel.offsetLeft - 8; });
-tabs.addEventListener('click', (e) => { const b = e.target.closest('.tab'); if (!b) return; b.scrollIntoView({ block: 'nearest', inline: 'nearest' }); tpl = b.dataset.id; store.set('tpl', tpl); tabs.querySelectorAll('.tab').forEach(t => t.setAttribute('aria-selected', t === b)); buildForm(); });
+if (!D.szablony.some(({ id }) => id === tpl)) tpl = 'give';
+tabs.innerHTML = D.szablony.map(s => `<button type="button" role="tab" class="tab" id="cmd-tab-${s.id}" data-id="${s.id}" aria-selected="${s.id === tpl}" aria-controls="cmd-panel" tabindex="${s.id === tpl ? 0 : -1}"><span class="ti" aria-hidden="true">${s.ikona}</span>${s.nazwa}</button>`).join('');
+const tabButtons = [...tabs.querySelectorAll('[role=tab]')];
+const cmdPanel = $('#cmd-panel');
+function revealTab(button) {
+  const outer = tabs.getBoundingClientRect(), inner = button.getBoundingClientRect();
+  if (inner.right > outer.right) tabs.scrollLeft += inner.right - outer.right + 8;
+  else if (inner.left < outer.left) tabs.scrollLeft -= outer.left - inner.left + 8;
+}
+function selectTab(button, focus = false) {
+  tpl = button.dataset.id;
+  store.set('tpl', tpl);
+  for (const tab of tabButtons) {
+    tab.setAttribute('aria-selected', tab === button);
+    tab.tabIndex = tab === button ? 0 : -1;
+  }
+  cmdPanel.setAttribute('aria-labelledby', button.id);
+  buildForm();
+  if (focus) button.focus({ preventScroll: true });
+  revealTab(button);
+}
+const selected = tabButtons.find(button => button.dataset.id === tpl);
+cmdPanel.setAttribute('aria-labelledby', selected.id);
+requestAnimationFrame(() => revealTab(selected));
+tabs.addEventListener('click', event => {
+  const button = event.target.closest('[role=tab]');
+  if (button) selectTab(button);
+});
+tabs.addEventListener('keydown', event => {
+  const index = tabButtons.indexOf(event.target);
+  if (index < 0) return;
+  const end = tabButtons.length;
+  const steps = { ArrowLeft: (index + end - 1) % end, ArrowRight: (index + 1) % end, Home: 0, End: end - 1 };
+  if (!Object.hasOwn(steps, event.key)) return;
+  event.preventDefault();
+  selectTab(tabButtons[steps[event.key]], true);
+});
 
 // ---------- wspólne pola ----------
 const targetField = (name = 'cel', all = true) => `
@@ -308,9 +342,28 @@ function showCmds(cmds) {
 }
 
 function statusBadge() {
-  const t = TESTS?.wyniki?.[tpl];
-  if (t && t.ok) return `<span class="badge ok" title="${esc(t.silnik)} ${esc(t.wersja)}, ${esc(t.data)}">sprawdzone · ${esc(t.wersja)}</span>`;
-  if (t && !t.ok) return `<span class="badge warn">test nieudany</span>`;
+  const compatible = test => {
+    if (!test?.wersja) return false;
+    const match = /^1[.]21(?:[.]([0-9]+))?$/.exec(test.wersja);
+    const old = Boolean(match) && Number(match[1] || 0) <= 10;
+    return old === (ver === 'stara');
+  };
+  if (TESTS.silniki) {
+    const tests = ['vanilla', 'paper'].flatMap(engine => {
+      const result = TESTS.silniki[engine]?.wyniki?.[tpl];
+      return compatible(result) ? [[engine, result]] : [];
+    });
+    if (tests.some(([, result]) => result.ok === false)) return '<span class="badge warn">test nieudany</span>';
+    const passed = tests.filter(([, result]) => result.ok === true);
+    if (passed.length) {
+      const labels = passed.map(([engine, result]) => engine + ' ' + esc(result.wersja));
+      return '<span class="badge ok">sprawdzone · ' + labels.join(' · ') + '</span>';
+    }
+  } else {
+    const test = TESTS.wyniki?.[tpl];
+    if (compatible(test) && test.ok === true) return '<span class="badge ok">sprawdzone · ' + esc(test.wersja) + '</span>';
+    if (compatible(test) && test.ok === false) return '<span class="badge warn">test nieudany</span>';
+  }
   return `<span class="badge wait" title="Składnia z dokumentacji, czeka na test na serwerze">czeka na test</span>`;
 }
 

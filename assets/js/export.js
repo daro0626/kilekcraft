@@ -75,6 +75,11 @@ export function layerFunctions(blocks, title) {
   ]]);
   files.push(['animacja', [`function ${fn('start')}`, `schedule function ${fn('krok')} 10t`]]);
   files.push(['krok', [`function ${fn('nastepna')}`, `execute if score ${who} ${OBJ} matches ..${n - 1} run schedule function ${fn('krok')} 10t`]]);
+  files.push(['koniec', [
+    `schedule clear ${fn('krok')}`,
+    `kill @e[type=minecraft:marker,tag=${tag}]`,
+    `scoreboard players reset ${who} ${OBJ}`,
+  ]]);
   return files.map(([f, lines]) => ({ path: `${name}/${f}.mcfunction`, text: lines.join('\n') + '\n' }));
 }
 
@@ -87,6 +92,7 @@ export function modesHTML(title) {
     ${c('/start', 'zapamiętuje miejsce startu, potem:')}
     ${c('/nastepna', 'stawia następną warstwę')}
     ${c('/cofnij', 'zabiera ostatnią warstwę')}
+    ${c('/koniec', 'kończy animację i usuwa znacznik. Użyj po ostatnim cofnięciu')}
   </ul>`;
 }
 
@@ -135,13 +141,23 @@ export async function packInfo() {
   return PACK;
 }
 
-// Status z testu na serwerze: osobno cały datapack i budowanie warstwami
-export async function packStatusHTML() {
+// Status z testu na serwerze: osobno cały datapack, budowanie warstwami
+// i (gdy podasz identyfikatory bloków budowli) paleta bloków.
+export async function packStatusHTML(blockIds = null) {
   const p = await packInfo();
-  let w = null; try { w = (await (await fetch('data/testy.json', { cache: 'no-store' })).json())?.wyniki?.warstwy || null; } catch { /* brak */ }
+  let res = null; try { res = (await (await fetch('data/testy.json', { cache: 'no-store' })).json())?.wyniki || null; } catch { /* brak */ }
+  const w = res?.warstwy || null;
   const all = p.sprawdzone ? `<span class="badge ok">sprawdzone · ${p.wersja}</span>` : '<span class="badge wait">datapack czeka na test</span>';
   const lay = w && w.ok ? `<span class="badge ok" title="start, nastepna, cofnij i animacja">warstwy sprawdzone · ${w.wersja}</span>` : '<span class="badge wait" title="Funkcje warstwa po warstwie czekają na test na serwerze">warstwy czekają na test</span>';
-  return all + ' ' + lay;
+  let pal = '';
+  const ids = [...new Set(blockIds ?? [])].filter(Boolean);
+  if (ids.length) {
+    const okIds = new Set(res?.paleta?.zweryfikowane || []);
+    const wait = ids.filter(id => !okIds.has(id));
+    pal = wait.length ? `<span class="badge wait" title="${wait.join(', ')}">${wait.length === 1 ? '1 blok czeka' : wait.length + ' bloków czeka'} na test</span>`
+      : `<span class="badge ok" title="każdy blok tej budowli postawiony na serwerze">bloki sprawdzone · ${res.paleta.wersja}</span>`;
+  }
+  return all + ' ' + lay + (pal ? ' ' + pal : '');
 }
 
 export async function datapack(blocks, title) {

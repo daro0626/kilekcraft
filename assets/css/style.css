@@ -144,8 +144,6 @@ code,.code{font-family:var(--mono)}
 .flap .c{width:26px;height:40px;background:#070b16;border:1px solid #232f4d;border-radius:2px;display:grid;place-items:center;font:400 30px var(--font-px);color:var(--gold);position:relative;overflow:hidden}
 .flap .c::after{content:"";position:absolute;left:0;right:0;top:50%;height:1px;background:rgba(0,0,0,.7)}
 .flap .c.sp{background:transparent;border-color:transparent;width:12px}
-.flap .c.flip{animation:flip .09s linear}
-@keyframes flip{0%{transform:rotateX(0)}50%{transform:rotateX(-90deg)}100%{transform:rotateX(0)}}
 @media (max-width:600px){.flap{display:grid;grid-template-columns:repeat(var(--n,22),1fr);gap:2px}.flap .c,.flap .c.sp{width:auto;height:30px;font-size:20px}.flap .c.sp{background:transparent;border-color:transparent}}
 @media (max-width:600px){.v-info b{font-size:16px}.v-info{font-size:13px}}
 
@@ -395,6 +393,9 @@ table.tbl{width:100%;border-collapse:collapse;font-size:15px}
 .pick[aria-selected=true]{border-color:var(--portal);background:rgba(160,107,255,.12);box-shadow:0 5px 0 #5b33a8}
 .pick[aria-selected=true] .pn{color:var(--portal)}
 @media (max-width:560px){.pick .pd{display:none}}
+.kat-bar{margin-bottom:12px}
+.kat-bar .tab small{font-weight:400;opacity:.8}
+@media (max-width:700px){.kat-bar{flex-wrap:nowrap;overflow-x:auto;scroll-snap-type:x proximity;padding-bottom:8px;margin-inline:-4px;padding-inline:4px;scrollbar-width:thin}.kat-bar .tab{flex:0 0 auto;scroll-snap-align:start}}
 .bld{display:grid;grid-template-columns:1.6fr 1fr;gap:18px;align-items:start}
 @media (max-width:900px){.bld{grid-template-columns:1fr}}
 .viewer{position:relative;aspect-ratio:4/3.4;overflow:hidden;background:radial-gradient(ellipse at 50% 30%,rgba(160,107,255,.16),transparent 70%),linear-gradient(180deg,#121a30,#0a0f1e)}
@@ -611,6 +612,7 @@ body[data-przepis="lifesteal"] .s-vis{height:150px}
 .xp-badges i{width:34px;height:34px;flex:none;display:grid;place-items:center;font-style:normal;font-weight:700;background:var(--panel-2);border:2px solid var(--gold);color:var(--gold)}
 .xp-badges b{display:block;font-size:15px}.xp-badges span{font-size:13px;color:var(--muted)}
 .xp-note{font-size:12px;color:var(--dim);margin:10px 0 0}
+.xp-backup{margin-top:12px;flex-wrap:wrap}
 .xp-float{position:fixed;left:0;top:0;z-index:300;font:400 26px var(--font-px);color:#b6ff7a;text-shadow:2px 2px 0 #1e4a0a,0 0 12px rgba(124,255,74,.6);pointer-events:none;white-space:nowrap}
 .lvl-up{position:fixed;left:50%;top:30%;transform:translate(-50%,-50%);z-index:310;text-align:center;pointer-events:none;transition:opacity .5s,transform .5s}
 .lvl-up.out{opacity:0;transform:translate(-50%,-70%)}
@@ -790,7 +792,7 @@ body.touch .pk-touch{display:block}
 .pk-view{position:absolute;right:12px;top:12px;background:rgba(7,11,22,.82);border:1px solid var(--line-strong);color:var(--text);font:600 14px var(--font);padding:8px 12px;cursor:pointer;min-height:40px}
 .pk-view:hover{border-color:var(--gold)}
 .pk-view:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
-.pk-hint{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);background:rgba(7,11,22,.85);border:1px solid var(--line-strong);padding:6px 12px;font-size:14px;color:var(--text);pointer-events:none;white-space:nowrap}
+.pk-hint{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);background:rgba(7,11,22,.85);border:1px solid var(--line-strong);padding:6px 12px;font-size:14px;color:var(--text);pointer-events:none;width:max-content;max-width:calc(100% - 24px);text-align:center}
 .pk-over:not([hidden]) ~ .pk-view,.pk-over:not([hidden]) ~ .pk-hint{display:none}
 @media (max-width:480px){.pk-view{top:auto;bottom:140px;right:22px;font-size:13px;padding:6px 10px}}
 
@@ -842,3 +844,82 @@ body.touch .pk-touch{display:block}
 .pk-over:not([hidden]) ~ .pk-touch{display:none!important}
 body.touch .pk-keys div:not(.touch-only){display:none}
 @media (prefers-reduced-motion:reduce){.pk-card{animation:none}}
+
+/* ---------- Sezon LifeSteal (gra na stronie symulatora) ---------- */
+.sz{margin-bottom:34px}
+.sz h3{font:700 18px var(--font);margin:0 0 10px}
+.sz-intro p{max-width:68ch}
+.sz-rules{margin:0 0 12px;padding-left:20px;line-height:1.6}
+.sz-rec{margin-top:14px;color:var(--gold)}
+.sz-me{display:grid;grid-template-columns:auto repeat(7,minmax(0,1fr));gap:8px;margin-bottom:14px}
+@media (max-width:900px){.sz-me{grid-template-columns:repeat(3,minmax(0,1fr))}.sz-day{grid-row:span 1}}
+.sz-day{display:flex;flex-direction:column;align-items:center;justify-content:center;background:#070b16;border:1px solid var(--redstone);padding:6px 14px;border-radius:var(--radius)}
+.sz-day b{font:400 40px/1 var(--font-px);color:var(--redstone)}
+.sz-day span{font-size:12px;color:var(--muted)}
+.sz-stat{background:var(--bg-2);border:1px solid var(--line-strong);border-radius:var(--radius);padding:8px 10px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.sz-stat span{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.sz-stat b{font-size:17px;overflow-wrap:anywhere}
+.sz-stat-h{grid-column:span 2}
+@media (max-width:900px){.sz-stat-h{grid-column:span 2}}
+.sz .sz-hearts{color:var(--redstone);font-size:15px;letter-spacing:1px;line-height:1.1;overflow-wrap:anywhere}
+.sz .sz-hearts i{color:#3a2330;font-style:normal}
+.sz-event{background:rgba(255,201,74,.10);border:1px solid var(--gold);border-radius:var(--radius);padding:10px 14px;margin-bottom:14px}
+.sz-event b{color:var(--gold);margin-right:6px}
+.sz-grid{display:grid;grid-template-columns:1.5fr 1fr;gap:20px;align-items:start}
+@media (max-width:900px){.sz-grid{grid-template-columns:1fr}}
+.sz-acts,.sz-targets{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.sz-acts h3,.sz-pick h3{grid-column:1/-1}
+@media (max-width:560px){.sz-acts,.sz-targets{grid-template-columns:1fr}}
+.sz-act,.sz-target{text-align:left;background:var(--bg-2);border:1px solid var(--line-strong);color:var(--text);padding:12px 14px;border-radius:var(--radius);cursor:pointer;display:flex;flex-direction:column;gap:4px;font:16px var(--font);transition:border-color .2s,transform .2s}
+.sz-act:hover:not(:disabled),.sz-target:hover{border-color:var(--redstone);transform:translateY(-2px)}
+.sz-act:focus-visible,.sz-target:focus-visible,.sz-buy:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.sz-act b,.sz-target b{font-size:17px}
+.sz-act span,.sz-target span{font-size:14px;color:var(--muted);line-height:1.35}
+.sz-act:disabled{opacity:.55;cursor:not-allowed}
+.sz-target em{font-style:normal;font-size:14px;color:var(--gold)}
+.sz-pick .btn{margin-top:12px}
+.sz-shop{margin-top:18px;border-top:1px solid var(--line);padding-top:14px;display:flex;flex-wrap:wrap;gap:10px;align-items:stretch}
+.sz-shop h3,.sz-shop p{flex-basis:100%;margin:0}
+.sz-buy{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;min-width:150px}
+.sz-buy span{font-size:13px;color:var(--muted);font-weight:400}
+.sz-buy em{font-style:normal;color:var(--gold)}
+.sz-buy:disabled{opacity:.5;cursor:not-allowed}
+.sz-side h3{margin-top:4px}
+.sz-rank li.me b{color:var(--gold)}
+.sz-rank li.out{opacity:.5}
+.sz-log{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.sz-log li{background:rgba(7,11,22,.85);border-left:3px solid var(--line-strong);padding:6px 10px;font-size:14px;line-height:1.4}
+.sz-log li span{color:var(--dim);margin-right:6px;font-size:12px}
+.sz-log li.ok{border-left-color:var(--emerald)} .sz-log li.zle{border-left-color:var(--redstone)} .sz-log li.ev{border-left-color:var(--gold)}
+.sz-end .sz-pts b{font:400 44px/1 var(--font-px);color:var(--gold)}
+.sz-end.zle .sz-pts b{color:var(--redstone)}
+.sz-tips{padding-left:20px;line-height:1.6;margin:0 0 16px}
+.sz-foot{margin:14px 0 0;text-align:right}
+.sz-admin-head{margin-top:10px}
+
+/* Cennik LifeSteal */
+.cennik{grid-column:1/-1;min-width:0;scroll-margin-top:92px}
+.cennik-propozycja{display:inline-block;white-space:normal;font-size:1rem}
+.cennik-filtry:not([hidden]){display:flex;flex-wrap:wrap;gap:12px}
+.cennik-filtry label{display:grid;flex:1 1 240px;gap:4px;min-width:0}
+.cennik-filtry :is(input,select){width:100%;min-width:0;padding:8px 10px;border:1px solid var(--line-strong);border-radius:6px;background:var(--bg);color:var(--text);font:inherit}
+.cennik-tabela{width:100%;border-collapse:collapse;text-align:left}
+.cennik-tabela :is(th,td){border-bottom:1px solid var(--line-strong);padding:8px}
+.cennik-tabela :is(th,td):first-child{padding-left:0}
+.cennik-tabela .badge{white-space:normal}
+.cennik-uwaga{display:block}
+@media(max-width:640px){
+  .cennik-tabela:not([hidden]){display:block}
+  .cennik-tabela thead{position:absolute;clip-path:inset(50%);width:1px;height:1px;overflow:hidden}
+  .cennik-tabela tbody{display:grid;gap:8px}
+  .cennik-tabela tbody tr{display:grid;gap:4px;border:1px solid var(--line-strong);border-radius:8px;padding:10px}
+  .cennik-tabela tbody :is(th,td){border:0;padding:0}
+}
+
+
+/* Kod wyniku Sezonu */
+.sz-share,.sz-compare{margin-top:16px}
+.sz-code-row{display:flex;flex-wrap:wrap;gap:8px}
+.sz-code-row input{flex:1 1 180px;min-width:0;width:100%;padding:8px 10px;border:1px solid var(--line-strong);border-radius:6px;background:var(--bg);color:var(--text);font:inherit}
+.sz-comparison{margin-top:8px}
+.sz-comparison button{margin-top:8px}

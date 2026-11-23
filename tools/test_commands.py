@@ -173,6 +173,8 @@ def layer_functions(blocks, name):
                   + [f'execute if score {who} {OBJ} matches 1.. run scoreboard players remove {who} {OBJ} 1']))
     files.append(('animacja', [f"function {fn('start')}", f"schedule function {fn('krok')} 10t"]))
     files.append(('krok', [f"function {fn('nastepna')}", f"execute if score {who} {OBJ} matches ..{n - 1} run schedule function {fn('krok')} 10t"]))
+    files.append(('koniec', [f"schedule clear {fn('krok')}", f'kill @e[type=minecraft:marker,tag={tag}]',
+                             f'scoreboard players reset {who} {OBJ}']))
     return [{'path': f'{name}/{f}.mcfunction', 'text': '\n'.join(lines) + '\n'} for f, lines in files]
 
 def pack_version(jar):
@@ -200,14 +202,25 @@ def mcmeta_candidates(fmt):
         fmt = json.loads((ROOT / 'data/datapack.json').read_text(encoding='utf-8'))['pack'].get('pack_format', 95)
     return [{'pack_format': fmt, 'min_format': fmt, 'max_format': fmt}, {'pack_format': fmt}]
 
+PALETTE_CANDIDATES = (
+    'bricks', 'copper_block', 'cut_copper', 'prismarine', 'dark_prismarine',
+    'white_concrete', 'green_concrete', 'red_wool', 'blue_wool', 'moss_block', 'packed_ice',
+)
+PALETTE_SAMPLE = [(x, 0, 0, 'minecraft:' + name) for x, name in enumerate(PALETTE_CANDIDATES)]
+
+
 def write_pack(wd, meta):
     d = wd / 'world' / 'datapacks' / 'kilekcraft_test'
     (d / 'data' / 'kilekcraft' / 'function').mkdir(parents=True, exist_ok=True)
     (d / 'pack.mcmeta').write_text(json.dumps({'pack': {'description': 'KILEKCRAFT test', **meta}}), encoding='utf-8')
     (d / 'data' / 'kilekcraft' / 'function' / 'test.mcfunction').write_text('\n'.join(export_lines(SAMPLE)) + '\n', encoding='utf-8')
-    (d / 'data' / 'kilekcraft' / 'function' / 'test').mkdir(exist_ok=True)
-    for f in layer_functions(SAMPLE, 'test'):
-        (d / 'data' / 'kilekcraft' / 'function' / f['path']).write_text(f['text'], encoding='utf-8')
+    (d / 'data' / 'kilekcraft' / 'function' / 'paleta.mcfunction').write_text(
+        '\n'.join(export_lines(PALETTE_SAMPLE)) + '\n', encoding='utf-8')
+    for name in ('test', 'drugi'):
+        folder = d / 'data' / 'kilekcraft' / 'function'
+        (folder / name).mkdir(exist_ok=True)
+        for function in layer_functions(SAMPLE, name):
+            (folder / function['path']).write_text(function['text'], encoding='utf-8')
 
 def test_datapack(rcon, wd, metas):
     """Zwraca (ok, meta, szczegóły)."""
@@ -245,10 +258,74 @@ def test_layers(rcon):
     a = has(130, high); info.append(('po 2. warstwie', f'góra={a}')); ok = ok and a
     info.append(('cofnij', rcon.cmd('function kilekcraft:test/cofnij')))
     a, c = has(130, high, 'minecraft:air'), has(130, low); info.append(('po cofnij', f'góra pusta={a} dół={c}')); ok = ok and a and c
-    info.append(('animacja', rcon.cmd('execute positioned 0 150 0 run function kilekcraft:test/animacja')))
+    info.append(('animacja test', rcon.cmd('execute positioned 0 150 0 run function kilekcraft:test/animacja')))
+    info.append(('animacja drugi', rcon.cmd('execute positioned 0 160 0 run function kilekcraft:drugi/animacja')))
     time.sleep(3)
-    a = has(150, SAMPLE); info.append(('po animacji', f'całość={a}')); ok = ok and a
+    a, b = has(150, SAMPLE), has(160, SAMPLE)
+    info.append(('dwie animacje', f'test={a} drugi={b}')); ok = ok and a and b
+    info.append(('cofnij po animacji', rcon.cmd('function kilekcraft:test/cofnij')))
+    a, b = has(150, high, 'minecraft:air') and has(150, low), has(160, SAMPLE)
+    info.append(('cofnij izolowane', f'test={a} drugi={b}')); ok = ok and a and b
+
+    def marker_exists(name):
+        return 'passed' in rcon.cmd(f'execute if entity @e[type=minecraft:marker,tag=kc_{name}]').lower()
+
+    a, b = marker_exists('test'), marker_exists('drugi')
+    info.append(('znaczniki po animacji', f'test={a} drugi={b}')); ok = ok and a and b
+    info.append(('koniec test', rcon.cmd('function kilekcraft:test/koniec')))
+    a, b = not marker_exists('test'), marker_exists('drugi')
+    score = rcon.cmd(f'execute unless score #test {OBJ} matches -2147483648..')
+    reset = 'passed' in score.lower()
+    info.append(('sprzątanie test', f'usunięty={a} drugi={b} wynik wyczyszczony={reset}'))
+    ok = ok and a and b and reset and has(160, SAMPLE)
+    info.append(('koniec drugi', rcon.cmd('function kilekcraft:drugi/koniec')))
+    ok = ok and not marker_exists('drugi')
+
+    rcon.cmd('execute positioned 0 170 0 run function kilekcraft:test/animacja')
+    rcon.cmd('function kilekcraft:test/koniec')
+    time.sleep(2)
+    a = has(170, SAMPLE, 'minecraft:air') and not marker_exists('test')
+    info.append(('anulowanie w trakcie', f'bez bloków i znacznika={a}'))
+    ok = ok and a
     return ok, info
+
+
+def palette_ids():
+    """Identyfikatory bloków z assets/js/blocks.js (bez portalu, który ma id: null)."""
+    src = (ROOT / 'assets/js/blocks.js').read_text(encoding='utf-8')
+    return sorted(set(re.findall(r"id:\s*'(minecraft:[a-z0-9_]+)'", src)))
+
+
+def test_palette(rcon):
+    """Każdy blok z palety budowli musi dać się postawić i odczytać na serwerze."""
+    ok_ids, errs = [], []
+    rcon.cmd('forceload add 0 0')
+    for i, bid in enumerate(palette_ids()):
+        x, y, z = OFFSET_X + i % 16, 170, i // 16
+        put = rcon.cmd(f'setblock {x} {y} {z} {bid}')
+        got = rcon.cmd(f'execute if block {x} {y} {z} {bid}')
+        if 'passed' in got.lower(): ok_ids.append(bid)
+        else: errs.append({'komenda': f'setblock {x} {y} {z} {bid}', 'odpowiedz': (put + ' | ' + got)[:300]})
+    return ok_ids, errs
+
+
+def test_cennik(rcon):
+    """Sprawdza parser give na pustym serwerze, bez zmiany ekwipunku gracza."""
+    data = json.loads((ROOT / 'data/cennik.json').read_text(encoding='utf-8'))
+    ids = sorted({item for row in data['pozycje'] for item in row['id']})
+    verified, errors = [], []
+    for item in ids:
+        cmd = f'give @a {item} 1'
+        if not re.fullmatch(r'minecraft:[a-z0-9_]+', item):
+            errors.append({'komenda': cmd, 'odpowiedz': 'Nieprawidłowy format identyfikatora'})
+            continue
+        reply = rcon.cmd(cmd).strip()
+        if reply == 'No player was found':
+            verified.append(item)
+        else:
+            errors.append({'komenda': cmd, 'odpowiedz': reply[:300]})
+            print('CENNIK', cmd, '→', reply[:160])
+    return verified, errors, len(ids)
 
 
 # ---------------------------------------------------------------- gra „Znajdź błąd”
@@ -339,8 +416,10 @@ def main():
     ap.add_argument('--engine', choices=['vanilla', 'paper'], default='vanilla')
     ap.add_argument('--workdir', default=str(ROOT / '.mc-test'))
     ap.add_argument('--java', default='java')
+    ap.add_argument('--report-dir', type=Path, default=ROOT / 'data')
     a = ap.parse_args()
 
+    a.report_dir.mkdir(parents=True, exist_ok=True)
     wd = Path(a.workdir); wd.mkdir(exist_ok=True)
     jar = wd / 'server.jar'
     version, label = (fetch_vanilla if a.engine == 'vanilla' else fetch_paper)(a.version, jar)
@@ -413,24 +492,49 @@ def main():
     results['datapack'] = {'ok': ok, 'wersja': version, 'silnik': label, 'data': date.today().isoformat(),
                            'przetestowano': len(SAMPLE), 'bledy': [] if ok else [{'komenda': k, 'odpowiedz': v[:300]} for k, v in info[-6:]]}
     if ok:
+        reply = rcon.cmd('execute positioned 0 110 0 run function kilekcraft:paleta')
+        print('PALETA funkcja:', reply)
+        palette_errors = []
+        for x, _, z, block in PALETTE_SAMPLE:
+            reply = rcon.cmd(f'execute if block {x + OFFSET_X} 110 {z} {block}')
+            print('PALETA', block, reply)
+            if 'passed' not in reply.lower():
+                palette_errors.append({'komenda': block, 'odpowiedz': reply})
+        # Próbka z palety edytora (C10) przez funkcję datapacka; pełną paletę sprawdza test_palette niżej.
+        results['paleta_edytor'] = {'ok': not palette_errors, 'wersja': version, 'silnik': label,
+                                    'data': date.today().isoformat(), 'przetestowano': len(PALETTE_SAMPLE),
+                                    'bledy': palette_errors}
+        failed += len(palette_errors)
+    if ok:
         lok, linfo = test_layers(rcon)
         for k, v in linfo: print('WARSTWY', k, '→', v[:160].replace('\n', ' '))
         results['warstwy'] = {'ok': lok, 'wersja': version, 'silnik': label, 'data': date.today().isoformat(),
-                              'przetestowano': 4, 'bledy': [] if lok else [{'komenda': k, 'odpowiedz': v[:300]} for k, v in linfo]}
+                              'przetestowano': 8, 'bledy': [] if lok else [{'komenda': k, 'odpowiedz': v[:300]} for k, v in linfo]}
         failed += not lok
-        (ROOT / 'data/datapack.json').write_text(json.dumps({
+        pids, perrs = test_palette(rcon)
+        print(f'Paleta bloków: {len(pids)}/{len(palette_ids())}')
+        results['paleta'] = {'ok': not perrs, 'wersja': version, 'silnik': label, 'data': date.today().isoformat(),
+                             'przetestowano': len(palette_ids()), 'zweryfikowane': pids, 'bledy': perrs}
+        failed += bool(perrs)
+        (a.report_dir / 'datapack.json').write_text(json.dumps({
             '_opis': 'Zawartość pack.mcmeta dla eksportowanych datapacków. Zapisane przez tools/test_commands.py po udanym teście.',
             'pack': meta, 'sprawdzone': True, 'wersja': version, 'silnik': label, 'data': date.today().isoformat()},
             ensure_ascii=False, indent=2), encoding='utf-8')
     else:
         failed += 1
+    cids, cerrs, ctotal = test_cennik(rcon)
+    print(f'Identyfikatory cennika: {len(cids)}/{ctotal}')
+    results['cennik'] = {'ok': ctotal > 0 and not cerrs, 'wersja': version, 'silnik': label,
+                         'data': date.today().isoformat(), 'przetestowano': ctotal,
+                         'zweryfikowane': cids, 'bledy': cerrs}
+    failed += not results['cennik']['ok']
     try: rcon.cmd('stop')
     except Exception: pass
     proc.wait(timeout=120)
 
     out = {'_opis': 'Wyniki automatycznego testu komend. Plik nadpisuje tools/test_commands.py.',
            'serwer': label, 'data': date.today().isoformat(), 'wyniki': results, 'szczegoly': details}
-    (ROOT / 'data/testy.json').write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding='utf-8')
+    (a.report_dir / 'testy.json').write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding='utf-8')
     print(f'\nZapisano data/testy.json. Błędów: {failed}')
     sys.exit(1 if failed else 0)
 

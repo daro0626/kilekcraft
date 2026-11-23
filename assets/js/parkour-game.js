@@ -57,29 +57,76 @@ export function initGame(onNext) {
   const lavaMats = new Set();
   const k3 = (x, y, z) => x + ',' + y + ',' + z;
   const faceSteps = [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]];
+  // W górze są długie płaszczyzny z jednego materiału. Łączymy je
+  // w obrębie fragmentu mapy, żeby nadal odrzucać fragmenty poza kadrem.
+  const mountainMaterials = new Map();
+  function repeatTexture(material) {
+    if (!material.map || material.transparent) return material;
+    if (!mountainMaterials.has(material)) {
+      const copy = material.clone();
+      copy.map = material.map.clone();
+      copy.map.wrapS = copy.map.wrapT = THREE.RepeatWrapping;
+      copy.map.needsUpdate = true;
+      mountainMaterials.set(material, copy);
+    }
+    return mountainMaterials.get(material);
+  }
+
   function buildMeshes() {
     const chunks = new Map();
-    const { position, normal, uv } = box.attributes;
+    const { position, normal } = box.attributes;
+    const point = i => new THREE.Vector3().fromBufferAttribute(position, i);
+    const directions = faceSteps.map((_, index) => {
+      const corner = point(index * 4);
+      return { corner, u: point(index * 4 + 1).sub(corner), v: point(index * 4 + 2).sub(corner),
+        normal: new THREE.Vector3().fromBufferAttribute(normal, index * 4) };
+    });
+    const origin = new THREE.Vector3();
+    const mountain = state.type === 'gora';
+    const chunkShift = mountain ? 4 : 3;
     for (const [x, y, z, type] of room.blocks) {
       const materials = materialFor(type);
+      origin.set(x, y, z);
       for (const [face, [dx, dy, dz]] of faceSteps.entries()) {
         const adjacent = solid.get(k3(x + dx, y + dy, z + dz));
-        if (adjacent && !BLOCKS[adjacent].alpha && BLOCKS[adjacent].pat !== 'leaves') continue;
+        if (adjacent && (!BLOCKS[adjacent].alpha && BLOCKS[adjacent].pat !== 'leaves' ||
+                         mountain && adjacent === type && type === 'water')) continue;
         const material = Array.isArray(materials) ? materials[face] : materials;
-        const key = [x >> 3, y >> 3, z >> 3, material.id].join(',');
-        if (!chunks.has(key)) chunks.set(key, { material, positions: [], normals: [], uvs: [], indices: [] });
+        const rendered = mountain ? repeatTexture(material) : material;
+        const key = [x >> chunkShift, y >> chunkShift, z >> chunkShift, rendered.id].join(',');
+        if (!chunks.has(key)) chunks.set(key, {
+          material: rendered, positions: [], normals: [], uvs: [], indices: [], planes: new Map(),
+        });
         const chunk = chunks.get(key);
-        const start = chunk.positions.length / 3;
-        for (let v = face * 4; v < face * 4 + 4; v++) {
-          chunk.positions.push(x + .5 + position.getX(v), y + .5 + position.getY(v), z + .5 + position.getZ(v));
-          chunk.normals.push(normal.getX(v), normal.getY(v), normal.getZ(v));
-          chunk.uvs.push(uv.getX(v), uv.getY(v));
-        }
-        chunk.indices.push(start, start + 2, start + 1, start + 2, start + 3, start + 1);
+        const dir = directions[face];
+        if (mountain && !material.transparent) {
+          const slice = face + ':' + origin.dot(dir.normal);
+          if (!chunk.planes.has(slice)) chunk.planes.set(slice, { dir, cells: new Map() });
+          const u = origin.dot(dir.u), v = origin.dot(dir.v);
+          chunk.planes.get(slice).cells.set(u + ',' + v, { x, y, z, u, v });
+        } else quad(chunk, dir, { x, y, z }, 1, 1);
         if (type === 'lava') lavaMats.add(material);
       }
     }
-    for (const { material, positions, normals, uvs, indices } of chunks.values()) {
+    for (const chunk of chunks.values()) {
+      for (const { dir, cells } of chunk.planes.values()) {
+        for (const first of cells.values()) {
+          const { u, v } = first;
+          let width = 1, height = 1;
+          while (cells.has(u + width + ',' + v)) width++;
+          rows: while (true) {
+            for (let i = 0; i < width; i++) {
+              if (!cells.has((u + i) + ',' + (v + height))) break rows;
+            }
+            height++;
+          }
+          for (let i = 0; i < width; i++) for (let j = 0; j < height; j++) {
+            cells.delete((u + i) + ',' + (v + j));
+          }
+          quad(chunk, dir, first, width, height);
+        }
+      }
+      const { material, positions, normals, uvs, indices } = chunk;
       const geometry = new THREE.BufferGeometry();
       geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
       geometry.setAttribute('normal', new THREE.Float32BufferAttribute(normals, 3));
@@ -90,10 +137,23 @@ export function initGame(onNext) {
       level.add(mesh);
     }
   }
+
+  function quad(chunk, { corner, u, v, normal }, { x, y, z }, width, height) {
+    const start = chunk.positions.length / 3;
+    for (const [a, b] of [[0, 0], [width, 0], [0, height], [width, height]]) {
+      chunk.positions.push(x + .5 + corner.x + a * u.x + b * v.x,
+                           y + .5 + corner.y + a * u.y + b * v.y,
+                           z + .5 + corner.z + a * u.z + b * v.z);
+      chunk.normals.push(normal.x, normal.y, normal.z);
+      chunk.uvs.push(a, height - b);
+    }
+    chunk.indices.push(start, start + 2, start + 1, start + 2, start + 3, start + 1);
+  }
   let state;
   function loadLevel(nextState) {
     state = nextState;
     room = generate(state);
+    renderer.setPixelRatio(coarse && state.type === 'gora' ? Math.min(.72, ratio) : ratio);
     const code = encode(state);
     for (const mesh of level.children) mesh.geometry.dispose();
     level.clear(); solid = new Map(); lavaMats.clear();
@@ -105,7 +165,8 @@ export function initGame(onNext) {
     minY = Math.min(...room.blocks.map(b => b[1]));
     best = store.get('pk:best:' + code, null);
     $('#best').textContent = best ? fmt(best) : '—';
-    ghostData = store.get('pk:ghost:' + code, null);
+    const savedGhost = store.get('pk:ghost:' + code, null);
+    ghostData = Array.isArray(savedGhost) && savedGhost.length ? savedGhost : null;
     $('#ghostTile').hidden = !ghostData;
     if (ghostData) $('#ghost').textContent = fmt(ghostData[ghostData.length - 1][0]);
     // labirynt: jasne niebo i mocniejsze światło, żeby ściany i droga były czytelne
@@ -141,8 +202,8 @@ export function initGame(onNext) {
   let fp = store.get('pk:widok', 'trzecia') === 'pierwsza';
   const fmt = (s) => s.toFixed(2).replace('.', ',');
   // duch: [czas, x, y, z, kąt] co REC_DT sekund z najlepszego zapisanego przejazdu
-  const REC_DT = .08;
-  let ghostData = null, ghostIdx = 0, recording = [], recTimer = 0;
+  const REC_DT = .08, MAX_SAMPLES = 2048;
+  let ghostData = null, ghostIdx = 0, recording = [], recTimer = 0, recInterval = REC_DT;
   function ghostPoseAt(t) {
     const data = ghostData;
     if (!data || !data.length) return null;
@@ -155,7 +216,7 @@ export function initGame(onNext) {
   }
 
   function reset(full) {
-    if (full) { checkpoint = spawn.clone(); deaths = 0; started = false; finished = false; tNow = 0; recording = []; recTimer = 0; ghostIdx = 0; }
+    if (full) { checkpoint = spawn.clone(); deaths = 0; started = false; finished = false; tNow = 0; recording = []; recTimer = 0; recInterval = REC_DT; ghostIdx = 0; }
     pos.copy(checkpoint || spawn); vel.set(0, 0, 0); onGround = true;
     jumpBuffer = 0;
     $('#deaths').textContent = deaths; $('#time').textContent = fmt(tNow);
@@ -233,7 +294,14 @@ export function initGame(onNext) {
     if (started) {
       if (!recording.length) recording.push([0, pos.x, pos.y, pos.z, faceYaw]);
       recTimer -= dt;
-      if (recTimer <= 0) { recording.push([tNow, pos.x, pos.y, pos.z, faceYaw]); recTimer = REC_DT; }
+      if (recTimer <= 0) {
+        if (recording.length >= MAX_SAMPLES - 1) {
+          recording = recording.filter((_, i) => i % 2 === 0);
+          recInterval *= 2;
+        }
+        recording.push([tNow, pos.x, pos.y, pos.z, faceYaw]);
+        recTimer += recInterval;
+      }
     }
     if (fb === 'diamond' && started && !finished) win();
   }
@@ -242,7 +310,15 @@ export function initGame(onNext) {
     finished = true; running = false;
     const t = tNow; $('#time').textContent = fmt(t);
     recording.push([t, pos.x, pos.y, pos.z, faceYaw]);
-    const code = encode(state), rec = !best || t < best, hadGhost = !!ghostData;
+    const code = encode(state);
+    const latest = store.get('pk:best:' + code, null);
+    if (latest !== best) {
+      best = latest;
+      ghostData = store.get('pk:ghost:' + code, null);
+      $('#best').textContent = best ? fmt(best) : '—';
+      $('#ghostTile').hidden = !ghostData;
+    }
+    const rec = !best || t < best, hadGhost = !!ghostData;
     if (rec) {
       best = t; store.set('pk:best:' + code, t); $('#best').textContent = fmt(t);
       ghostData = recording.map((s) => s.map((n) => Math.round(n * 100) / 100));
@@ -266,7 +342,11 @@ export function initGame(onNext) {
     keys.clear();
     jumpBuffer = 0;
     drag = null;
-    if (locked()) document.exitPointerLock();
+    if (locked()) {
+      retryLockAt = performance.now() + 1100;
+      wasLocked = false;
+      document.exitPointerLock();
+    }
     endTouch({ pointerId: stickId });
     endTouch({ pointerId: lookId });
     hint();
@@ -296,6 +376,7 @@ export function initGame(onNext) {
     if (!running || (e.target instanceof Element && e.target.closest('input,textarea,select'))) return;
     const c = e.code;
     if (c === 'Escape') { showOver('Pauza', 'Odpocznij chwilę.', false, true); return; }
+    if (e.getModifierState('AltGraph') || e.altKey || e.ctrlKey || e.metaKey) return;
     if (c === 'KeyV') { e.preventDefault(); if (!e.repeat) toggleView(); return; }
     if (c === 'KeyR') { e.preventDefault(); reset(false); return; }
     if (c === 'Space') { e.preventDefault(); if (!e.repeat) jumpBuffer = .12; return; }
@@ -313,19 +394,29 @@ export function initGame(onNext) {
   document.addEventListener('pointerdown', (e) => { if (running && !$('#wrapG').contains(e.target)) pause(); });
   addEventListener('blur', pause);
   document.addEventListener('visibilitychange', () => { if (document.hidden) pause(); });
+  addEventListener('pagehide', pause);
 
   // Mysz jak w grze: klik w planszę „łapie” kursor i ruch myszy obraca kamerę bez trzymania przycisku.
   // Esc oddaje kursor i włącza pauzę. Gdy przeglądarka nie pozwala złapać kursora, działa przeciąganie.
-  const canLock = !coarse && typeof canvas.requestPointerLock === 'function';
+  const frame = window.frameElement;
+  const blockedByFrame = frame?.hasAttribute('sandbox') && !frame.sandbox.contains('allow-pointer-lock');
+  const canLock = !coarse && !blockedByFrame && typeof canvas.requestPointerLock === 'function';
   const locked = () => document.pointerLockElement === canvas;
-  let wasLocked = false;
+  let wasLocked = false, retryLockAt = 0;
   function lock() {
-    if (!canLock || locked()) return;
+    if (!running || !canLock || locked() || performance.now() < retryLockAt) return;
     try { const p = canvas.requestPointerLock(); if (p && p.catch) p.catch(() => hint()); } catch { hint(); }
   }
   document.addEventListener('pointerlockchange', () => {
-    if (wasLocked && !locked()) pause();
-    wasLocked = locked(); hint();
+    const active = locked();
+    if (active && !running) { document.exitPointerLock(); return; }
+    if (wasLocked && !active) {
+      retryLockAt = performance.now() + 1100;
+      pause();
+    }
+    wasLocked = active;
+    drag = null;
+    hint();
   });
   document.addEventListener('pointerlockerror', () => hint());
   const clampPitch = () => { pitch = fp ? Math.max(-1.45, Math.min(1.45, pitch)) : Math.max(.05, Math.min(1.35, pitch)); };
@@ -336,18 +427,24 @@ export function initGame(onNext) {
     look(mx * .0026, my * .0022);
   });
   let drag = null;
-  canvas.addEventListener('pointerdown', (e) => { if (running && e.pointerType === 'mouse') {
-    lock();
-    if (locked()) return;
+  canvas.addEventListener('pointerdown', (e) => {
+    if (!running || locked() || e.pointerType !== 'mouse' || e.button !== 0) return;
     canvas.setPointerCapture(e.pointerId);
-    drag = { x: e.clientX, y: e.clientY };
-  } });
+    drag = { id: e.pointerId, x: e.clientX, y: e.clientY, moved: false };
+  });
+  canvas.addEventListener('pointerup', (e) => {
+    if (drag?.id === e.pointerId && !drag.moved) lock();
+    drag = null;
+  });
   canvas.addEventListener('contextmenu', (e) => e.preventDefault());
   canvas.addEventListener('lostpointercapture', () => (drag = null));
-  addEventListener('pointermove', (e) => {
-    if (!drag || locked()) return;
-    look((e.clientX - drag.x) * .006, (e.clientY - drag.y) * .004);
-    drag = { x: e.clientX, y: e.clientY };
+  canvas.addEventListener('pointermove', (e) => {
+    if (drag?.id !== e.pointerId || locked()) return;
+    const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+    if (dx || dy) drag.moved = true;
+    look(dx * .006, dy * .004);
+    drag.x = e.clientX;
+    drag.y = e.clientY;
   });
   canvas.addEventListener('wheel', (e) => { e.preventDefault(); if (!fp) dist = Math.max(3, Math.min(12, dist + e.deltaY * .01)); }, { passive: false });
 
@@ -356,12 +453,15 @@ export function initGame(onNext) {
   const viewBtn = document.createElement('button');
   viewBtn.type = 'button'; viewBtn.className = 'pk-view';
   const hintEl = document.createElement('div');
-  hintEl.className = 'pk-hint'; hintEl.textContent = 'Kliknij w planszę, a mysz obróci kamerę. Esc oddaje kursor.';
+  hintEl.className = 'pk-hint'; hintEl.textContent = canLock
+    ? 'Przeciągnij myszą, aby obrócić kamerę. Kliknij planszę, aby spróbować zablokować kursor.'
+    : 'Przeciągnij myszą, aby obrócić kamerę.';
   wrap.append(viewBtn, hintEl);
   function viewLabel() {
     viewBtn.textContent = fp ? '👁 1. osoba' : '👁 3. osoba';
     viewBtn.setAttribute('aria-label', fp ? 'Widok z pierwszej osoby. Zmień na widok zza postaci (V)' : 'Widok zza postaci. Zmień na pierwszą osobę (V)');
-    camera.fov = fp ? 78 : 65; camera.updateProjectionMatrix();
+    camera.fov = fp ? 78 : 65;
+    camera.updateProjectionMatrix();
   }
   function toggleView() {
     fp = !fp; store.set('pk:widok', fp ? 'pierwsza' : 'trzecia');
@@ -369,7 +469,7 @@ export function initGame(onNext) {
     clampPitch(); viewLabel(); draw(performance.now(), true);
   }
   viewBtn.addEventListener('click', () => { toggleView(); if (running) { canvas.focus(); } });
-  function hint() { hintEl.hidden = !(running && canLock && !locked()); }
+  function hint() { hintEl.hidden = !(running && !coarse && !locked()); }
   viewLabel(); hint();
   // pomoc o sterowaniu: jedna wersja dla każdej strony z grą
   $('#keys').innerHTML = `<div><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> albo strzałki: ruch · <kbd>Spacja</kbd>: skok</div>
@@ -413,8 +513,8 @@ export function initGame(onNext) {
   function resize(force = false) {
     const { clientWidth: width, clientHeight: height } = canvas;
     if (!state || !width || !height) return;
-    if (!force && camera.aspect === width / height && renderer.domElement.width === Math.floor(width * ratio) &&
-        renderer.domElement.height === Math.floor(height * ratio)) return;
+    if (!force && camera.aspect === width / height && renderer.domElement.width === Math.floor(width * renderer.getPixelRatio()) &&
+        renderer.domElement.height === Math.floor(height * renderer.getPixelRatio())) return;
     renderer.setSize(width, height, false); camera.aspect = width / height; camera.updateProjectionMatrix();
     if (!running) draw(performance.now(), true);
   }

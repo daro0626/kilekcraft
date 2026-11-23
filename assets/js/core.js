@@ -8,11 +8,8 @@ export { sfx } from './sfx.js';
 import { sfx as _sfx } from './sfx.js';
 export const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-// bezpieczny localStorage (w niektórych widokach rzuca wyjątek)
-export const store = {
-  get(k, d = null) { try { const v = localStorage.getItem('kc:' + k); return v ? JSON.parse(v) : d; } catch { return d; } },
-  set(k, v) { try { localStorage.setItem('kc:' + k, JSON.stringify(v)); } catch { /* brak pamięci — trudno */ } },
-};
+import { store } from './store.js';
+export { store };
 
 // menu na telefonie
 const mb = document.querySelector('.menu-btn'), nav = document.querySelector('.nav');
@@ -69,10 +66,16 @@ export function flapBoard(el, messages, every = 4200) {
       c.classList.toggle('sp', target === ' ');
       if (reduced) { c.textContent = target; return; }
       let steps = 4 + Math.floor(Math.random() * 6) + i % 5;
+      let flip;
       const tick = () => {
         if (steps-- <= 0) { c.textContent = target; return; }
         c.textContent = FLAP_CHARS[Math.floor(Math.random() * FLAP_CHARS.length)];
-        c.classList.remove('flip'); void c.offsetWidth; c.classList.add('flip');
+        flip?.cancel();
+        flip = c.animate([
+          { transform: 'rotateX(0deg)' },
+          { transform: 'rotateX(-90deg)' },
+          { transform: 'rotateX(0deg)' },
+        ], { duration: 90, easing: 'linear' });
         setTimeout(tick, 55);
       };
       setTimeout(tick, i * 22);

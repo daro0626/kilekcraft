@@ -45,6 +45,26 @@ function patternTex(type, face = 'side') {
       case 'planks': fill(); for (let j = 0; j < 16; j++) { const seam = j % 4 === 3; for (let i = 0; i < 16; i++) px(i, j, seam ? .68 : .92 + R() * .14); } for (let r = 0; r < 4; r++) { const i = (r * 5 + 3) % 16; for (let j = r * 4; j < r * 4 + 3; j++) px(i, j, .72); } break;
       case 'leaves': x.clearRect(0, 0, 16, 16); for (let i = 0; i < 16; i++) for (let j = 0; j < 16; j++) if (R() > .18) px(i, j, .7 + R() * .5); break;
       case 'portal': for (let i = 0; i < 16; i++) for (let j = 0; j < 16; j++) px(i, j, .75 + .5 * Math.abs(Math.sin((i + j * .7) * .6 + Math.cos(j * .5) * 2))); break;
+      case 'woven':
+        fill();
+        for (let i = 0; i < 16; i++) for (let j = 0; j < 16; j++) {
+          px(i, j, ((i + j) % 2 ? .91 : 1.06) + R() * .09);
+        }
+        break;
+      case 'prism':
+        fill();
+        for (let i = 0; i < 16; i++) for (let j = 0; j < 16; j++) {
+          const scale = (j + Math.abs((i + (j >> 2) * 2) % 4 - 2)) % 4;
+          px(i, j, (scale === 0 ? .77 : 1.02) + R() * .12);
+        }
+        break;
+      case 'frost':
+        fill();
+        for (let i = 0; i < 16; i++) for (let j = 0; j < 16; j++) {
+          const ridge = Math.abs(Math.sin(i * .7 + j * .28) + Math.cos(j * .8));
+          px(i, j, (ridge > 1.45 ? 1.19 : .91) + R() * .12);
+        }
+        break;
       case 'metal': fill(); for (let i = 0; i < 16; i++) for (let j = 0; j < 16; j++) { let f = .96 + R() * .06; if (i === 0 || j === 0) f = 1.15; if (i === 15 || j === 15) f = .72; px(i, j, f); } break;
       case 'smooth': fill(); for (let i = 0; i < 16; i++) for (let j = 0; j < 16; j++) { let f = .97 + R() * .05; if (i === 0 || j === 0 || i === 15 || j === 15) f = .8; px(i, j, f); } break;
       case 'lantern': fill(1); for (let i = 0; i < 16; i++) for (let j = 0; j < 16; j++) { const g = i % 5 === 0 || j % 5 === 0; px(i, j, g ? .8 : 1.05 + R() * .08); } break;

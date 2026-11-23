@@ -41,10 +41,25 @@
       <div><span class="muted small">Status</span><span class="badge wait">czeka na test Piotrka</span></div>
     </div>
     <div class="prog-big"><b id="pDone">0</b><span>/ 9 zrobione</span></div>
+    <a href="#ceny-sprzedazy">Zobacz ceny sprzedaży</a>
   </aside>
 
   <div class="shorts" id="shorts" tabindex="0" aria-label="Kroki przepisu"></div>
   <nav class="dots" id="dots" aria-label="Skocz do kroku"></nav>
+  <section id="ceny-sprzedazy" class="cennik panel pad" aria-labelledby="cennik-tytul">
+    <h2 id="cennik-tytul">Ceny sprzedaży</h2>
+    <p class="badge wait cennik-propozycja">Propozycja do zatwierdzenia, nie działa jeszcze na serwerze</p>
+    <p>Kwoty dotyczą sprzedaży jednej sztuki do serwera. Surowce, które łatwo wyhodować lub farmić, są tanie. Przedmiot bez ceny i przedmioty administratora, takie jak blok poleceń i bariera, są niesprzedawalne.</p>
+    <div class="cennik-filtry" hidden>
+      <label>Szukaj przedmiotu <input id="cennik-szukaj" type="search" autocomplete="off" maxlength="100"></label>
+      <label>Kategoria <select id="cennik-kategoria"><option value="">Wszystkie kategorie</option></select></label>
+    </div>
+    <p id="cennik-wynik" class="muted" role="status">Wczytywanie cennika…</p>
+    <table class="cennik-tabela" role="table" aria-labelledby="cennik-tytul" hidden>
+      <thead role="rowgroup"><tr role="row"><th scope="col" role="columnheader">Przedmiot</th><th scope="col" role="columnheader">Cena za sztukę</th><th scope="col" role="columnheader">Status</th></tr></thead>
+      <tbody role="rowgroup"></tbody>
+    </table>
+  </section>
 </main>
 
 <footer>
@@ -54,5 +69,6 @@
   </div>
 </footer>
 <script type="module" src="assets/js/szorty.js"></script>
+<script type="module" src="assets/js/cennik.js"></script>
 </body>
 </html>
