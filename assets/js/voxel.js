@@ -65,6 +65,7 @@ export async function createViewer(container, build, opts = {}) {
 
   let maxY, layer, rotation = 0;
   function load(b) {
+    anim = null;
     scene.load(b);
     const [sx, sy, sz] = b.size;
     maxY = sy - 1;
@@ -110,11 +111,12 @@ export async function createViewer(container, build, opts = {}) {
   document.addEventListener('visibilitychange', () => { if (!document.hidden) loop(); });
 
   // animacja „budowania” — warstwa po warstwie
-  function animateBuild(ms = 2600, done) {
+  function animateBuild(ms = 2600, done, onLayer) {
     const t0 = performance.now();
     anim = (now) => {
       const p = Math.min(1, (now - t0) / ms), e = 1 - Math.pow(1 - p, 2.2);
-      setLayer(p >= 1 ? Infinity : Math.floor(e * (maxY + 1)) - 1);
+      const next = p >= 1 ? Infinity : Math.floor(e * (maxY + 1)) - 1;
+      if (next !== layer) { setLayer(next); onLayer?.(next); }
       if (p >= 1) { anim = null; done && done(); }
     };
     loop();
@@ -122,7 +124,8 @@ export async function createViewer(container, build, opts = {}) {
 
   load(build); resize(); loop();
   return {
-    setLayer, animateBuild, loop,
+    setLayer(value) { anim = null; setLayer(value); },
+    animateBuild, loop,
     setBuild: (b) => { load(b); },
     get maxY() { return maxY; },
     get layer() { return layer; },

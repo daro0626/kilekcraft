@@ -81,7 +81,10 @@ function walka(st, a, b, wDomu, pref = '') {
       l.zyje = false; l.serca = 0; w.zabicia++;
       tekst += l.id === 'ja' ? ' To było twoje ostatnie serce.' : ` ${l.nick} odpada z sezonu.`;
       if (l.id === 'ja') st.statystyki.smierc = wDomu ? 'napad' : 'walka';
-      if (st.ja.sojusz === l.id) st.ja.sojusz = null;
+      if (st.ja.sojusz === l.id) {
+        st.ja.sojusz = null;
+        l.sojusz = false;
+      }
     }
   }
   st.log.push({ d: st.dzien, t: tekst, w: w.id === 'ja' ? 'ok' : l.id === 'ja' ? 'zle' : '' });
@@ -93,7 +96,7 @@ export const cena = (st, rzecz) => {
   return WYDARZENIA[st.dzien]?.id === 'targ' ? Math.round(base / 2) : base;
 };
 export function mozeKupic(st, rzecz) {
-  if (st.koniec) return false;
+  if (st.koniec || !['sprzet', 'totem', 'jablko'].includes(rzecz)) return false;
   if (rzecz === 'sprzet' && st.ja.sprzet >= 4) return false;
   if (rzecz === 'totem' && st.ja.totem >= 1) return false;
   if (rzecz === 'jablko' && st.ja.jablko >= 2) return false;
@@ -110,7 +113,7 @@ export function kup(st, rzecz) {
 
 // Jedna decyzja dnia, potem noc. cel = id bota dla walki i sojuszu.
 export function dzien(st, akcja, cel) {
-  if (st.koniec || !AKCJE[akcja]) return false;
+  if (st.koniec || !Object.hasOwn(AKCJE, akcja)) return false;
   const ja = st.ja, ev = WYDARZENIA[st.dzien]?.id;
   if ((akcja === 'walka' || akcja === 'sojusz') && !(bot(st, cel)?.zyje)) return false;
   if (akcja === 'sojusz' && ja.sojusz) return false;

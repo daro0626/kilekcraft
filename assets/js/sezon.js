@@ -6,9 +6,13 @@ import { store, reduced, award, badge } from './core.js';
 import * as M from './sezon-model.js';
 
 const $ = (s, el = document) => el.querySelector(s);
-const root = $('#sezon');
+const root = $('#sezon'), game = $('#szGra'), announcement = $('#szOstatni');
 let st = store.get('sezon:stan', null);
 if (st && (!st.ja || !Array.isArray(st.boty))) st = null;
+if (st) {
+  st.statystyki = { ataki: 0, atakiW: 0, ...st.statystyki };
+  if (st.ja.sojusz && !M.bot(st, st.ja.sojusz)?.zyje) st.ja.sojusz = null;
+}
 let wybor = null; // 'walka' albo 'sojusz', gdy gracz wybiera rywala
 
 const esc = (t) => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -20,7 +24,7 @@ function start() {
   const a = new Uint32Array(1); crypto.getRandomValues(a);
   st = M.nowySezon((a[0] % 999999) + 1); wybor = null; zapisz();
   award('sezon:start', 20);
-  render(true);
+  render(true, 0);
 }
 
 function intro() {
@@ -86,7 +90,7 @@ function rankingHTML() {
 }
 
 function logHTML(n = 8) {
-  return `<ul class="sz-log" aria-live="polite">${st.log.slice(-n).reverse().map(l => `<li class="${l.w || ''}"><span>dz. ${l.d}</span>${esc(l.t)}</li>`).join('')}</ul>`;
+  return `<ul class="sz-log">${st.log.slice(-n).reverse().map(l => `<li class="${l.w || ''}"><span>dz. ${l.d}</span>${esc(l.t)}</li>`).join('')}</ul>`;
 }
 
 function koniecHTML() {
@@ -104,10 +108,10 @@ function koniecHTML() {
   </div>`;
 }
 
-function render(focusTop) {
+function render(focusTop, logBefore = st?.log.length) {
   if (!st) { intro(); return; }
   const ev = M.WYDARZENIA[st.dzien];
-  root.innerHTML = `
+  game.innerHTML = `
     ${statsHTML()}
     ${ev && !st.koniec ? `<div class="sz-event"><b>${ev.t}</b> ${ev.d}</div>` : ''}
     <div class="sz-grid">
@@ -115,6 +119,7 @@ function render(focusTop) {
       <aside class="sz-side"><h3>Ranking sezonu</h3>${rankingHTML()}<h3>Dziennik</h3>${logHTML()}</aside>
     </div>
     ${st.koniec ? '' : '<p class="sz-foot"><button type="button" class="btn sm ghost" id="szReset">Zacznij od nowa</button></p>'}`;
+  if (st.log.length > logBefore) announcement.textContent = st.log.at(-1).t;
   if (focusTop) {
     const t = $('.sz-act, .sz-target, #szAgain', root);
     t && t.focus({ preventScroll: true });
@@ -127,13 +132,22 @@ root.addEventListener('click', (e) => {
   if (t.id === 'szReset' && !t.dataset.sure) { t.dataset.sure = '1'; t.textContent = 'Na pewno? Kliknij jeszcze raz'; return; }
   if (t.id === 'szAgain' || t.id === 'szReset') { start(); return; }
   if (t.id === 'szBack') { wybor = null; render(true); return; }
-  if (t.dataset.buy) { M.kup(st, t.dataset.buy); zapisz(); render(); $(`[data-buy="${t.dataset.buy}"]`, root)?.focus(); return; }
+  const before = st.log.length;
+  if (t.dataset.buy) {
+    const item = t.dataset.buy;
+    M.kup(st, item);
+    zapisz();
+    render(false, before);
+    const next = $(`[data-buy="${item}"]:not(:disabled)`, game) || $('.sz-act', game);
+    next?.focus();
+    return;
+  }
   if (t.dataset.akcja) {
     const a = t.dataset.akcja;
     if (a === 'walka' || a === 'sojusz') { wybor = a; render(true); return; }
-    M.dzien(st, a); zapisz(); render(true); return;
+    M.dzien(st, a); zapisz(); render(true, before); return;
   }
-  if (t.dataset.cel) { M.dzien(st, wybor, t.dataset.cel); wybor = null; zapisz(); render(true); }
+  if (t.dataset.cel) { M.dzien(st, wybor, t.dataset.cel); wybor = null; zapisz(); render(true, before); }
 });
 
 render(false);

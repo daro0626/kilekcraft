@@ -41,21 +41,24 @@
   </div>
 
   <section class="panel pad corner sz" id="sezon" aria-label="Gra Sezon LifeSteal">
-    <div class="sz-intro">
-      <div>
-        <h2 class="section-heading">Sezon LifeSteal: przetrwaj 14 dni</h2>
-        <p>Grasz z 7 botami. Każdy dzień to jedna decyzja: kopiesz, farmisz, wzmacniasz bazę, polujesz na rywala albo zawierasz sojusz. W nocy boty ruszają same i napadają na siebie i na ciebie.</p>
-        <ul class="sz-rules">
-          <li>Startujesz z 5 sercami, możesz mieć najwyżej <span id="szLimit">15</span>.</li>
-          <li>Wygrana walka zabiera rywalowi jedno serce. Kto straci ostatnie, odpada z sezonu.</li>
-          <li>W tym sezonie potwory w jaskini też zabierają serce.</li>
-          <li>Za pieniądze kupisz sprzęt, totem i złote jabłko.</li>
-        </ul>
-        <p class="muted small">To gra z uproszczonymi zasadami. Na prawdziwym serwerze zasady ustawia plugin i admin.</p>
-        <button type="button" class="btn" id="szStart" disabled>▶ Zacznij sezon</button>
-        <p class="sz-rec" hidden></p>
+    <div id="szGra">
+      <div class="sz-intro">
+        <div>
+          <h2 class="section-heading">Sezon LifeSteal: przetrwaj 14 dni</h2>
+          <p>Grasz z 7 botami. Każdy dzień to jedna decyzja: kopiesz, farmisz, wzmacniasz bazę, polujesz na rywala albo zawierasz sojusz. W nocy boty ruszają same i napadają na siebie i na ciebie.</p>
+          <ul class="sz-rules">
+            <li>Startujesz z 5 sercami, możesz mieć najwyżej <span id="szLimit">15</span>.</li>
+            <li>Wygrana walka zabiera rywalowi jedno serce. Kto straci ostatnie, odpada z sezonu.</li>
+            <li>W tym sezonie potwory w jaskini też zabierają serce.</li>
+            <li>Za pieniądze kupisz sprzęt, totem i złote jabłko.</li>
+          </ul>
+          <p class="muted small">To gra z uproszczonymi zasadami. Na prawdziwym serwerze zasady ustawia plugin i admin.</p>
+          <button type="button" class="btn" id="szStart" disabled>▶ Zacznij sezon</button>
+          <p class="sz-rec" hidden></p>
+        </div>
       </div>
     </div>
+    <p class="sr" id="szOstatni" role="status"></p>
   </section>
 
   <div class="page-head sz-admin-head" id="zasady">

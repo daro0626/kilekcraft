@@ -150,9 +150,10 @@ export async function packStatusHTML(blockIds = null) {
   const all = p.sprawdzone ? `<span class="badge ok">sprawdzone · ${p.wersja}</span>` : '<span class="badge wait">datapack czeka na test</span>';
   const lay = w && w.ok ? `<span class="badge ok" title="start, nastepna, cofnij i animacja">warstwy sprawdzone · ${w.wersja}</span>` : '<span class="badge wait" title="Funkcje warstwa po warstwie czekają na test na serwerze">warstwy czekają na test</span>';
   let pal = '';
-  if (blockIds) {
+  const ids = [...new Set(blockIds ?? [])].filter(Boolean);
+  if (ids.length) {
     const okIds = new Set(res?.paleta?.zweryfikowane || []);
-    const wait = [...new Set(blockIds)].filter(x => x && !okIds.has(x));
+    const wait = ids.filter(id => !okIds.has(id));
     pal = wait.length ? `<span class="badge wait" title="${wait.join(', ')}">${wait.length === 1 ? '1 blok czeka' : wait.length + ' bloków czeka'} na test</span>`
       : `<span class="badge ok" title="każdy blok tej budowli postawiony na serwerze">bloki sprawdzone · ${res.paleta.wersja}</span>`;
   }
