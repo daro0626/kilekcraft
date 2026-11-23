@@ -342,9 +342,28 @@ function showCmds(cmds) {
 }
 
 function statusBadge() {
-  const t = TESTS?.wyniki?.[tpl];
-  if (t && t.ok) return `<span class="badge ok" title="${esc(t.silnik)} ${esc(t.wersja)}, ${esc(t.data)}">sprawdzone · ${esc(t.wersja)}</span>`;
-  if (t && !t.ok) return `<span class="badge warn">test nieudany</span>`;
+  const compatible = test => {
+    if (!test?.wersja) return false;
+    const match = /^1[.]21(?:[.]([0-9]+))?$/.exec(test.wersja);
+    const old = Boolean(match) && Number(match[1] || 0) <= 10;
+    return old === (ver === 'stara');
+  };
+  if (TESTS.silniki) {
+    const tests = ['vanilla', 'paper'].flatMap(engine => {
+      const result = TESTS.silniki[engine]?.wyniki?.[tpl];
+      return compatible(result) ? [[engine, result]] : [];
+    });
+    if (tests.some(([, result]) => result.ok === false)) return '<span class="badge warn">test nieudany</span>';
+    const passed = tests.filter(([, result]) => result.ok === true);
+    if (passed.length) {
+      const labels = passed.map(([engine, result]) => engine + ' ' + esc(result.wersja));
+      return '<span class="badge ok">sprawdzone · ' + labels.join(' · ') + '</span>';
+    }
+  } else {
+    const test = TESTS.wyniki?.[tpl];
+    if (compatible(test) && test.ok === true) return '<span class="badge ok">sprawdzone · ' + esc(test.wersja) + '</span>';
+    if (compatible(test) && test.ok === false) return '<span class="badge warn">test nieudany</span>';
+  }
   return `<span class="badge wait" title="Składnia z dokumentacji, czeka na test na serwerze">czeka na test</span>`;
 }
 
