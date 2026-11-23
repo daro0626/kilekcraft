@@ -57,7 +57,7 @@ function loadLevel(next, { entry = false, returning = false, focus = false } = {
 function restoreLevel() {
   const linked = decode(location.hash.slice(1));
   const last = lastLevel();
-  if (state && linked && encode(linked) === encode(state)) return;
+  if (state && (!linked || encode(linked) === encode(state))) return;
   loadLevel(linked || last || defaultLevel, { entry: true, returning: !!last && (!linked || encode(linked) === encode(last)) });
 }
 window.addEventListener('hashchange', restoreLevel);

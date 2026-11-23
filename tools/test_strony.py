@@ -1003,6 +1003,9 @@ def parkour_routes(page, mobile):
     page.reload()
     click(page.locator('#play'))
     expect(page.locator('[data-camera=rece]')).to_have_attribute('aria-pressed', 'true')
+    page.goto(f'{BASE}/parkour.html#P1-K-4821')
+    click(page.locator('#randomLevel'))
+    expect(page.locator('#ovText')).to_contain_text(page.locator('#code').input_value())
 
 
 def editor_layers(page, mobile):
