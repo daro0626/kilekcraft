@@ -60,3 +60,9 @@ XP i odznaki w `localStorage` pod kluczem `kc:xp`. Próg poziomu: 25·n·(n−1)
 ### Wyniki obu silników
 
 Workflow „Test komend na serwerze” rozstrzyga jedną wersję i uruchamia testy na vanilla i Paper. Opcja `engine` pozwala wybrać pojedynczy silnik. Po przebiegu z dwoma silnikami pobierz artefakt `wyniki-komend`. Plik `testy.json` z artefaktu dodaj do `data/` przez PR. Raport zachowuje wyniki obu silników w `silniki`. Pole `wyniki` służy bieżącym widokom MOTD, datapacka i „Znajdź błąd”. Status kreatora korzysta z wyników zgodnych z wybranym zakresem wersji.
+
+## Punkty kontrolne i warstwy edytora
+
+W komnacie `P4-N-40606` dało się aktywować checkpoint, stojąc samym narożnikiem hitboksu na szmaragdzie. Zapis zaokrąglał wtedy środek postaci do sąsiedniego pola nad przepaścią. Po odrodzeniu gracz spadał z tego samego miejsca. Teraz silnik wyznacza środek bloku, który podpiera stopy, i sprawdza podparcie, miejsce na hitboks oraz zagrożenia. Gdy punkt straci bezpieczeństwo, odrodzenie wybiera poprzedni bezpieczny checkpoint albo start. Upadek zeruje ruch, skok i obrażenia od magmy, przywraca kruszące się bloki oraz poziom lawy. Test `tools/test_checkpointy.mjs` odtwarza przypadek przed poprawką i jest uruchamiany w CI.
+
+W edytorze tryby „Do tej warstwy” i „Tylko ta warstwa” ograniczają edycję do wybranej wysokości. W pierwszym widać też podbudowę. Przełączanie widoku nie zmienia danych budowli. Suwak daje dostęp do jednej pustej warstwy nad modelem do limitu 64 warstw. Pędzel „Słup ×5” działa w widoku „Całość”. Cofnięcie, ponowienie i czyszczenie proszą o potwierdzenie, gdy obejmują ukryte bloki. Wybrany widok zapisuje się lokalnie, a eksport korzysta z całej budowli. Lista i plan wybranej warstwy odświeżają się po zmianie modelu lub wyboru warstwy.

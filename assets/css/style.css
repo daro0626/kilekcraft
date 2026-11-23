@@ -630,6 +630,18 @@ body[data-przepis="lifesteal"] .s-vis{height:150px}
 /* =========== EDYTOR =========== */
 .ed{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:18px;align-items:start}
 @media (max-width:960px){.ed{grid-template-columns:1fr}}
+.ed-work{min-width:0;display:grid;gap:12px}
+.ed-layer.pad,.ed-layer-info.pad{padding:12px}
+.ed-layer h2,.ed-layer-info h2{margin:0 0 8px}
+.ed-layer .seg{flex-wrap:wrap}
+.ed-layer .tab{font-size:14px;padding:7px 9px;min-height:36px}
+.ed-layer-step{display:grid;grid-template-columns:auto auto minmax(0,1fr) auto;align-items:center;gap:8px;margin-top:8px}
+.ed-layer-step label{font-weight:700;font-size:15px}
+.ed-layer-step input{width:100%;min-width:0}
+.ed-layer-step button{justify-content:center;min-width:40px;min-height:36px}
+.ed-layer p,.ed-layer-info p{margin:6px 0}
+.ed-layer-info .mats{margin:6px 0}
+#edPlan{display:block;margin-top:8px;width:min(100%,241px);height:auto;image-rendering:pixelated}
 .ed-stage{position:relative;height:min(72vh,640px);min-height:380px;overflow:hidden;background:radial-gradient(ellipse at 50% 20%,rgba(160,107,255,.16),transparent 70%),linear-gradient(180deg,#121a30,#0a0f1e)}
 .ed-stage canvas{position:absolute;inset:0;width:100%!important;height:100%!important;touch-action:none;cursor:crosshair}
 .ed-hud{position:absolute;left:12px;top:12px;z-index:2;display:flex;gap:6px;flex-wrap:wrap;pointer-events:none}

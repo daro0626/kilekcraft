@@ -381,7 +381,8 @@ export function initGame(onNext) {
     if (c === 'Space' && e.target instanceof Element && e.target.closest('button')) return;
     if (c === 'Space') { e.preventDefault(); if (!e.repeat) jumpBuffer = .12; return; }
     if (!KEYMAP[c]) return;
-    e.preventDefault(); keys.add(c);
+    e.preventDefault();
+    if (!e.repeat) keys.add(c);
   });
   addEventListener('keyup', (e) => keys.delete(e.code));
   const pause = () => {

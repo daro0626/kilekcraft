@@ -797,6 +797,314 @@ def sezon_code(page):
         assert friend.evaluate("JSON.parse(localStorage.getItem('kc:sezon:stan')).seed") == 123
 
 
+def parkour_recovery(page, mobile):
+    def instrument(route):
+        response = route.fetch()
+        hook = """
+          window.recoveryProbe = {
+            state: () => ({p: pos.toArray(), spawn: run.spawn, cp: run.checkpoint, grounded: onGround,
+                           deaths, keys: [...keys], joy, started, first: fp,
+                           vel: vel.toArray(), supported: isSolid(Math.floor(pos.x), pos.y - 1, Math.floor(pos.z))}),
+            corner() {
+              clearInput();
+              pos.set(19.88, 6, 4.12);
+              vel.set(0, 0, 0);
+              run.body.onGround = true;
+              run.body.jumpBuffer = 0;
+              step(tick);
+            },
+            fall() {
+              pos.y = minY - 5;
+              step(tick);
+            },
+            roof() {
+              const x = Math.floor(pos.x), z = Math.floor(pos.z), y = Math.floor(pos.y) + 2;
+              const key = k3(x, y, z), original = solid.get(key);
+              const oldPitch = pitch, oldYaw = yaw;
+              solid.set(key, 'stone');
+              let clear = true;
+              try {
+                for (const angle of [.35, .85, 1.35]) {
+                  pitch = angle;
+                  for (let turn = 0; turn < 4; turn++) {
+                    yaw = turn * Math.PI / 2;
+                    draw(performance.now(), true);
+                    camera.updateMatrixWorld();
+                    const points = [camera.position, ...[-1, 1].flatMap(sx => [-1, 1].map(sy =>
+                      new THREE.Vector3(sx, sy, -1).unproject(camera)))];
+                    clear &&= points.every(p => !isSolid(Math.floor(p.x), Math.floor(p.y), Math.floor(p.z)));
+                  }
+                }
+              } finally {
+                if (original) solid.set(key, original); else solid.delete(key);
+                pitch = oldPitch; yaw = oldYaw;
+              }
+              return clear;
+            },
+            nearFinish() {
+              const [x, y, z] = room.blocks.find(b => b[3] === 'diamond');
+              pos.set(x + .5, y + 1, z + .5);
+              vel.set(0, 0, 0);
+            },
+          };
+        """
+        source = response.text().replace('  return { loadLevel, play };', hook + '  return { loadLevel, play };')
+        route.fulfill(response=response, body=source)
+
+    page.route('**/assets/js/parkour-game.js', instrument)
+    page.add_init_script("""HTMLCanvasElement.prototype.requestPointerLock = function() {
+        return Promise.reject(new DOMException('Blokada niedostępna', 'NotAllowedError'));
+    };""")
+    page.goto(f'{BASE}/parkour.html?regresja=respawn#P4-N-40606')
+    expect(page.locator('#ovText')).to_contain_text('P4-N-40606')
+    click = lambda locator: locator.tap() if mobile else locator.click()
+    state = lambda: page.evaluate('recoveryProbe.state()')
+    click(page.locator('#play'))
+    page.wait_for_function('typeof recoveryProbe !== "undefined"')
+    canvas = page.locator('#gl')
+    expect(canvas).to_be_focused()
+    mobile_touch = None
+    if mobile:
+        mobile_touch = page.context.new_cdp_session(page)
+        rect = canvas.bounding_box()
+        x, y = rect['x'] + rect['width'] * .2, rect['y'] + rect['height'] * .65
+
+        def touch(kind, dy=0):
+            points = [] if kind == 'touchEnd' else [dict(x=x, y=y + dy, id=1)]
+            mobile_touch.send('Input.dispatchTouchEvent', dict(type=kind, touchPoints=points))
+
+    def move_start():
+        if mobile:
+            touch('touchStart')
+            touch('touchMove', -44)
+        else:
+            page.keyboard.down('w')
+
+    def move_end():
+        if mobile:
+            touch('touchEnd')
+        else:
+            page.keyboard.up('w')
+
+    if mobile:
+        click(page.locator('#jumpBtn'))
+    else:
+        page.keyboard.press('Space')
+    page.wait_for_function('recoveryProbe.state().p[1] > recoveryProbe.state().spawn.y + .08')
+    move_start()
+    page.wait_for_function('recoveryProbe.state().started')
+    move_end()
+    page.evaluate('recoveryProbe.corner()')
+    cp = state()['cp']
+    assert cp != state()['spawn'] and cp['x'] == 20.5
+    assert page.evaluate('recoveryProbe.roof()')
+
+    move_start()
+    page.wait_for_function('recoveryProbe.state().keys.length || recoveryProbe.state().joy.y > .1')
+    page.evaluate('recoveryProbe.fall()')
+    expect(page.locator('#deaths')).to_have_text('1')
+    if mobile:
+        touch('touchMove', -50)
+    else:
+        canvas.dispatch_event('keydown', dict(code='KeyW', key='w', repeat=True))
+    page.wait_for_timeout(2050)
+    respawned = state()
+    assert respawned['p'] == [cp[k] for k in ('x', 'y', 'z')]
+    assert respawned['supported'] and respawned['grounded'] and respawned['deaths'] == 1
+    assert respawned['keys'] == [] and respawned['joy'] == {'x': 0, 'y': 0}
+    assert respawned['vel'] == [0, 0, 0]
+    move_end()
+    move_start()
+    page.wait_for_function('(p) => recoveryProbe.state().p.some((x,i) => Math.abs(p[i]-x) > .04)', arg=respawned['p'])
+    move_end()
+
+    first = state()['first']
+    click(page.locator('.pk-view'))
+    page.wait_for_function('(first) => recoveryProbe.state().first !== first', arg=first)
+    if not mobile:
+        page.keyboard.press('r')
+        assert state()['p'] == respawned['p'] and state()['deaths'] == 1
+    click(page.locator('.pk-pause'))
+    expect(page.locator('#ovTitle')).to_have_text('Pauza')
+    click(page.locator('#restartLevel'))
+    expect(page.locator('#over')).to_be_hidden()
+    assert state()['deaths'] == 0 and state()['cp'] == state()['spawn']
+    assert state()['keys'] == []
+    if mobile:
+        click(page.locator('#jumpBtn'))
+    else:
+        page.keyboard.press('Space')
+    page.wait_for_function('recoveryProbe.state().started')
+    page.evaluate('recoveryProbe.nearFinish()')
+    expect(page.locator('#ovTitle')).to_have_text('Nowy rekord!')
+    click(page.locator('#play'))
+    expect(page.locator('#deaths')).to_have_text('0')
+    page.unroute('**/assets/js/parkour-game.js')
+
+
+def editor_layers(page, mobile):
+    from zipfile import ZipFile
+
+    def instrument(route):
+        response = route.fetch()
+        hook = """
+        window.editorProbe = {
+          world: () => Object.fromEntries(world),
+          visible: () => [...meshes.values()].filter(m => m.visible).map(m => m.userData.k),
+          aim(x, z) {
+            const y = layerY;
+            camera.position.set(0, y + 49, 1);
+            controls.target.set(0, y, 0);
+            controls.update();
+            camera.updateMatrixWorld();
+            const point = pos(x, y, z);
+            point.y = tool === 'build' ? y : y + .95;
+            point.project(camera);
+            const rect = el.getBoundingClientRect();
+            return [rect.left + (1 + point.x) * rect.width / 2, rect.top + (1 - point.y) * rect.height / 2];
+          },
+        };
+        """
+        route.fulfill(response=response, body=response.text() + hook)
+
+    page.route('**/assets/js/edytor.js', instrument)
+    page.reload()
+    page.wait_for_function('typeof editorProbe !== "undefined"')
+    slider = page.locator('#edLayer')
+    mode = lambda name: page.locator(f'[data-layer-mode="{name}"]')
+    label = page.locator('#edLayerLabel')
+    template = page.locator('#tpl')
+    canvas = page.locator('#stage canvas')
+    get_world = lambda: page.evaluate('editorProbe.world()')
+    get_visible = lambda: set(page.evaluate('editorProbe.visible()'))
+    layer_of = lambda key: int(key.split(',')[1])
+
+    def click(action):
+        action.tap() if mobile else action.click()
+
+    def download_pack():
+        with page.expect_download() as download:
+            page.locator('#dl').click()
+        with ZipFile(download.value.path()) as archive:
+            return {name: archive.read(name) for name in archive.namelist()}
+
+    def point(x, z):
+        canvas.scroll_into_view_if_needed()
+        px, py = page.evaluate('([x,z]) => editorProbe.aim(x,z)', [x, z])
+        if mobile:
+            page.touchscreen.tap(px, py)
+        else:
+            page.mouse.click(px, py)
+
+    template.select_option('wiezowiec')
+    original = get_world()
+    top = max(map(layer_of, original))
+    assert top > 15
+    expect(label).to_have_text(f'Warstwa 1 z {top + 2}')
+    expect(mode('all')).to_have_attribute('aria-pressed', 'true')
+    assert get_visible() == set(original)
+    initial = page.locator('#lines').text_content()
+    pack = download_pack()
+
+    click(mode('single'))
+    assert get_visible() == {k for k in original if layer_of(k) == 0}
+    if mobile:
+        click(page.locator('#edLayerUp'))
+    else:
+        slider.press('ArrowRight')
+    expect(label).to_have_text(f'Warstwa 2 z {top + 2}')
+    expect(page.locator('#hudLayer')).to_have_text('Warstwa 2')
+    assert get_visible() == {k for k in original if layer_of(k) == 1}
+    click(mode('below'))
+    assert get_visible() == {k for k in original if layer_of(k) <= 1}
+    click(mode('all'))
+    assert get_visible() == set(original)
+    assert get_world() == original
+    expect(page.locator('#lines')).to_have_text(initial)
+
+    click(mode('single'))
+    assert download_pack() == pack
+    slider.press('End')
+    expect(label).to_have_text(f'Warstwa {top + 2} z {top + 2}')
+    assert not get_visible()
+    expect(page.locator('#edLayerMats')).to_contain_text('Ta warstwa jest pusta')
+    click(page.locator('#edPlanDetails summary'))
+    expect(page.locator('#edPlan')).to_have_attribute('aria-label', f'Plan warstwy {top + 2} z góry. 0 bloków.')
+    expect(page.locator('[data-brush="col"]')).to_be_disabled()
+    click(page.locator('[data-brush="3"]'))
+    click(page.locator('[data-sym="x"]'))
+    click(page.locator('[data-t="red_concrete"]'))
+    point(19, 21)
+    changed = get_world()
+    assert any(k.startswith('19,') and k.endswith(',21') for k in original)
+    added = set(changed) - set(original)
+    assert len(added) == 18 and all(layer_of(k) == top + 1 for k in added), added
+    assert all(changed.get(k) == t for k, t in original.items())
+    assert get_visible() == added
+    expect(page.locator('#edLayerCount')).to_have_text('Liczba bloków: 18')
+    expect(page.locator('#edLayerMats .mc')).to_have_text('18')
+    expect(page.locator('#edPlan')).to_have_attribute('aria-label', f'Plan warstwy {top + 2} z góry. 18 bloków.')
+    page.locator('#edLayerTitle').click()
+    page.keyboard.press('Control+z')
+    assert get_world() == original
+    page.keyboard.press('Control+y')
+    assert get_world() == changed
+    click(page.locator('[data-sym="none"]'))
+    click(page.locator('[data-t="stone"]'))
+    click(page.locator('[data-tool="pick"]'))
+    point(19, 21)
+    expect(page.locator('[data-t="red_concrete"]')).to_have_attribute('aria-checked', 'true')
+    click(page.locator('[data-tool="erase"]'))
+    point(19, 21)
+    after_erase = changed.copy()
+    del after_erase[f'19,{top + 1},21']
+    assert get_world() == after_erase
+    assert get_visible() == set(after_erase) - set(original)
+    expect(page.locator('#edLayerMats .mc')).to_have_text('17')
+
+    def dismiss(dialog):
+        prompts.append(dialog.message)
+        dialog.dismiss()
+    prompts = []
+    page.once('dialog', dismiss)
+    click(page.locator('#clear'))
+    assert prompts and 'ukrytymi warstwami' in prompts[0]
+    assert get_world() == after_erase
+    page.reload()
+    page.wait_for_function('typeof editorProbe !== "undefined"')
+    expect(mode('single')).to_have_attribute('aria-pressed', 'true')
+    assert get_world() == after_erase
+    assert get_visible() == set(after_erase) - set(original)
+
+    template.select_option('sklep-serc')
+    shop = get_world()
+    shop_top = max(map(layer_of, shop))
+    assert shop_top < top
+    expect(label).to_have_text(f'Warstwa {shop_top + 2} z {shop_top + 2}')
+    click(mode('all'))
+    assert get_visible() == set(shop)
+    click(page.locator('#undo'))
+    assert get_world() == after_erase
+    click(page.locator('#redo'))
+    assert get_world() == shop
+    click(page.locator('#clear'))
+    expect(label).to_have_text('Warstwa 1 z 1')
+    assert not get_world() and not get_visible()
+    page.wait_for_function("JSON.parse(localStorage.getItem('kc:ed:swiat')).b.length === 0")
+    page.evaluate("""() => {
+        localStorage.setItem('kc:ed:swiat', JSON.stringify({ name: 'Szczyt', b: [['19,63,21', 'stone']] }));
+        localStorage.setItem('kc:ed:warstwy', JSON.stringify({ mode: 'single', y: 150 }));
+    }""")
+    page.reload()
+    page.wait_for_function('typeof editorProbe !== "undefined"')
+    expect(label).to_have_text('Warstwa 64 z 64')
+    expect(page.locator('#edLayerUp')).to_be_disabled()
+    assert get_visible() == {'19,63,21'}
+    click(page.locator('#edLayerDown'))
+    assert not get_visible() and get_world() == {'19,63,21': 'stone'}
+    page.unroute('**/assets/js/edytor.js')
+
+
 def run(browser, width, height):
     mobile = width == 390
     context = browser.new_context(viewport={'width': width, 'height': height},
@@ -818,6 +1126,7 @@ def run(browser, width, height):
             parkour(page, mobile)
             mistrz_parkour(page, mobile)
             parkour(page, mobile)
+            parkour_recovery(page, mobile)
         if name == 'komnaty':
             mistrz_komnaty(page)
             if not mobile:
@@ -834,6 +1143,7 @@ def run(browser, width, height):
             sezon_code(page)
         if name == 'edytor':
             export_parity(page)
+            editor_layers(page, mobile)
         if name == 'lifesteal':
             cennik(page)
         if name == 'motd':
