@@ -4,7 +4,7 @@ import os
 
 from playwright.sync_api import expect, sync_playwright
 
-from test_commands import DATA, commands, export_lines, SAMPLE
+from test_commands import DATA, commands, export_lines, SAMPLE, motd_property, MOTD_SAMPLE
 
 
 BASE = 'http://127.0.0.1:8000'
@@ -17,6 +17,11 @@ READY = {
     'edytor': '#stage canvas',
     'komnaty': '#stats .panel',
     'symulator': '#kpis .kpi',
+    'gry': '.tool-card',
+    'bledy': '#start',
+    'parkour': '#gl',
+    'kolo': '#r0 div',
+    'motd': '#pvMotd div',
 }
 
 # Nazwy typów z assets/js/builds.js dla próbki z test_commands.SAMPLE
@@ -156,6 +161,9 @@ def run(browser, width, height):
             hosting(page)
         if name == 'edytor':
             export_parity(page)
+        if name == 'motd':
+            actual = page.evaluate('async s => (await import("./assets/js/motd.js")).motdProperty(s)', MOTD_SAMPLE)
+            assert actual == motd_property(MOTD_SAMPLE), (actual, motd_property(MOTD_SAMPLE))
         if name == 'komendy':
             # Przeładuj moduł z wyłączonym efektem maszynopisania.
             page.emulate_media(reduced_motion='reduce')

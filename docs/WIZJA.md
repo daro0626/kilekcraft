@@ -22,7 +22,13 @@
 | Edytor budowli 3D z eksportem do datapacka | `edytor.html` | gotowe, datapack czeka na test CI |
 | Generator komnat-wyzwań (parkour, labirynt) | `komnaty.html` | gotowe, skoki do sprawdzenia w grze |
 | Symulator LifeSteal | `symulator.html` | gotowe (model uproszczony) |
-| Poziom gracza: XP i 12 odznak | wszystkie strony | gotowe |
+| Poziom gracza: XP i 16 odznak | wszystkie strony | gotowe |
+| Wyścig parkour w przeglądarce (klawiatura i dotyk) | `parkour.html` | gotowe, fizyka do porównania z grą |
+| Gra „Znajdź błąd” (17 pytań) | `bledy.html` | gotowe, pytania czekają na test CI |
+| Koło wyzwań budowlanych ze stoperem | `kolo.html` | gotowe |
+| Wygląd serwera: MOTD i ikona 64×64 | `motd.html` | gotowe, MOTD czeka na test CI |
+| 4 nowe wielkie budowle: smok, wulkan, statek, zamek | `budowle.html` | gotowe |
+| Dźwięki (WebAudio, domyślnie wyłączone) | wszystkie strony | gotowe |
 
 ## Decyzje właściciela (23.11.2026)
 1. Odbiorca: Piotrek + koledzy jako testerzy, treść publiczna: **tak**.

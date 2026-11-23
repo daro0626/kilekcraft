@@ -18,6 +18,14 @@ Każde zadanie kończy się dopiero, gdy spełnia kryteria akceptacji **oraz** b
 - Napisane bez dostępu do serwera. Pierwsze uruchomienie trzeba obejrzeć: ścieżka `version.json` w Paperze, pole `pack_version`, `initial-enabled-packs`, format `pack.mcmeta` w 26.3.
 - **Akceptacja:** `data/datapack.json` ma `"sprawdzone": true`, a edytor i komnaty pokazują „sprawdzone · 26.3”.
 
+### C5 [Codex] Pierwsze uruchomienie testów MOTD i „Znajdź błąd”
+- Test MOTD ustawia opis z polskimi znakami w `server.properties` i czyta go pingiem statusu (protokół napisany bez dostępu do serwera, do obejrzenia).
+- Test „Znajdź błąd” sprawdza 17 par komend. Pytania, które nie przejdą, same znikają z gry. Jeśli zniknie ich dużo, popraw `data/bledy.json`.
+- **Akceptacja:** `wyniki.motd.ok` i co najmniej 12 zweryfikowanych pytań.
+
+### A6 [Piotrek] Wyścig parkour: czy da się przejść?
+- Przejdź w przeglądarce P3, P6, P8 i L4. Zapisz czas i miejsca, gdzie fizyka różni się od gry.
+
 ### C2 [Codex] Testy przeglądarkowe
 - Playwright: każda z 5 stron otwiera się bez błędów konsoli (desktop i mobile), kreator generuje oczekiwane komendy (porównanie z `commands()` z Pythona), doradca zwraca 3 wyniki dla każdej kombinacji odpowiedzi.
 - **Akceptacja:** workflow `test-strony.yml` zielony.

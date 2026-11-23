@@ -16,7 +16,7 @@ UWAGA: uruchamiając serwer, akceptujesz EULA Minecrafta (https://aka.ms/Minecra
 Status: skrypt napisany bez dostępu do sieci Mojang/PaperMC. Pierwsze uruchomienie w CI
 trzeba obejrzeć. Szczególnie pobieranie Paper przez API v3 (patrz docs/ZADANIA.md, zadanie C1).
 """
-import argparse, threading, json, os, random, socket, string, struct, subprocess, sys, time, urllib.request
+import argparse, threading, re, json, os, random, socket, string, struct, subprocess, sys, time, urllib.request
 from datetime import date
 from pathlib import Path
 
@@ -181,6 +181,66 @@ def test_datapack(rcon, wd, metas):
             return True, meta, info
     return False, None, info
 
+
+# ---------------------------------------------------------------- gra „Znajdź błąd”
+def test_bledy(rcon):
+    """Zła komenda musi dać błąd, dobra musi przejść. Zwraca listę sprawdzonych id i błędy."""
+    data = json.loads((ROOT / 'data/bledy.json').read_text(encoding='utf-8'))
+    ok_ids, errs = [], []
+    for q in data['pytania']:
+        wrong = ' '.join(q['tokeny']).lstrip('/')
+        good = q['dobra'].lstrip('/')
+        rw, rg = rcon.cmd(wrong), rcon.cmd(good)
+        wrong_fails = any(b in rw for b in BAD) and not any(o in rw for o in OK_ANYWAY)
+        good_passes = not (any(b in rg for b in BAD) and not any(o in rg for o in OK_ANYWAY))
+        print('BŁĄD-GRA', q['id'], 'zła:', 'pada' if wrong_fails else 'PRZECHODZI', '| dobra:', 'OK' if good_passes else 'PADA')
+        if wrong_fails and good_passes: ok_ids.append(q['id'])
+        else: errs.append({'komenda': q['id'], 'odpowiedz': f'zła → {rw[:140]} | dobra → {rg[:140]}'})
+    return ok_ids, errs, len(data['pytania'])
+
+
+# ---------------------------------------------------------------- MOTD (lustro assets/js/motd.js)
+MOTD_SAMPLE = '§4§lK§c§lI§6§lL§e§lE§6§lK§7 Serwer ŻÓŁW\n§aSerca i sklep'
+
+def motd_property(raw):
+    out = []
+    for ch in raw:
+        if ch == '\n': out.append('\\n')
+        elif ord(ch) > 126: out.append('\\u%04X' % ord(ch))
+        else: out.append(ch)
+    return 'motd=' + ''.join(out)
+
+def _varint(n):
+    b = b''
+    while True:
+        t = n & 0x7F; n >>= 7
+        b += bytes([t | (0x80 if n else 0)])
+        if not n: return b
+
+def status_ping(port):
+    s = socket.create_connection(('127.0.0.1', port), timeout=10)
+    host = b'127.0.0.1'
+    hs = _varint(0) + _varint(767) + _varint(len(host)) + host + struct.pack('>H', port) + _varint(1)
+    s.sendall(_varint(len(hs)) + hs + _varint(1) + _varint(0))
+    def rv():
+        n = sh = 0
+        while True:
+            b = s.recv(1)[0]; n |= (b & 0x7F) << sh; sh += 7
+            if not b & 0x80: return n
+    ln = rv(); data = b''
+    while len(data) < ln: data += s.recv(ln - len(data))
+    i = 1; n = sh = 0  # pomijamy id pakietu, czytamy długość tekstu
+    while True:
+        b = data[i]; i += 1; n |= (b & 0x7F) << sh; sh += 7
+        if not b & 0x80: break
+    return json.loads(data[i:i + n].decode('utf-8'))
+
+def flat_text(c):
+    if isinstance(c, str): return c
+    t = c.get('text', '') if isinstance(c, dict) else ''
+    for e in (c.get('extra', []) if isinstance(c, dict) else []): t += flat_text(e)
+    return t
+
 # ---------------------------------------------------------------- główny przebieg
 def main():
     ap = argparse.ArgumentParser()
@@ -206,6 +266,7 @@ def main():
         'online-mode=false', 'level-type=minecraft\\:flat', 'generate-structures=false',
         'spawn-protection=0', 'max-players=2', 'view-distance=3', 'simulation-distance=3',
         'initial-enabled-packs=vanilla,file/kilekcraft_test',
+        motd_property(MOTD_SAMPLE),
     ]) + '\n')
 
     proc = subprocess.Popen([a.java, '-Xms1G', '-Xmx2G', '-jar', 'server.jar', 'nogui'], cwd=wd,
@@ -242,6 +303,19 @@ def main():
         failed += len(errs)
         results[tpl] = {'ok': not errs, 'wersja': version, 'silnik': label, 'data': date.today().isoformat(),
                         'przetestowano': len(cmds), 'bledy': errs}
+    try:
+        st = status_ping(25566); txt = flat_text(st.get('description', ''))
+        plain = re.sub('§.', '', txt)
+        m_ok = 'KILEK' in plain and 'ŻÓŁW' in plain and 'Serca i sklep' in plain
+        print('MOTD →', repr(txt)[:200], 'OK' if m_ok else 'BŁĄD')
+        results['motd'] = {'ok': m_ok, 'wersja': version, 'silnik': label, 'data': date.today().isoformat(), 'przetestowano': 1, 'bledy': [] if m_ok else [{'komenda': 'status', 'odpowiedz': repr(st)[:300]}]}
+    except Exception as e:
+        print('MOTD: błąd pingu', e)
+        results['motd'] = {'ok': False, 'wersja': version, 'silnik': label, 'data': date.today().isoformat(), 'przetestowano': 1, 'bledy': [{'komenda': 'status', 'odpowiedz': str(e)[:300]}]}
+    ids, berrs, total = test_bledy(rcon)
+    # Pytanie bez potwierdzenia nie psuje testu, tylko znika z gry.
+    results['bledy'] = {'ok': len(ids) > 0, 'wersja': version, 'silnik': label, 'data': date.today().isoformat(),
+                        'przetestowano': total, 'zweryfikowane': ids, 'bledy': berrs}
     ok, meta, info = test_datapack(rcon, wd, metas)
     for k, v in info: print('DATAPACK', k, '→', v[:160].replace('\n', ' '))
     results['datapack'] = {'ok': ok, 'wersja': version, 'silnik': label, 'data': date.today().isoformat(),

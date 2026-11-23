@@ -31,7 +31,7 @@ function showDiff() {
 async function build(animate = true) {
   room = generate(state);
   const code = encode(state);
-  $('#code').value = code; store.set('komnata', state);
+  $('#code').value = code; $('#playLink').href = 'parkour.html#' + code; store.set('komnata', state);
   try { history.replaceState(null, '', '#' + code); } catch { /* podgląd bez historii */ }
   const T = THEMES[state.theme];
   $('#kTitle').textContent = `${state.type === 'labirynt' ? 'Labirynt' : 'Parkour'} · ${T.name}`;

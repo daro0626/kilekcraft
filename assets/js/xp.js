@@ -6,6 +6,7 @@
 //   award('klucz', 5, {once:false}) → za każdym razem
 //   badge('id')                   → odblokuj odznakę
 // =========================================================
+import { sfx } from './sfx.js';
 const KEY = 'kc:xp';
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -21,9 +22,13 @@ export const BADGES = [
   { id: 'hardcore', name: 'Bez litości', desc: 'Wygeneruj komnatę o trudności 9 lub 10', ico: '☠' },
   { id: 'strateg', name: 'Strateg LifeSteal', desc: 'Przetestuj zasady w symulatorze', ico: '♥' },
   { id: 'balans', name: 'Mistrz balansu', desc: 'Ustaw zasady, przy których po 14 dniach gra ponad połowa graczy', ico: '⚖' },
+  { id: 'lowca', name: 'Łowca błędów', desc: 'Zdobądź 1500 punktów w grze Znajdź błąd', ico: '!' },
+  { id: 'parkour', name: 'Skoczek', desc: 'Ukończ wyścig parkour w przeglądarce', ico: '↗' },
+  { id: 'speedrun', name: 'Speedrunner', desc: 'Ukończ wyścig o trudności 7 lub więcej', ico: '⏱' },
+  { id: 'kolo', name: 'Szczęśliwy los', desc: 'Zakręć kołem wyzwań', ico: '◎' },
   { id: 'odkrywca', name: 'Odkrywca', desc: 'Odwiedź wszystkie strony KILEKCRAFT', ico: '✦' },
 ];
-const PAGES = ['index', 'serwer', 'hosting', 'komendy', 'budowle', 'edytor', 'komnaty', 'symulator'];
+const PAGES = ['index', 'serwer', 'hosting', 'komendy', 'budowle', 'edytor', 'komnaty', 'symulator', 'gry', 'bledy', 'parkour', 'kolo', 'motd'];
 
 // próg XP potrzebny na dany poziom: 0, 50, 150, 300, 500, 750…
 export const xpFor = (lvl) => 25 * lvl * (lvl - 1);
@@ -42,7 +47,7 @@ export function award(key, amount, opts = {}) {
   S.got[key] = 1;
   const before = levelOf(S.xp);
   S.xp += amount; save();
-  render(); float(`+${amount} XP`, opts.from);
+  render(); float(`+${amount} XP`, opts.from); sfx('xp');
   const after = levelOf(S.xp);
   if (after > before) levelUp(after);
   return true;
@@ -104,12 +109,14 @@ function float(text, from) {
   ], { duration: 1100, easing: 'cubic-bezier(.5,0,.3,1)' }).onfinish = () => { el.remove(); btn.classList.remove('pulse'); void btn.offsetWidth; btn.classList.add('pulse'); };
 }
 function levelUp(l) {
+  setTimeout(() => sfx('level'), 250);
   const el = document.createElement('div'); el.className = 'lvl-up'; el.setAttribute('role', 'status');
   el.innerHTML = `<span class="lu-small">Nowy poziom</span><span class="lu-big">${[...('POZIOM ' + l)].map((c, i) => `<i style="--i:${i}">${c === ' ' ? '&nbsp;' : c}</i>`).join('')}</span>`;
   document.body.appendChild(el);
   setTimeout(() => el.classList.add('out'), 2200); setTimeout(() => el.remove(), 2800);
 }
 function showBadge(b) {
+  sfx('badge');
   const el = document.createElement('div'); el.className = 'badge-pop'; el.setAttribute('role', 'status');
   el.innerHTML = `<i>${b.ico}</i><div><span>Nowa odznaka</span><b>${b.name}</b></div>`;
   document.body.appendChild(el);

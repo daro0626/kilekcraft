@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Koło wyzwań budowlanych — KILEKCRAFT</title>
+<meta name="description" content="Wylosuj temat, materiał, czas i zasadę budowania. Stoper, historia losowań i wyzwania dla kolegów.">
+<link rel="icon" href="data:,">
+<meta name="theme-color" content="#0b1020">
+<link rel="preload" href="assets/fonts/jersey-10-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<a class="skip" href="#main">Przejdź do treści</a>
+<header class="top">
+  <div class="wrap">
+    <a class="logo" href="index.html" aria-label="KILEKCRAFT — strona główna"><span class="cube"></span><span>KILEK<b>CRAFT</b></span></a>
+    <button class="menu-btn" aria-expanded="false" aria-controls="nav">Menu</button>
+    <nav class="nav" id="nav" aria-label="Główne">
+      <a href="serwer.html">Serwer</a>
+      <a href="hosting.html">Hosting</a>
+      <a href="komendy.html">Komendy</a>
+      <a href="budowle.html">Budowle</a>
+      <a href="edytor.html">Edytor</a>
+      <a href="komnaty.html">Komnaty</a>
+      <a href="gry.html" aria-current="page">Gry</a>
+      <a href="symulator.html">Symulator</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+  <div class="page-head">
+    <div class="eyebrow">Gra · Koło wyzwań</div>
+    <h1 data-anim="drop">Co budujesz dziś?</h1>
+    <p class="lead">Zakręć i wylosuj temat, materiał, czas i jedną dodatkową zasadę. Potem włącz stoper i buduj w grze albo w edytorze. Najlepiej z kolegami, każdy na swojej działce.</p>
+  </div>
+
+  <div class="slot panel corner">
+    <div class="reels" id="reels">
+      <div class="reel"><span class="rl">Temat</span><div class="win"><div class="strip" id="r0"></div></div></div>
+      <div class="reel"><span class="rl">Materiał</span><div class="win"><div class="strip" id="r1"></div></div></div>
+      <div class="reel"><span class="rl">Czas</span><div class="win"><div class="strip" id="r2"></div></div></div>
+      <div class="reel"><span class="rl">Zasada</span><div class="win"><div class="strip" id="r3"></div></div></div>
+    </div>
+    <div class="slot-btns">
+      <button type="button" class="btn spin-btn" id="spin">Zakręć!</button>
+      <button type="button" class="btn ghost" id="timerBtn" disabled>Start stopera</button>
+      <a class="btn ghost sm" href="edytor.html">Otwórz edytor</a>
+    </div>
+  </div>
+
+  <div class="kolo-grid">
+    <div class="panel pad timer-box">
+      <h2 class="section-heading">Stoper</h2>
+      <div class="ring"><svg viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="52" class="rbg"/><circle cx="60" cy="60" r="52" class="rfg" id="ring"/></svg><b id="clock">--:--</b></div>
+      <div class="copy-row" style="justify-content:center"><button type="button" class="btn ghost sm" id="pause" disabled>Pauza</button><button type="button" class="btn ghost sm" id="stopT" disabled>Koniec</button></div>
+    </div>
+    <div class="panel pad">
+      <h2 class="section-heading">Ostatnie losowania</h2>
+      <ol class="hist" id="hist"></ol>
+      <p class="muted small">Zrób zrzut ekranu gotowej budowli i porównajcie z kolegami, kto lepiej trzymał się zasad.</p>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="disc">NOT AN OFFICIAL MINECRAFT SERVICE. NOT APPROVED BY OR ASSOCIATED WITH MOJANG OR MICROSOFT.</div>
+    <p>KILEKCRAFT to fanowski projekt edukacyjny. Wyniki i postęp zapisują się tylko w tej przeglądarce. © <span data-year></span></p>
+  </div>
+</footer>
+<script type="module" src="assets/js/kolo.js"></script>
+</body>
+</html>

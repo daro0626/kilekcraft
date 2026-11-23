@@ -3,7 +3,7 @@
 // =========================================================
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/OrbitControls.js';
-import { store, reduced, copyText, toast, award, badge, bump } from './core.js';
+import { store, reduced, copyText, toast, award, badge, bump, sfx } from './core.js';
 import { BLOCKS, BUILDS, getBuild } from './builds.js';
 import { materialFor } from './voxel-scene.js';
 import { exportLines, mcfunction, datapack, download, safeName, packInfo, exportPanelHTML } from './export.js';
@@ -172,6 +172,7 @@ el.addEventListener('pointerup', (e) => {
   const cells = expand(t);
   const ch = cells.map(p => ({ k: key(...p), to: tool === 'erase' ? null : cur }));
   const done = apply(ch);
+  if (done.length) sfx(tool === 'erase' ? 'remove' : 'place');
   if (tool === 'build' && done.length) {
     award('ed:start', 10);
     let n = 0; for (let i = 0; i < done.length; i++) n = bump('ed:bloki');
