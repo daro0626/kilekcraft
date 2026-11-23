@@ -339,8 +339,10 @@ def main():
     ap.add_argument('--engine', choices=['vanilla', 'paper'], default='vanilla')
     ap.add_argument('--workdir', default=str(ROOT / '.mc-test'))
     ap.add_argument('--java', default='java')
+    ap.add_argument('--report-dir', type=Path, default=ROOT / 'data')
     a = ap.parse_args()
 
+    a.report_dir.mkdir(parents=True, exist_ok=True)
     wd = Path(a.workdir); wd.mkdir(exist_ok=True)
     jar = wd / 'server.jar'
     version, label = (fetch_vanilla if a.engine == 'vanilla' else fetch_paper)(a.version, jar)
@@ -418,7 +420,7 @@ def main():
         results['warstwy'] = {'ok': lok, 'wersja': version, 'silnik': label, 'data': date.today().isoformat(),
                               'przetestowano': 4, 'bledy': [] if lok else [{'komenda': k, 'odpowiedz': v[:300]} for k, v in linfo]}
         failed += not lok
-        (ROOT / 'data/datapack.json').write_text(json.dumps({
+        (a.report_dir / 'datapack.json').write_text(json.dumps({
             '_opis': 'Zawartość pack.mcmeta dla eksportowanych datapacków. Zapisane przez tools/test_commands.py po udanym teście.',
             'pack': meta, 'sprawdzone': True, 'wersja': version, 'silnik': label, 'data': date.today().isoformat()},
             ensure_ascii=False, indent=2), encoding='utf-8')
@@ -430,7 +432,7 @@ def main():
 
     out = {'_opis': 'Wyniki automatycznego testu komend. Plik nadpisuje tools/test_commands.py.',
            'serwer': label, 'data': date.today().isoformat(), 'wyniki': results, 'szczegoly': details}
-    (ROOT / 'data/testy.json').write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding='utf-8')
+    (a.report_dir / 'testy.json').write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding='utf-8')
     print(f'\nZapisano data/testy.json. Błędów: {failed}')
     sys.exit(1 if failed else 0)
 
