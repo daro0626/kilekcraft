@@ -74,6 +74,119 @@ def parkour(page, mobile):
 
 
 
+def parkour_input(page, verify_physics=True):
+    # Diagnostyka podłączona przez Playwright do prawdziwych funkcji gry.
+    def instrument(route):
+        response = route.fetch()
+        source = response.text()
+        hook = """
+          window.parkourProbe = {
+            keys: () => [...keys],
+            xz: () => [pos.x, pos.z],
+            yaw: () => yaw,
+            roof() {
+              reset(false);
+              const x = Math.floor(pos.x), z = Math.floor(pos.z);
+              const ceiling = Math.floor(pos.y) + 2;
+              solid.set(k3(x, ceiling, z), 'stone');
+              jumpBuffer = .12;
+              const render = renderer.render;
+              renderer.render = () => {};
+              let maximum = 0;
+              try {
+                for (let i = 0; i < 60; i++) {
+                  step(tick);
+                  for (const angle of [-1.45, -.85, 0, .85, 1.45]) {
+                    pitch = angle;
+                    draw(performance.now(), true);
+                    camera.updateMatrixWorld();
+                    maximum = Math.max(maximum, camera.position.y);
+                    for (const sx of [-1, 1]) for (const sy of [-1, 1]) {
+                      const corner = new THREE.Vector3(sx, sy, -1).unproject(camera);
+                      maximum = Math.max(maximum, corner.y);
+                    }
+                  }
+                }
+              } finally { renderer.render = render; }
+              return maximum < ceiling;
+            },
+            longGhost() {
+              reset(true);
+              started = true;
+              for (let i = 0; i < 72000; i++) step(tick);
+              const count = recording.length;
+              win();
+              const data = JSON.stringify(store.get('pk:ghost:' + encode(state)));
+              return {count, bytes: data.length * 2, last: JSON.parse(data).at(-1)[0]};
+            },
+          };
+        """
+        source = source.replace('  return { loadLevel, play };', hook + '  return { loadLevel, play };')
+        route.fulfill(response=response, body=source)
+
+    page.route('**/assets/js/parkour-game.js', instrument)
+    page.add_init_script("""HTMLCanvasElement.prototype.requestPointerLock = function() {
+        return Promise.reject(new DOMException('Blokada niedostępna', 'NotAllowedError'));
+    };""")
+    page.goto(f'{BASE}/parkour.html?regresja#L4-K-4821')
+    page.locator('#play').click()
+    canvas = page.locator('#gl')
+    expect(canvas).to_be_focused()
+    hint = page.locator('.pk-hint')
+    expect(hint).to_contain_text('Przeciągnij')
+    viewport = page.viewport_size
+    page.set_viewport_size({'width': 390, 'height': 844})
+    bounds = page.locator('#wrapG').bounding_box()
+    shown = hint.bounding_box()
+    assert bounds['x'] <= shown['x'] and shown['x'] + shown['width'] <= bounds['x'] + bounds['width']
+    page.set_viewport_size(viewport)
+    origin = page.evaluate('parkourProbe.xz()')
+    canvas.dispatch_event('keydown', dict(code='KeyA', key='a'))
+    page.wait_for_function('(start) => parkourProbe.xz().some((p,i) => Math.abs(p-start[i]) > .04)', arg=origin)
+    canvas.dispatch_event('keyup', dict(code='KeyA', key='ą', altKey=True, ctrlKey=True))
+    assert page.evaluate('parkourProbe.keys()') == []
+    page.wait_for_timeout(300)
+    stopped = page.evaluate('parkourProbe.xz()')
+    page.wait_for_timeout(160)
+    assert page.evaluate('parkourProbe.xz()') == stopped
+    canvas.dispatch_event('keydown', dict(code='KeyE', key='ę', altKey=True, ctrlKey=True))
+    assert page.evaluate('parkourProbe.keys()') == []
+    before = page.evaluate('parkourProbe.yaw()')
+    box = canvas.bounding_box()
+    x, y = box['x'] + box['width'] / 2, box['y'] + box['height'] / 2
+    page.mouse.move(x, y)
+    page.mouse.down()
+    page.mouse.move(x + 64, y + 22, steps=4)
+    page.mouse.up()
+    assert page.evaluate('parkourProbe.yaw()') != before
+    canvas.dispatch_event('keydown', dict(code='KeyA', key='a'))
+    page.evaluate("window.dispatchEvent(new Event('blur'))")
+    expect(page.locator('#over')).to_be_visible()
+    assert page.evaluate('parkourProbe.keys()') == []
+    page.locator('#play').click()
+    canvas.dispatch_event('keydown', dict(code='KeyA', key='a'))
+    page.evaluate("""() => {
+        Object.defineProperty(document, 'hidden', { configurable: true, value: true });
+        document.dispatchEvent(new Event('visibilitychange'));
+        delete document.hidden;
+    }""")
+    expect(page.locator('#over')).to_be_visible()
+    assert page.evaluate('parkourProbe.keys()') == []
+    if verify_physics:
+        page.locator('#play').click()
+        page.keyboard.press('v')
+        assert page.evaluate('parkourProbe.roof()')
+        # Osobny układ z najdłuższą trasą, żeby sufit testowy nie wpłynął na zapis.
+        page.goto(f'{BASE}/parkour.html?regresja=duch#G10-K-4821')
+        page.locator('#play').click()
+        page.wait_for_function('typeof parkourProbe !== "undefined"')
+        recording = page.evaluate('parkourProbe.longGhost()')
+        assert recording['count'] < 2048 and recording['bytes'] < 200_000 and recording['last'] == 600, recording
+        print('Duch G10, 600 s:', recording['bytes'], 'B UTF-16', flush=True)
+    page.unroute('**/assets/js/parkour-game.js')
+
+
+
 def wyzwanie(page, mobile):
     code = page.locator('#dzienKod').inner_text()
     assert code and code != '—', code
@@ -406,6 +519,8 @@ def run(browser, width, height):
             progress_backup(page)
         if name == 'parkour':
             parkour(page, mobile)
+            if not mobile:
+                parkour_input(page)
         if name == 'wyzwanie':
             wyzwanie(page, mobile)
         if name == 'hosting':
