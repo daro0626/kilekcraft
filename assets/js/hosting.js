@@ -85,7 +85,7 @@ function render() {
   const list = H.map(h => rate(h, a, ram)).sort((x, y) => y.s - x.s).slice(0, 3);
   // jedno zdanie na górze: co wybrać i za ile
   const top = list[0];
-  document.getElementById('pick').innerHTML = `Dla was najlepiej: <b>${top.h.nazwa}</b> · <b>${top.c.pln ? '~' + zl(Math.round(top.c.pln * 100) / 100) : '0 zł'}</b> miesięcznie · ${ram} GB RAM`;
+  document.getElementById('pick').innerHTML = `Na początek polecamy <b>${top.h.nazwa}</b> (${top.c.pln ? 'ok. ' + zl(Math.round(top.c.pln * 100) / 100) : '0 zł'} miesięcznie, ok. ${ram} GB RAM). To propozycja na podstawie twoich odpowiedzi. Przed wyborem zajrzyj też do innych opcji.`;
   const li = (arr) => arr.map(p => `<li>${p}</li>`).join('');
   out.innerHTML = list.map((r, i) => {
     const h = r.h, free = r.c.pln === 0, first = i === 0;
