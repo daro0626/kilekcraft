@@ -235,6 +235,14 @@
       "data": "2026-11-23",
       "przetestowano": 8,
       "bledy": []
+    },
+    "warstwy": {
+      "ok": true,
+      "wersja": "26.3",
+      "silnik": "vanilla 26.3",
+      "data": "2026-11-23",
+      "przetestowano": 4,
+      "bledy": []
     }
   },
   "szczegoly": [

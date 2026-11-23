@@ -149,6 +149,32 @@ def export_lines(blocks):
         flush(s, p)
     return out
 
+OBJ = 'kc_warstwa'
+
+def layer_functions(blocks, name):
+    # Lustro layerFunctions z assets/js/export.js. blocks: [x, y, z, id]; name już bezpieczne.
+    tag, who, fn = 'kc_' + name, '#' + name, lambda f: f'kilekcraft:{name}/{f}'
+    at = f'at @e[type=minecraft:marker,tag={tag},limit=1]'
+    ys = sorted({b[1] for b in blocks})
+    n = len(ys)
+    if not n: return []
+    files = []
+    for i, y in enumerate(ys):
+        lines = export_lines([b for b in blocks if b[1] == y])
+        files.append((f'warstwa_{i + 1}', lines + [f'title @a actionbar {{"text":"Warstwa {i + 1} z {n}","color":"gold"}}']))
+        files.append((f'usun_{i + 1}', [l.rsplit(' ', 1)[0] + ' minecraft:air' for l in lines]))
+    files.append(('start', [f'kill @e[type=minecraft:marker,tag={tag}]', f'summon minecraft:marker ~ ~ ~ {{Tags:["{tag}"]}}',
+                            f'scoreboard objectives add {OBJ} dummy', f'scoreboard players set {who} {OBJ} 0',
+                            f'title @s actionbar {{"text":"Start zapamiętany. Warstw: {n}","color":"green"}}']))
+    files.append(('nastepna', [f'scoreboard players add {who} {OBJ} 1',
+                               f'execute if score {who} {OBJ} matches {n + 1}.. run scoreboard players set {who} {OBJ} {n}']
+                  + [f"execute if score {who} {OBJ} matches {i + 1} {at} run function {fn(f'warstwa_{i + 1}')}" for i in range(n)]))
+    files.append(('cofnij', [f"execute if score {who} {OBJ} matches {i + 1} {at} run function {fn(f'usun_{i + 1}')}" for i in range(n)]
+                  + [f'execute if score {who} {OBJ} matches 1.. run scoreboard players remove {who} {OBJ} 1']))
+    files.append(('animacja', [f"function {fn('start')}", f"schedule function {fn('krok')} 10t"]))
+    files.append(('krok', [f"function {fn('nastepna')}", f"execute if score {who} {OBJ} matches ..{n - 1} run schedule function {fn('krok')} 10t"]))
+    return [{'path': f'{name}/{f}.mcfunction', 'text': '\n'.join(lines) + '\n'} for f, lines in files]
+
 def pack_version(jar):
     """Czyta numer formatu datapacka z version.json w pliku serwera."""
     import zipfile, io
@@ -179,6 +205,9 @@ def write_pack(wd, meta):
     (d / 'data' / 'kilekcraft' / 'function').mkdir(parents=True, exist_ok=True)
     (d / 'pack.mcmeta').write_text(json.dumps({'pack': {'description': 'KILEKCRAFT test', **meta}}), encoding='utf-8')
     (d / 'data' / 'kilekcraft' / 'function' / 'test.mcfunction').write_text('\n'.join(export_lines(SAMPLE)) + '\n', encoding='utf-8')
+    (d / 'data' / 'kilekcraft' / 'function' / 'test').mkdir(exist_ok=True)
+    for f in layer_functions(SAMPLE, 'test'):
+        (d / 'data' / 'kilekcraft' / 'function' / f['path']).write_text(f['text'], encoding='utf-8')
 
 def test_datapack(rcon, wd, metas):
     """Zwraca (ok, meta, szczegóły)."""
@@ -199,6 +228,27 @@ def test_datapack(rcon, wd, metas):
         if all(checks):
             return True, meta, info
     return False, None, info
+
+
+def test_layers(rcon):
+    # Budowanie warstwa po warstwie: start, następna, cofnij i animacja przez schedule.
+    info, ok = [], True
+    def has(base, blocks, bid=None):
+        res = [rcon.cmd(f'execute if block {x + OFFSET_X} {base + y} {z} {bid or b}') for x, y, z, b in blocks]
+        return all('passed' in r.lower() for r in res)
+    low = [b for b in SAMPLE if b[1] == 0]; high = [b for b in SAMPLE if b[1] == 1]
+    info.append(('start', rcon.cmd('execute positioned 0 130 0 run function kilekcraft:test/start')))
+    time.sleep(1)  # znacznik z summon jest widoczny dla @e dopiero po ticku; gracz i tak wpisuje komendy po kolei
+    info.append(('nastepna 1', rcon.cmd('function kilekcraft:test/nastepna')))
+    a, b = has(130, low), has(130, high, 'minecraft:air'); info.append(('po 1. warstwie', f'dół={a} góra pusta={b}')); ok = ok and a and b
+    info.append(('nastepna 2', rcon.cmd('function kilekcraft:test/nastepna')))
+    a = has(130, high); info.append(('po 2. warstwie', f'góra={a}')); ok = ok and a
+    info.append(('cofnij', rcon.cmd('function kilekcraft:test/cofnij')))
+    a, c = has(130, high, 'minecraft:air'), has(130, low); info.append(('po cofnij', f'góra pusta={a} dół={c}')); ok = ok and a and c
+    info.append(('animacja', rcon.cmd('execute positioned 0 150 0 run function kilekcraft:test/animacja')))
+    time.sleep(3)
+    a = has(150, SAMPLE); info.append(('po animacji', f'całość={a}')); ok = ok and a
+    return ok, info
 
 
 # ---------------------------------------------------------------- gra „Znajdź błąd”
@@ -363,6 +413,11 @@ def main():
     results['datapack'] = {'ok': ok, 'wersja': version, 'silnik': label, 'data': date.today().isoformat(),
                            'przetestowano': len(SAMPLE), 'bledy': [] if ok else [{'komenda': k, 'odpowiedz': v[:300]} for k, v in info[-6:]]}
     if ok:
+        lok, linfo = test_layers(rcon)
+        for k, v in linfo: print('WARSTWY', k, '→', v[:160].replace('\n', ' '))
+        results['warstwy'] = {'ok': lok, 'wersja': version, 'silnik': label, 'data': date.today().isoformat(),
+                              'przetestowano': 4, 'bledy': [] if lok else [{'komenda': k, 'odpowiedz': v[:300]} for k, v in linfo]}
+        failed += not lok
         (ROOT / 'data/datapack.json').write_text(json.dumps({
             '_opis': 'Zawartość pack.mcmeta dla eksportowanych datapacków. Zapisane przez tools/test_commands.py po udanym teście.',
             'pack': meta, 'sprawdzone': True, 'wersja': version, 'silnik': label, 'data': date.today().isoformat()},

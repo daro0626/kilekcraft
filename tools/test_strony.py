@@ -4,7 +4,7 @@ import os
 
 from playwright.sync_api import expect, sync_playwright
 
-from test_commands import DATA, commands, export_lines, SAMPLE, motd_property, MOTD_SAMPLE
+from test_commands import DATA, commands, export_lines, layer_functions, SAMPLE, motd_property, MOTD_SAMPLE
 
 
 BASE = 'http://127.0.0.1:8000'
@@ -34,6 +34,8 @@ def export_parity(page):
     blocks = [[x, y, z, SAMPLE_TYPES[b]] for x, y, z, b in SAMPLE]
     actual = page.evaluate('async b => (await import("./assets/js/export.js")).exportLines(b)', blocks)
     assert actual == export_lines(SAMPLE), (actual, export_lines(SAMPLE))
+    layers = page.evaluate('async b => (await import("./assets/js/export.js")).layerFunctions(b, "test")', blocks)
+    assert layers == layer_functions(SAMPLE, 'test'), (layers, layer_functions(SAMPLE, 'test'))
 
 
 def smoke(page, name):

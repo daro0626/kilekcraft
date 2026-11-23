@@ -18,9 +18,9 @@
 | Przepis „Pierwszy serwer” w 9 szortach | `serwer.html` | gotowe, czeka na test Piotrka |
 | Przepis „LifeSteal z ekonomią serc” w 9 szortach | `lifesteal.html` | gotowe, komenda serc czeka na test CI, plugin opisany ze źródeł |
 | Doradca hostingu z cenami | `hosting.html` | gotowe, ceny z datami |
-| Kreator komend z podglądem (18 rodzajów) | `komendy.html` | gotowe, nowe komendy czekają na test CI |
-| Wielkie budowle 3D warstwa po warstwie | `budowle.html` | gotowe (4 budowle generowane kodem + 2 filmy) |
-| Edytor budowli 3D z eksportem do datapacka | `edytor.html` | gotowe, datapack czeka na test CI |
+| Kreator komend z podglądem (18 rodzajów) | `komendy.html` | gotowe, wszystkie 18 sprawdzone na serwerze 26.3 |
+| Wielkie budowle 3D warstwa po warstwie | `budowle.html` | gotowe (8 budowli + 2 filmy, datapack do każdej) |
+| Edytor budowli 3D z eksportem do datapacka | `edytor.html` | gotowe; całość, animacja i warstwy sprawdzone na serwerze 26.3 |
 | Generator komnat-wyzwań (parkour, góra, labirynt) | `komnaty.html` | gotowe, skoki do sprawdzenia w grze |
 | Symulator LifeSteal | `symulator.html` | gotowe (model uproszczony) |
 | Poziom gracza: XP i 19 odznak | wszystkie strony | gotowe |
