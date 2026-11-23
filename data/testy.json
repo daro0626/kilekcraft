@@ -1,12 +1,12 @@
 {
   "_opis": "Wyniki automatycznego testu komend. Plik nadpisuje tools/test_commands.py.",
-  "serwer": "vanilla 26.3",
+  "serwer": "Paper 26.3 build 259 (STABLE)",
   "data": "2026-11-23",
   "wyniki": {
     "give": {
       "ok": true,
       "wersja": "26.3",
-      "silnik": "vanilla 26.3",
+      "silnik": "Paper 26.3 build 259 (STABLE)",
       "data": "2026-11-23",
       "przetestowano": 28,
       "bledy": []
@@ -14,7 +14,7 @@
     "effect": {
       "ok": true,
       "wersja": "26.3",
-      "silnik": "vanilla 26.3",
+      "silnik": "Paper 26.3 build 259 (STABLE)",
       "data": "2026-11-23",
       "przetestowano": 24,
       "bledy": []
@@ -22,7 +22,7 @@
     "title": {
       "ok": true,
       "wersja": "26.3",
-      "silnik": "vanilla 26.3",
+      "silnik": "Paper 26.3 build 259 (STABLE)",
       "data": "2026-11-23",
       "przetestowano": 15,
       "bledy": []
@@ -30,7 +30,7 @@
     "tp": {
       "ok": true,
       "wersja": "26.3",
-      "silnik": "vanilla 26.3",
+      "silnik": "Paper 26.3 build 259 (STABLE)",
       "data": "2026-11-23",
       "przetestowano": 3,
       "bledy": []
@@ -38,7 +38,7 @@
     "gamerule": {
       "ok": true,
       "wersja": "26.3",
-      "silnik": "vanilla 26.3",
+      "silnik": "Paper 26.3 build 259 (STABLE)",
       "data": "2026-11-23",
       "przetestowano": 7,
       "bledy": []
@@ -46,7 +46,7 @@
     "whitelist": {
       "ok": true,
       "wersja": "26.3",
-      "silnik": "vanilla 26.3",
+      "silnik": "Paper 26.3 build 259 (STABLE)",
       "data": "2026-11-23",
       "przetestowano": 6,
       "bledy": []
@@ -54,7 +54,7 @@
     "attribute": {
       "ok": true,
       "wersja": "26.3",
-      "silnik": "vanilla 26.3",
+      "silnik": "Paper 26.3 build 259 (STABLE)",
       "data": "2026-11-23",
       "przetestowano": 8,
       "bledy": []
@@ -62,7 +62,7 @@
     "gamemode": {
       "ok": true,
       "wersja": "26.3",
-      "silnik": "vanilla 26.3",
+      "silnik": "Paper 26.3 build 259 (STABLE)",
       "data": "2026-11-23",
       "przetestowano": 4,
       "bledy": []
@@ -70,7 +70,7 @@
     "time": {
       "ok": true,
       "wersja": "26.3",
-      "silnik": "vanilla 26.3",
+      "silnik": "Paper 26.3 build 259 (STABLE)",
       "data": "2026-11-23",
       "przetestowano": 4,
       "bledy": []
@@ -78,7 +78,7 @@
     "weather": {
       "ok": true,
       "wersja": "26.3",
-      "silnik": "vanilla 26.3",
+      "silnik": "Paper 26.3 build 259 (STABLE)",
       "data": "2026-11-23",
       "przetestowano": 4,
       "bledy": []
@@ -86,7 +86,7 @@
     "difficulty": {
       "ok": true,
       "wersja": "26.3",
-      "silnik": "vanilla 26.3",
+      "silnik": "Paper 26.3 build 259 (STABLE)",
       "data": "2026-11-23",
       "przetestowano": 4,
       "bledy": []
@@ -94,7 +94,7 @@
     "summon": {
       "ok": true,
       "wersja": "26.3",
-      "silnik": "vanilla 26.3",
+      "silnik": "Paper 26.3 build 259 (STABLE)",
       "data": "2026-11-23",
       "przetestowano": 14,
       "bledy": []
@@ -102,7 +102,7 @@
     "enchant": {
       "ok": true,
       "wersja": "26.3",
-      "silnik": "vanilla 26.3",
+      "silnik": "Paper 26.3 build 259 (STABLE)",
       "data": "2026-11-23",
       "przetestowano": 22,
       "bledy": []
@@ -110,7 +110,7 @@
     "xp": {
       "ok": true,
       "wersja": "26.3",
-      "silnik": "vanilla 26.3",
+      "silnik": "Paper 26.3 build 259 (STABLE)",
       "data": "2026-11-23",
       "przetestowano": 3,
       "bledy": []
@@ -118,7 +118,7 @@
     "kill": {
       "ok": true,
       "wersja": "26.3",
-      "silnik": "vanilla 26.3",
+      "silnik": "Paper 26.3 build 259 (STABLE)",
       "data": "2026-11-23",
       "przetestowano": 5,
       "bledy": []
@@ -126,7 +126,7 @@
     "clear": {
       "ok": true,
       "wersja": "26.3",
-      "silnik": "vanilla 26.3",
+      "silnik": "Paper 26.3 build 259 (STABLE)",
       "data": "2026-11-23",
       "przetestowano": 2,
       "bledy": []
@@ -134,7 +134,7 @@
     "worldborder": {
       "ok": true,
       "wersja": "26.3",
-      "silnik": "vanilla 26.3",
+      "silnik": "Paper 26.3 build 259 (STABLE)",
       "data": "2026-11-23",
       "przetestowano": 4,
       "bledy": []
@@ -142,7 +142,7 @@
     "spawnpoint": {
       "ok": true,
       "wersja": "26.3",
-      "silnik": "vanilla 26.3",
+      "silnik": "Paper 26.3 build 259 (STABLE)",
       "data": "2026-11-23",
       "przetestowano": 2,
       "bledy": []
@@ -150,7 +150,7 @@
     "motd": {
       "ok": true,
       "wersja": "26.3",
-      "silnik": "vanilla 26.3",
+      "silnik": "Paper 26.3 build 259 (STABLE)",
       "data": "2026-11-23",
       "przetestowano": 1,
       "bledy": []
@@ -158,7 +158,7 @@
     "bledy": {
       "ok": true,
       "wersja": "26.3",
-      "silnik": "vanilla 26.3",
+      "silnik": "Paper 26.3 build 259 (STABLE)",
       "data": "2026-11-23",
       "przetestowano": 63,
       "zweryfikowane": [
@@ -231,7 +231,7 @@
     "datapack": {
       "ok": true,
       "wersja": "26.3",
-      "silnik": "vanilla 26.3",
+      "silnik": "Paper 26.3 build 259 (STABLE)",
       "data": "2026-11-23",
       "przetestowano": 8,
       "bledy": []
@@ -239,7 +239,7 @@
     "warstwy": {
       "ok": true,
       "wersja": "26.3",
-      "silnik": "vanilla 26.3",
+      "silnik": "Paper 26.3 build 259 (STABLE)",
       "data": "2026-11-23",
       "przetestowano": 4,
       "bledy": []
@@ -717,31 +717,31 @@
     {
       "szablon": "whitelist",
       "komenda": "whitelist add Test_Gracz",
-      "odpowiedz": "Added test_gracz to the whitelist",
+      "odpowiedz": "Added Test_Gracz to the whitelist",
       "ok": true
     },
     {
       "szablon": "whitelist",
       "komenda": "op Test_Gracz",
-      "odpowiedz": "Made test_gracz a server operator",
+      "odpowiedz": "Made Test_Gracz a server operator",
       "ok": true
     },
     {
       "szablon": "whitelist",
       "komenda": "whitelist list",
-      "odpowiedz": "There are 1 whitelisted player(s): test_gracz",
+      "odpowiedz": "There are 1 whitelisted player(s): Test_Gracz",
       "ok": true
     },
     {
       "szablon": "whitelist",
       "komenda": "deop Test_Gracz",
-      "odpowiedz": "Made test_gracz no longer a server operator",
+      "odpowiedz": "Made Test_Gracz no longer a server operator",
       "ok": true
     },
     {
       "szablon": "whitelist",
       "komenda": "whitelist remove Test_Gracz",
-      "odpowiedz": "Removed test_gracz from the whitelist",
+      "odpowiedz": "Removed Test_Gracz from the whitelist",
       "ok": true
     },
     {
