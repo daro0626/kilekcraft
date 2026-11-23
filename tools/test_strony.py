@@ -38,6 +38,17 @@ def export_parity(page):
     assert actual == export_lines(SAMPLE), (actual, export_lines(SAMPLE))
     layers = page.evaluate('async b => (await import("./assets/js/export.js")).layerFunctions(b, "test")', blocks)
     assert layers == layer_functions(SAMPLE, 'test'), (layers, layer_functions(SAMPLE, 'test'))
+    from test_commands import PALETTE_SAMPLE
+    for _, _, _, block in PALETTE_SAMPLE:
+        swatch = page.locator('#pal [data-t="' + block.split(':')[1] + '"]')
+        swatch.click()
+        expect(swatch).to_have_attribute('aria-checked', 'true')
+        expect(page.locator('#palName')).to_contain_text(block)
+    actual = page.evaluate(
+        'async names => (await import("./assets/js/export.js")).exportLines(names)',
+        [[x, y, z, block.split(':')[1]] for x, y, z, block in PALETTE_SAMPLE],
+    )
+    assert actual == export_lines(PALETTE_SAMPLE), actual
 
 
 def smoke(page, name):

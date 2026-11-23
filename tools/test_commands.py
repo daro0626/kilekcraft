@@ -202,11 +202,20 @@ def mcmeta_candidates(fmt):
         fmt = json.loads((ROOT / 'data/datapack.json').read_text(encoding='utf-8'))['pack'].get('pack_format', 95)
     return [{'pack_format': fmt, 'min_format': fmt, 'max_format': fmt}, {'pack_format': fmt}]
 
+PALETTE_CANDIDATES = (
+    'bricks', 'copper_block', 'cut_copper', 'prismarine', 'dark_prismarine',
+    'white_concrete', 'green_concrete', 'red_wool', 'blue_wool', 'moss_block', 'packed_ice',
+)
+PALETTE_SAMPLE = [(x, 0, 0, 'minecraft:' + name) for x, name in enumerate(PALETTE_CANDIDATES)]
+
+
 def write_pack(wd, meta):
     d = wd / 'world' / 'datapacks' / 'kilekcraft_test'
     (d / 'data' / 'kilekcraft' / 'function').mkdir(parents=True, exist_ok=True)
     (d / 'pack.mcmeta').write_text(json.dumps({'pack': {'description': 'KILEKCRAFT test', **meta}}), encoding='utf-8')
     (d / 'data' / 'kilekcraft' / 'function' / 'test.mcfunction').write_text('\n'.join(export_lines(SAMPLE)) + '\n', encoding='utf-8')
+    (d / 'data' / 'kilekcraft' / 'function' / 'paleta.mcfunction').write_text(
+        '\n'.join(export_lines(PALETTE_SAMPLE)) + '\n', encoding='utf-8')
     for name in ('test', 'drugi'):
         folder = d / 'data' / 'kilekcraft' / 'function'
         (folder / name).mkdir(exist_ok=True)
@@ -444,6 +453,19 @@ def main():
     for k, v in info: print('DATAPACK', k, '→', v[:160].replace('\n', ' '))
     results['datapack'] = {'ok': ok, 'wersja': version, 'silnik': label, 'data': date.today().isoformat(),
                            'przetestowano': len(SAMPLE), 'bledy': [] if ok else [{'komenda': k, 'odpowiedz': v[:300]} for k, v in info[-6:]]}
+    if ok:
+        reply = rcon.cmd('execute positioned 0 110 0 run function kilekcraft:paleta')
+        print('PALETA funkcja:', reply)
+        palette_errors = []
+        for x, _, z, block in PALETTE_SAMPLE:
+            reply = rcon.cmd(f'execute if block {x + OFFSET_X} 110 {z} {block}')
+            print('PALETA', block, reply)
+            if 'passed' not in reply.lower():
+                palette_errors.append({'komenda': block, 'odpowiedz': reply})
+        results['paleta'] = {'ok': not palette_errors, 'wersja': version, 'silnik': label,
+                             'data': date.today().isoformat(), 'przetestowano': len(PALETTE_SAMPLE),
+                             'bledy': palette_errors}
+        failed += len(palette_errors)
     if ok:
         lok, linfo = test_layers(rcon)
         for k, v in linfo: print('WARSTWY', k, '→', v[:160].replace('\n', ' '))
