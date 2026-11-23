@@ -8,9 +8,12 @@ const res = await fetch('data/hostingi.json');
 const DATA = await res.json();
 const KURS = DATA.kurs_eur_pln.wartosc;
 const H = DATA.hostingi;
-const zl = (v) => v.toLocaleString('pl-PL', { minimumFractionDigits: v % 1 ? 2 : 0, maximumFractionDigits: 2 }) + ' zł';
-const eur = (v) => v.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
-const date = (d) => new Date(d + 'T12:00').toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric' });
+const whole = new Intl.NumberFormat('pl-PL', { maximumFractionDigits: 0 });
+const decimal = new Intl.NumberFormat('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const calendar = new Intl.DateTimeFormat('pl-PL', { day: 'numeric', month: 'long', year: 'numeric' });
+const zl = (v) => (Number.isInteger(v) ? whole : decimal).format(v) + ' zł';
+const eur = (v) => decimal.format(v) + ' €';
+const date = (d) => calendar.format(new Date(d + 'T12:00'));
 
 const form = document.getElementById('quiz');
 const ans = () => Object.fromEntries([...new FormData(form)].map(([k, v]) => [k, +v]));

@@ -106,10 +106,10 @@ $('#play').addEventListener('click', () => viewer && build3d());
 $('#all').addEventListener('click', () => { matMode = 'all'; document.querySelectorAll('.mat-tabs .tab').forEach(x => x.setAttribute('aria-pressed', x.dataset.m === 'all')); setL(Infinity); });
 
 load(false);
-const { webglOK, createViewer } = await import('./voxel.js');
-if (webglOK()) {
-  const initial = b;
-  viewer = await createViewer(host, initial, { ghost: true, layerPlane: true });
+const { createViewer } = await import('./voxel.js');
+const initial = b;
+viewer = await createViewer(host, initial, { ghost: true, layerPlane: true });
+if (viewer) {
   if (b !== initial) viewer.setBuild(b);
   $('#poster').remove();
   setL(Infinity);

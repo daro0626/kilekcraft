@@ -5,7 +5,7 @@ self.onmessage = ({ data }) => {
   switch (data.type) {
     case 'init':
       scene = createScene(data.canvas, data.options, data.ratio);
-      self.postMessage('ready');
+      self.postMessage(scene ? 'ready' : 'unsupported');
       break;
     case 'build': scene.load(data.build); break;
     case 'layer': scene.setLayer(data.layer); break;

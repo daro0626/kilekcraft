@@ -72,7 +72,9 @@ function materialFor(type) {
 }
 
 export function createScene(canvas, o, ratio) {
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: ratio < 2, alpha: true, powerPreference: 'low-power' });
+  const context = canvas.getContext('webgl2', { antialias: ratio < 2, alpha: true, powerPreference: 'low-power' });
+  if (!context) return null;
+  const renderer = new THREE.WebGLRenderer({ canvas, context, alpha: true });
   renderer.setPixelRatio(Math.min(ratio, 2));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   const scene = new THREE.Scene();

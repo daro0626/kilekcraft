@@ -5,15 +5,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/OrbitControls.js';
 
-export function webglOK() {
-  try {
-    const context = document.createElement('canvas').getContext('webgl2');
-    context?.getExtension('WEBGL_lose_context')?.loseContext();
-    return !!context;
-  }
-  catch { return false; }
-}
-
 // Renderowanie nie zajmuje wątku obsługującego dotyk, DOM i napis z bloków.
 async function openScene(container, options) {
   let canvas = document.createElement('canvas');
@@ -25,7 +16,7 @@ async function openScene(container, options) {
       const offscreen = canvas.transferControlToOffscreen();
       await new Promise((resolve, reject) => {
         worker.onerror = event => { event.preventDefault(); reject(event.message); };
-        worker.onmessage = resolve;
+        worker.onmessage = ({ data }) => data === 'ready' ? resolve() : reject(new Error('Brak WebGL 2 w workerze'));
         worker.postMessage({ type: 'init', canvas: offscreen, options, ratio }, [offscreen]);
       });
       let drawing = false;
@@ -52,6 +43,7 @@ async function openScene(container, options) {
   }
   const { createScene } = await import('./voxel-scene.js');
   const scene = createScene(canvas, options, ratio);
+  if (!scene) return null;
   container.appendChild(canvas);
   return { ...scene, canvas, draw(frame) { scene.draw(frame); return true; } };
 }
@@ -59,6 +51,7 @@ async function openScene(container, options) {
 export async function createViewer(container, build, opts = {}) {
   const o = { autoRotate: false, ghost: true, layerPlane: true, motes: false, ...opts };
   const scene = await openScene(container, o);
+  if (!scene) return null;
   const canvas = scene.canvas;
   const camera = new THREE.PerspectiveCamera(38, 1, .5, 1000);
   const controls = new OrbitControls(camera, canvas);
