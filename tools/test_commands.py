@@ -90,14 +90,15 @@ def commands(new_names=True):
         c['effect'] += [f"effect give @a minecraft:{e['id']} 30 0", f"effect give @a minecraft:{e['id']} infinite 4 true"]
     for col in DATA['kolory_tekstu']:
         c['title'].append(f"title @a title {comp('Test ąęł', col['id'])}")
-    c['title'] += ["title @a times 10 70 20", f"title @a subtitle {comp('Mały napis', 'gold', False)}"]
+    c['title'] += ["title @a times 5 70 20", f"title @a subtitle {comp('Mały napis', 'gold', False)}",
+                   f"title @a title {comp('Test ąęł', 'gold', False)}"]
     c['tp'] += ['tp @a 0 100 0', 'tp @a ~ ~10 ~', 'tp @a -20 64 15']
     for z in DATA['zasady']:
         name = z['nowa'] if new_names else z.get('stara')
         if not name: continue
         val = 'true' if z['typ'] == 'bool' else '0'
         c['gamerule'].append(f'gamerule {name} {val}')
-    c['whitelist'] += ['whitelist on', 'whitelist add Test_Gracz', 'whitelist list', 'op Test_Gracz', 'deop Test_Gracz', 'whitelist remove Test_Gracz']
+    c['whitelist'] += ['whitelist on', 'whitelist add Test_Gracz', 'op Test_Gracz']
     return c
 
 BAD = ('Unknown or incomplete command', 'Incorrect argument', '<--[HERE]', 'Unknown item', 'Unknown effect',
@@ -146,7 +147,10 @@ def main():
 
     new_names = not (version.startswith('1.') and tuple(int(x) for x in (version.split('.') + ['0'])[1:3]) < (21, 11))
     results, details, failed = {}, [], 0
-    for tpl, cmds in commands(new_names).items():
+    cases = commands(new_names)
+    # Dodatkowe polecenia administracyjne testujemy tylko na serwerze.
+    cases['whitelist'] += ['whitelist list', 'deop Test_Gracz', 'whitelist remove Test_Gracz']
+    for tpl, cmds in cases.items():
         errs = []
         for cmd in cmds:
             out = rcon.cmd(cmd)

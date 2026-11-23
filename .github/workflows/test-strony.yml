@@ -1,0 +1,21 @@
+name: Testy strony
+on: [pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  playwright:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Przygotuj przeglądarkę testową
+        run: |
+          python -m pip install playwright==1.62.0
+          python -m playwright install --with-deps chromium
+      - name: Sprawdź stronę i narzędzia
+        run: |
+          python3 -m http.server 8000 --bind 127.0.0.1 &
+          python3 tools/test_strony.py
