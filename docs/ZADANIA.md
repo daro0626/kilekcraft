@@ -45,7 +45,7 @@ Każde zadanie kończy się dopiero, gdy spełnia kryteria akceptacji **oraz** b
 - **Akceptacja:** każda cena ma datę z ostatnich 30 dni i link do strony hosta.
 
 ### A4 [Piotrek] Przejście komnat w grze
-- Wygeneruj P3, P6, P8, P10 i L5, wgraj na świat testowy i przejdź je.
+- Wygeneruj P3, P6, P8, P10, G3, G7 i L5, wgraj na świat testowy i przejdź je. Na górze (G) sprawdź też, czy zbocza naprawdę nie dają się obejść skokami.
 - Zapisz kody komnat, w których któryś skok jest niemożliwy albo za łatwy. Poprawimy wtedy zasady skoków w `assets/js/komnaty-gen.js`.
 - **Akceptacja:** każdy poziom trudności ma co najmniej jedną komnatę przejdzioną przez Piotrka.
 
