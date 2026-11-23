@@ -16,7 +16,7 @@ UWAGA: uruchamiając serwer, akceptujesz EULA Minecrafta (https://aka.ms/Minecra
 Status: skrypt napisany bez dostępu do sieci Mojang/PaperMC. Pierwsze uruchomienie w CI
 trzeba obejrzeć. Szczególnie pobieranie Paper przez API v3 (patrz docs/ZADANIA.md, zadanie C1).
 """
-import argparse, threading, json, os, random, socket, string, struct, subprocess, sys, time, urllib.request
+import argparse, threading, re, json, os, random, socket, string, struct, subprocess, sys, time, urllib.request
 from datetime import date
 from pathlib import Path
 
@@ -181,6 +181,88 @@ def test_datapack(rcon, wd, metas):
             return True, meta, info
     return False, None, info
 
+
+# ---------------------------------------------------------------- gra „Znajdź błąd”
+def test_bledy(rcon):
+    """Zła komenda musi dać błąd, dobra musi przejść. Zwraca listę sprawdzonych id i błędy."""
+    data = json.loads((ROOT / 'data/bledy.json').read_text(encoding='utf-8'))
+    ok_ids, errs = [], []
+    for q in data['pytania']:
+        wrong = ' '.join(q['tokeny']).lstrip('/')
+        good = q['dobra'].lstrip('/')
+        rw, rg = rcon.cmd(wrong), rcon.cmd(good)
+        def rejected(reply):
+            missing_marker = reply.startswith('Time marker ') and ' does not exist for clock ' in reply
+            return missing_marker or (any(b in reply for b in BAD) and not any(o in reply for o in OK_ANYWAY))
+
+        wrong_fails = rejected(rw)
+        good_passes = bool(rg.strip()) and not rejected(rg)
+        print('BŁĄD-GRA', q['id'], 'zła:', 'pada' if wrong_fails else 'PRZECHODZI', '| dobra:', 'OK' if good_passes else 'PADA')
+        if wrong_fails and good_passes: ok_ids.append(q['id'])
+        else: errs.append({'komenda': q['id'], 'odpowiedz': f'zła → {rw[:140]} | dobra → {rg[:140]}'})
+    return ok_ids, errs, len(data['pytania'])
+
+
+# ---------------------------------------------------------------- MOTD (lustro assets/js/motd.js)
+MOTD_SAMPLE = '§4§lK§c§lI§6§lL§e§lE§6§lK§7 Serwer ŻÓŁW 🧱\n§aSerca i sklep \\ komnaty'
+
+def motd_property(raw):
+    encoded = raw.encode('utf-16-be', errors='surrogatepass')
+    out = []
+    escapes = {10: '\\n', 13: '\\r', 9: '\\t', 92: '\\\\', 32: '\\ '}
+    for (unit,) in struct.iter_unpack('>H', encoded):
+        out.append(escapes.get(unit, '\\u%04X' % unit if not 32 <= unit <= 126 else chr(unit)))
+    return 'motd=' + ''.join(out)
+
+def _varint(n):
+    b = b''
+    while True:
+        t = n & 0x7F; n >>= 7
+        b += bytes([t | (0x80 if n else 0)])
+        if not n: return b
+
+def read_varint(stream):
+    result = 0
+    for shift in range(0, 35, 7):
+        byte = stream.read(1)
+        if not byte:
+            raise EOFError('Koniec odpowiedzi statusu w trakcie odczytu VarInt')
+        result |= (byte[0] & 0x7F) << shift
+        if not byte[0] & 0x80:
+            return result
+    raise ValueError('Zbyt długi VarInt w odpowiedzi statusu')
+
+
+def status_ping(port):
+    from io import BytesIO
+
+    host = b'127.0.0.1'
+    hs = _varint(0) + _varint(767) + _varint(len(host)) + host + struct.pack('>H', port) + _varint(1)
+    with socket.create_connection(('127.0.0.1', port), timeout=10) as sock, sock.makefile('rb') as stream:
+        sock.sendall(_varint(len(hs)) + hs + _varint(1) + _varint(0))
+        length = read_varint(stream)
+        if not 1 <= length <= 1024 * 1024:
+            raise ValueError('Nieprawidłowa długość pakietu statusu')
+        payload = stream.read(length)
+        if len(payload) != length:
+            raise EOFError('Niepełny pakiet statusu')
+    packet = BytesIO(payload)
+    if read_varint(packet) != 0:
+        raise ValueError('Nieprawidłowy identyfikator pakietu statusu')
+    text_length = read_varint(packet)
+    text = packet.read()
+    if len(text) != text_length:
+        raise ValueError('Nieprawidłowa długość JSON statusu')
+    return json.loads(text.decode('utf-8'))
+
+
+def flat_text(c):
+    if isinstance(c, str): return c
+    if isinstance(c, list): return ''.join(map(flat_text, c))
+    t = c.get('text', '') if isinstance(c, dict) else ''
+    for e in (c.get('extra', []) if isinstance(c, dict) else []): t += flat_text(e)
+    return t
+
 # ---------------------------------------------------------------- główny przebieg
 def main():
     ap = argparse.ArgumentParser()
@@ -206,6 +288,7 @@ def main():
         'online-mode=false', 'level-type=minecraft\\:flat', 'generate-structures=false',
         'spawn-protection=0', 'max-players=2', 'view-distance=3', 'simulation-distance=3',
         'initial-enabled-packs=vanilla,file/kilekcraft_test',
+        motd_property(MOTD_SAMPLE),
     ]) + '\n')
 
     proc = subprocess.Popen([a.java, '-Xms1G', '-Xmx2G', '-jar', 'server.jar', 'nogui'], cwd=wd,
@@ -242,6 +325,20 @@ def main():
         failed += len(errs)
         results[tpl] = {'ok': not errs, 'wersja': version, 'silnik': label, 'data': date.today().isoformat(),
                         'przetestowano': len(cmds), 'bledy': errs}
+    try:
+        st = status_ping(25566); txt = flat_text(st.get('description', ''))
+        plain = re.sub('§.', '', txt)
+        m_ok = plain == re.sub('§.', '', MOTD_SAMPLE)
+        print('MOTD →', repr(txt)[:200], 'OK' if m_ok else 'BŁĄD')
+        results['motd'] = {'ok': m_ok, 'wersja': version, 'silnik': label, 'data': date.today().isoformat(), 'przetestowano': 1, 'bledy': [] if m_ok else [{'komenda': 'status', 'odpowiedz': repr(st)[:300]}]}
+    except Exception as e:
+        print('MOTD: błąd pingu', e)
+        results['motd'] = {'ok': False, 'wersja': version, 'silnik': label, 'data': date.today().isoformat(), 'przetestowano': 1, 'bledy': [{'komenda': 'status', 'odpowiedz': str(e)[:300]}]}
+    ids, berrs, total = test_bledy(rcon)
+    print(f'Zweryfikowane pytania: {len(ids)}/{total}')
+    results['bledy'] = {'ok': len(ids) >= 12, 'wersja': version, 'silnik': label, 'data': date.today().isoformat(),
+                        'przetestowano': total, 'zweryfikowane': ids, 'bledy': berrs}
+    failed += sum(not results[name]['ok'] for name in ('motd', 'bledy'))
     ok, meta, info = test_datapack(rcon, wd, metas)
     for k, v in info: print('DATAPACK', k, '→', v[:160].replace('\n', ' '))
     results['datapack'] = {'ok': ok, 'wersja': version, 'silnik': label, 'data': date.today().isoformat(),

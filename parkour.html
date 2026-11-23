@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wyścig parkour — KILEKCRAFT</title>
+<meta name="description" content="Zagraj w komnatę parkour albo labirynt prosto w przeglądarce. Stoper, punkty kontrolne, lawa i rekordy.">
+<link rel="icon" href="data:,">
+<meta name="theme-color" content="#0b1020">
+<link rel="preload" href="assets/fonts/jersey-10-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/css/style.css">
+<script type="importmap">{"imports":{"three":"./vendor/three.module.js","three/addons/":"./vendor/addons/"}}</script>
+</head>
+<body>
+<a class="skip" href="#main">Przejdź do treści</a>
+<header class="top">
+  <div class="wrap">
+    <a class="logo" href="index.html" aria-label="KILEKCRAFT — strona główna"><span class="cube"></span><span>KILEK<b>CRAFT</b></span></a>
+    <button class="menu-btn" aria-expanded="false" aria-controls="nav">Menu</button>
+    <nav class="nav" id="nav" aria-label="Główne">
+      <a href="serwer.html">Serwer</a>
+      <a href="hosting.html">Hosting</a>
+      <a href="komendy.html">Komendy</a>
+      <a href="budowle.html">Budowle</a>
+      <a href="edytor.html">Edytor</a>
+      <a href="komnaty.html">Komnaty</a>
+      <a href="gry.html" aria-current="page">Gry</a>
+      <a href="symulator.html">Symulator</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+  <div class="page-head pk-head">
+    <div class="eyebrow">Gra · Wyścig parkour</div>
+    <h1 data-anim="drop">Przejdź komnatę na czas</h1>
+    <p class="lead">Każda komnata z generatora jest grywalna tutaj. Skacz po blokach, omijaj lawę i dotknij diamentowej mety. Szmaragdy to punkty kontrolne.</p>
+  </div>
+
+  <div class="pk-bar panel pad">
+    <div class="code-row"><label class="sr" for="code">Kod komnaty</label><input type="text" id="code" autocomplete="off" spellcheck="false" placeholder="P3-K-4821"><button type="button" class="btn sm ghost" id="load">Wczytaj</button></div>
+    <div class="pk-quick" role="group" aria-label="Szybki wybór">
+      <button type="button" class="tab" data-q="P2">Łatwy</button>
+      <button type="button" class="tab" data-q="P5">Lawa</button>
+      <button type="button" class="tab" data-q="P8">Trudny</button>
+      <button type="button" class="tab" data-q="L4">Labirynt</button>
+      <button type="button" class="tab" data-q="rand">Losowy</button>
+    </div>
+  </div>
+
+  <div class="pk-game panel corner" id="wrapG">
+    <canvas id="gl" aria-label="Gra parkour" aria-describedby="keys"></canvas>
+    <div class="pk-hud">
+      <div><span>Czas</span><b id="time">0,00</b></div>
+      <div><span>Śmierci</span><b id="deaths">0</b></div>
+      <div><span>Rekord</span><b id="best">—</b></div>
+    </div>
+    <div class="pk-flash" id="flash"></div>
+    <div class="pk-over" id="over">
+      <div class="pk-card">
+        <h2 id="ovTitle">Gotowy?</h2>
+        <p id="ovText" role="status">Kliknij albo dotknij, żeby zacząć.</p>
+        <div class="pk-keys" id="keys">
+          <div><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> albo strzałki: ruch</div>
+          <div><kbd>Spacja</kbd>: skok · przeciągnij myszą: obrót kamery</div>
+          <div><kbd>R</kbd>: powrót do punktu kontrolnego · <kbd>Esc</kbd>: pauza</div>
+          <div class="touch-only">Na telefonie: lewy kciuk to ruch, prawy przycisk to skok</div>
+        </div>
+        <div class="pk-ovbtns"><button type="button" class="btn" id="play">▶ Graj</button><button type="button" class="btn ghost" id="nextLvl" hidden>Trudniej →</button></div>
+      </div>
+    </div>
+    <div class="pk-touch" id="touch">
+      <div class="pk-stick" id="stick" aria-hidden="true"><i id="knob"></i></div>
+      <button type="button" class="pk-jump" id="jumpBtn">SKOK</button>
+    </div>
+  </div>
+
+  <p id="pkFallback" class="note" tabindex="-1" hidden>Gra parkour wymaga WebGL 2. Możesz otworzyć plan komnaty w generatorze poniżej.</p>
+  <p class="note small" style="margin-top:16px">Fizyka w przeglądarce jest podobna do gry, ale nie identyczna. Jeśli coś przechodzisz tutaj, a w Minecrafcie nie (albo odwrotnie), zapisz kod komnaty i daj znać.</p>
+  <p><a href="komnaty.html">← Wróć do generatora komnat</a> · <a href="gry.html">Wszystkie gry</a></p>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="disc">NOT AN OFFICIAL MINECRAFT SERVICE. NOT APPROVED BY OR ASSOCIATED WITH MOJANG OR MICROSOFT.</div>
+    <p>KILEKCRAFT to fanowski projekt edukacyjny. Wyniki i postęp zapisują się tylko w tej przeglądarce. © <span data-year></span></p>
+  </div>
+</footer>
+<script type="module" src="assets/js/parkour.js"></script>
+</body>
+</html>

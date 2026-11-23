@@ -4,6 +4,8 @@
 // =========================================================
 document.documentElement.classList.add('js');
 export { award, badge, bump } from './xp.js';
+export { sfx } from './sfx.js';
+import { sfx as _sfx } from './sfx.js';
 export const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 // bezpieczny localStorage (w niektórych widokach rzuca wyjątek)
@@ -109,6 +111,7 @@ export async function copyText(text, btn) {
     try { ok = document.execCommand('copy'); } catch { ok = false; } t.remove();
   }
   if (btn) { const r = btn.getBoundingClientRect(); xpBurst(r.left + r.width / 2, r.top + r.height / 2); }
+  _sfx(ok ? 'good' : 'bad');
   toast(ok ? 'Skopiowane! Wklej w czacie gry (T).' : 'Nie udało się skopiować. Zaznacz tekst ręcznie.');
   return ok;
 }

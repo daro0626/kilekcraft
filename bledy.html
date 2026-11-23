@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Znajdź błąd — gra o komendach — KILEKCRAFT</title>
+<meta name="description" content="Szybka gra: znajdź błąd w komendzie Minecraft, zanim skończy się czas. Pytania sprawdzone na prawdziwym serwerze.">
+<link rel="icon" href="data:,">
+<meta name="theme-color" content="#0b1020">
+<link rel="preload" href="assets/fonts/jersey-10-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<a class="skip" href="#main">Przejdź do treści</a>
+<header class="top">
+  <div class="wrap">
+    <a class="logo" href="index.html" aria-label="KILEKCRAFT — strona główna"><span class="cube"></span><span>KILEK<b>CRAFT</b></span></a>
+    <button class="menu-btn" aria-expanded="false" aria-controls="nav">Menu</button>
+    <nav class="nav" id="nav" aria-label="Główne">
+      <a href="serwer.html">Serwer</a>
+      <a href="hosting.html">Hosting</a>
+      <a href="komendy.html">Komendy</a>
+      <a href="budowle.html">Budowle</a>
+      <a href="edytor.html">Edytor</a>
+      <a href="komnaty.html">Komnaty</a>
+      <a href="gry.html" aria-current="page">Gry</a>
+      <a href="symulator.html">Symulator</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+  <div class="page-head">
+    <div class="eyebrow">Gra · Znajdź błąd</div>
+    <h1 data-anim="drop">Znajdź błąd w komendzie</h1>
+    <p class="lead">Każda komenda ma jeden błąd. Kliknij część, która jest zła, zanim skończy się czas. Im szybciej, tym więcej punktów, a seria trafień mnoży wynik.</p>
+  </div>
+
+  <div class="bq panel corner" id="game">
+    <div class="bq-top">
+      <div class="bq-stat"><span>Pytanie</span><b id="qNum">1/10</b></div>
+      <div class="bq-stat"><span>Punkty</span><b id="score">0</b></div>
+      <div class="bq-stat"><span>Seria</span><b id="streak">×1</b></div>
+      <div class="bq-stat"><span>Rekord</span><b id="best">0</b></div>
+    </div>
+    <div class="bq-time" aria-hidden="true"><i id="timeBar"></i></div>
+    <div class="bq-stage" id="stage">
+      <p class="bq-hint" id="hint">Gotowy? Masz 10 komend po 15 sekund.</p>
+      <div class="bq-cmd" id="cmd" role="group" aria-label="Części komendy"></div>
+      <div class="bq-res" id="res" aria-live="polite"></div>
+    </div>
+    <div class="bq-btns">
+      <button type="button" class="btn" id="start">▶ Start</button>
+      <button type="button" class="btn ghost" id="next" hidden>Dalej →</button>
+      <span id="vStatus"></span>
+    </div>
+  </div>
+
+  <section class="panel pad" style="margin-top:24px">
+    <h2 class="section-heading">Skąd wiemy, że to błędy?</h2>
+    <p class="muted">Każde pytanie sprawdzamy automatycznie na prawdziwym serwerze Minecraft: zła komenda musi wywołać błąd, a poprawiona musi zadziałać. Pytania, które nie przeszły tego testu, nie trafiają do gry.</p>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="disc">NOT AN OFFICIAL MINECRAFT SERVICE. NOT APPROVED BY OR ASSOCIATED WITH MOJANG OR MICROSOFT.</div>
+    <p>KILEKCRAFT to fanowski projekt edukacyjny. Wyniki i postęp zapisują się tylko w tej przeglądarce. © <span data-year></span></p>
+  </div>
+</footer>
+<script type="module" src="assets/js/bledy.js"></script>
+</body>
+</html>

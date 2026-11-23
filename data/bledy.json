@@ -1,0 +1,22 @@
+{
+  "_opis": "Pytania do gry „Znajdź błąd”. 'tokeny' to komenda podzielona na części, 'zly' to indeks błędnej części, 'dobra' to poprawiona komenda. tools/test_commands.py sprawdza na serwerze, że zła komenda daje błąd, a dobra przechodzi. Strona pokazuje tylko pytania, które przeszły ten test (gdy wyniki już są).",
+  "pytania": [
+    { "id": "gamerule-stara", "tokeny": ["/gamerule", "keepInventory", "true"], "zly": 1, "dobra": "/gamerule keep_inventory true", "wyjasnienie": "Od wersji 1.21.11 zasady gry piszemy małymi literami z podkreślnikiem: keep_inventory." },
+    { "id": "item-literowka", "tokeny": ["/give", "@p", "minecraft:diamon", "64"], "zly": 2, "dobra": "/give @p minecraft:diamond 64", "wyjasnienie": "Literówka w nazwie przedmiotu. Diament to minecraft:diamond." },
+    { "id": "effect-dodaj", "tokeny": ["/effect", "dodaj", "@p", "minecraft:speed", "30"], "zly": 1, "dobra": "/effect give @p minecraft:speed 30", "wyjasnienie": "Komendy są po angielsku. Efekt dajesz przez give, a zabierasz przez clear." },
+    { "id": "title-cudzyslow", "tokeny": ["/title", "@a", "title", "{\"text\":\"Start!}"], "zly": 3, "dobra": "/title @a title {\"text\":\"Start!\"}", "wyjasnienie": "Brakuje cudzysłowu zamykającego tekst. Każdy cudzysłów musi mieć parę." },
+    { "id": "gamerule-tak", "tokeny": ["/gamerule", "keep_inventory", "tak"], "zly": 2, "dobra": "/gamerule keep_inventory true", "wyjasnienie": "Zasady typu włącz/wyłącz przyjmują tylko true albo false." },
+    { "id": "give-ujemne", "tokeny": ["/give", "@p", "minecraft:torch", "-5"], "zly": 3, "dobra": "/give @p minecraft:torch 5", "wyjasnienie": "Nie da się dać ujemnej liczby przedmiotów. Liczba musi wynosić co najmniej 1." },
+    { "id": "selektor-x", "tokeny": ["/give", "@x", "minecraft:apple", "3"], "zly": 1, "dobra": "/give @p minecraft:apple 3", "wyjasnienie": "Selektor @x nie istnieje. Możesz użyć @p (najbliższy gracz), @a (wszyscy), @s (ja), @r (losowy gracz) albo @e (wszystkie byty)." },
+    { "id": "whitelist-dodaj", "tokeny": ["/whitelist", "dodaj", "Kolega123"], "zly": 1, "dobra": "/whitelist add Kolega123", "wyjasnienie": "Gracza dopisujesz do białej listy przez add, a usuwasz przez remove." },
+    { "id": "time-dzien", "tokeny": ["/time", "set", "dzien"], "zly": 2, "dobra": "/time set day", "wyjasnienie": "Pory dnia są po angielsku: day, noon, night albo midnight." },
+    { "id": "effect-poziom", "tokeny": ["/effect", "give", "@p", "minecraft:speed", "30", "300"], "zly": 5, "dobra": "/effect give @p minecraft:speed 30 3", "wyjasnienie": "Poziom efektu może wynosić najwyżej 255. 300 to za dużo." },
+    { "id": "weather-deszcz", "tokeny": ["/weather", "deszcz"], "zly": 1, "dobra": "/weather rain", "wyjasnienie": "Pogoda też jest po angielsku: clear, rain albo thunder." },
+    { "id": "blok-literowka", "tokeny": ["/setblock", "~", "~1", "~", "minecraft:stone_brick"], "zly": 4, "dobra": "/setblock ~ ~1 ~ minecraft:stone_bricks", "wyjasnienie": "Kamienne cegły to stone_bricks, z literą s na końcu." },
+    { "id": "procent-pol", "tokeny": ["/gamerule", "players_sleeping_percentage", "pół"], "zly": 2, "dobra": "/gamerule players_sleeping_percentage 50", "wyjasnienie": "Ta zasada przyjmuje liczbę. Połowa graczy to 50." },
+    { "id": "item-polski", "tokeny": ["/give", "@p", "diament", "1"], "zly": 2, "dobra": "/give @p minecraft:diamond 1", "wyjasnienie": "Nazwy przedmiotów w komendach są po angielsku, nawet gdy grasz po polsku." },
+    { "id": "difficulty-trudny", "tokeny": ["/difficulty", "trudny"], "zly": 1, "dobra": "/difficulty hard", "wyjasnienie": "Poziomy trudności to peaceful, easy, normal i hard." },
+    { "id": "efekt-polski", "tokeny": ["/effect", "give", "@p", "minecraft:szybkosc", "30"], "zly": 3, "dobra": "/effect give @p minecraft:speed 30", "wyjasnienie": "Efekt szybkości to minecraft:speed. Polskie nazwy nie działają w komendach." },
+    { "id": "title-napis", "tokeny": ["/title", "@a", "napis", "{\"text\":\"Hej\"}"], "zly": 2, "dobra": "/title @a title {\"text\":\"Hej\"}", "wyjasnienie": "Po celu wybierasz rodzaj napisu: title, subtitle albo actionbar." }
+  ]
+}

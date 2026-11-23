@@ -40,7 +40,7 @@ function parkour(diff, theme, seed) {
   const maxUp = diff >= 7 ? 2 : 1;                           // przerwa przy skoku o 1 w górę
   const size = diff <= 3 ? 2 : diff <= 6 ? (R() < .5 ? 2 : 1) : 1;
   let x = 0, y = 2, z = 0, dirZ = 0, prevW = 1;
-  plat(-2, y, -1, 3, 3, T.alt); // start
+  plat(-2, y, -1, 3, 3, T.alt); g.set(-1, y, 0, 'gold'); // start (złoty środek)
   const path = [];
   for (let j = 0; j < jumps; j++) {
     const up = diff >= 3 && R() < .35 ? 1 : (diff >= 5 && R() < .2 ? -1 : 0);
@@ -98,7 +98,7 @@ function maze(diff, theme, seed) {
     g.set(x, 0, z, T.floor);
     if (wall[x][z]) for (let h = 1; h <= H; h++) g.set(x, h, z, h === H && (x + z) % 6 === 0 ? T.light : T.wall);
   }
-  g.set(0, 0, 1, 'emerald'); g.set(W - 1, 0, W - 2, 'diamond'); g.set(W - 1, 1, W - 2, 'lantern');
+  g.set(0, 0, 1, 'emerald'); g.set(W - 1, 0, W - 2, 'diamond'); g.set(W - 1, H + 1, W - 1, 'lantern');
   return { ...g.out(), info: { komorki: n * n, wysokosc: H } };
 }
 

@@ -116,19 +116,29 @@ function build3d() {
     if (p < 1) { slider.value = Math.max(0, y); $('#lNum').textContent = Math.max(1, y + 1); requestAnimationFrame(step); } else setL(Infinity); };
   requestAnimationFrame(step);
 }
-$('#play').addEventListener('click', () => viewer && build3d());
+const play = $('#play');
+play.disabled = true;
+play.addEventListener('click', () => viewer && !reduced && build3d());
+if (reduced) play.hidden = true;
 $('#all').addEventListener('click', () => { matMode = 'all'; document.querySelectorAll('.mat-tabs .tab').forEach(x => x.setAttribute('aria-pressed', x.dataset.m === 'all')); setL(Infinity); });
 
 load(false);
-const { createViewer } = await import('./voxel.js');
-const initial = b;
-viewer = await createViewer(host, initial, { ghost: true, layerPlane: true });
-if (viewer) {
-  if (b !== initial) viewer.setBuild(b);
-  $('#poster').remove();
-  setL(Infinity);
-  if (!reduced) build3d();
-} else {
-  $('#poster').textContent = 'Twoja przeglądarka nie pokazuje 3D. Użyj mapy warstw obok, bo działa tak samo.';
-}
+const loadViewer = new IntersectionObserver(async ([entry]) => {
+  if (!entry.isIntersecting) return;
+  loadViewer.disconnect();
+  const { createViewer } = await import('./voxel.js');
+  const initial = b;
+  viewer = await createViewer(host, initial, { ghost: true, layerPlane: true });
+  if (viewer) {
+    if (b !== initial) viewer.setBuild(b);
+    $('#poster').remove();
+    play.disabled = false;
+    setL(L);
+    if (L === Infinity && !reduced) build3d();
+  } else {
+    play.hidden = true;
+    $('#poster').textContent = 'Twoja przeglądarka nie pokazuje 3D. Użyj mapy warstw obok, bo działa tak samo.';
+  }
+}, { rootMargin: '40px' });
+loadViewer.observe(host);
 addEventListener('resize', () => drawMap(L === Infinity ? b.size[1] - 1 : L));

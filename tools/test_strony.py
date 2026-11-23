@@ -4,7 +4,7 @@ import os
 
 from playwright.sync_api import expect, sync_playwright
 
-from test_commands import DATA, commands, export_lines, SAMPLE
+from test_commands import DATA, commands, export_lines, SAMPLE, motd_property, MOTD_SAMPLE
 
 
 BASE = 'http://127.0.0.1:8000'
@@ -17,6 +17,11 @@ READY = {
     'edytor': '#stage canvas',
     'komnaty': '#stats .panel',
     'symulator': '#kpis .kpi',
+    'gry': '.tool-card',
+    'bledy': '#start',
+    'parkour': '#gl',
+    'kolo': '#r0 div',
+    'motd': '#pvMotd div',
 }
 
 # Nazwy typów z assets/js/builds.js dla próbki z test_commands.SAMPLE
@@ -32,11 +37,35 @@ def export_parity(page):
 def smoke(page, name):
     response = page.goto(f'{BASE}/{name}.html')
     assert response.ok, (name, response.status)
+    if name == 'budowle':
+        page.locator('#viewer').scroll_into_view_if_needed()
     expect(page.locator(READY[name]).first).to_be_attached()
     if name == 'index':
         page.locator('#hero3d').scroll_into_view_if_needed()
         expect(page.locator('#hero3d canvas, #hero3d .poster:text("Twoja przeglądarka")')).to_be_visible()
     expect(page.locator('footer')).to_contain_text('NOT AN OFFICIAL MINECRAFT SERVICE.')
+
+
+def parkour(page, mobile):
+    code = page.locator('#code')
+    code.fill('L4-K-4821')
+    code.press('Enter')
+    expect(page.locator('#ovText')).to_contain_text('Labirynt')
+    expect(page.locator('#play')).to_be_visible()
+    if mobile:
+        page.locator('#play').tap()
+        expect(page.locator('#jumpBtn')).to_be_visible()
+        page.locator('#jumpBtn').tap()
+        expect(page.locator('#time')).not_to_have_text('0,00')
+    else:
+        page.locator('#play').press('Enter')
+        expect(page.locator('#gl')).to_be_focused()
+        page.keyboard.press('Space')
+        expect(page.locator('#time')).not_to_have_text('0,00')
+    page.locator('#gl').press('Escape')
+    expect(page.locator('#play')).to_be_focused()
+    expect(page.locator('#ovTitle')).to_have_text('Pauza')
+
 
 
 def hosting(page):
@@ -152,10 +181,15 @@ def run(browser, width, height):
         page.on('console', lambda msg: errors.append(msg.text) if msg.type == 'error' else None)
         page.on('response', lambda r: errors.append(f'{r.status} {r.url}') if r.status >= 400 else None)
         smoke(page, name)
+        if name == 'parkour':
+            parkour(page, mobile)
         if name == 'hosting':
             hosting(page)
         if name == 'edytor':
             export_parity(page)
+        if name == 'motd':
+            actual = page.evaluate('async s => (await import("./assets/js/motd.js")).motdProperty(s)', MOTD_SAMPLE)
+            assert actual == motd_property(MOTD_SAMPLE), (actual, motd_property(MOTD_SAMPLE))
         if name == 'komendy':
             # Przeładuj moduł z wyłączonym efektem maszynopisania.
             page.emulate_media(reduced_motion='reduce')

@@ -1,7 +1,7 @@
 // Ta sama scena dla wątku renderującego i przeglądarek bez OffscreenCanvas.
 // Worker modułowy wymaga ścieżki względnej do lokalnego Three.js.
 import * as THREE from '../../vendor/three.module.js';
-import { BLOCKS } from './builds.js';
+import { BLOCKS } from './blocks.js';
 
 function makeCanvas(size) {
   if (typeof OffscreenCanvas !== 'undefined') return new OffscreenCanvas(size, size);
@@ -72,7 +72,7 @@ export function materialFor(type) {
 }
 
 export function createScene(canvas, o, ratio) {
-  const context = canvas.getContext('webgl2', { antialias: ratio < 2, alpha: true, powerPreference: 'low-power' });
+  const context = canvas.getContext('webgl2', { antialias: o.antialias ?? ratio < 2, alpha: true, powerPreference: 'low-power' });
   if (!context) return null;
   const renderer = new THREE.WebGLRenderer({ canvas, context, alpha: true });
   renderer.setPixelRatio(Math.min(ratio, 2));

@@ -8,7 +8,9 @@ def check(directory):
     passed = True
     print('| Strona | Performance (≥85) | Accessibility (≥95) |')
     print('|---|---:|---:|')
-    for page in ('index', 'serwer', 'hosting', 'komendy', 'budowle'):
+    pages = ('index', 'serwer', 'hosting', 'komendy', 'budowle', 'edytor', 'komnaty',
+             'symulator', 'gry', 'bledy', 'parkour', 'kolo', 'motd')
+    for page in pages:
         report = json.loads((directory / f'{page}.report.json').read_text())
         if report.get('runtimeError'):
             raise RuntimeError(f"{page}: {report['runtimeError']}")
