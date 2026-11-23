@@ -130,7 +130,14 @@ def parkour_input(page, verify_physics=True):
     page.locator('#play').click()
     canvas = page.locator('#gl')
     expect(canvas).to_be_focused()
-    expect(page.locator('.pk-hint')).to_contain_text('Przeciągnij')
+    hint = page.locator('.pk-hint')
+    expect(hint).to_contain_text('Przeciągnij')
+    viewport = page.viewport_size
+    page.set_viewport_size({'width': 390, 'height': 844})
+    bounds = page.locator('#wrapG').bounding_box()
+    shown = hint.bounding_box()
+    assert bounds['x'] <= shown['x'] and shown['x'] + shown['width'] <= bounds['x'] + bounds['width']
+    page.set_viewport_size(viewport)
     origin = page.evaluate('parkourProbe.xz()')
     canvas.dispatch_event('keydown', dict(code='KeyA', key='a'))
     page.wait_for_function('(start) => parkourProbe.xz().some((p,i) => Math.abs(p-start[i]) > .04)', arg=origin)

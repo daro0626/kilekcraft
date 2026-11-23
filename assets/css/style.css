@@ -790,7 +790,7 @@ body.touch .pk-touch{display:block}
 .pk-view{position:absolute;right:12px;top:12px;background:rgba(7,11,22,.82);border:1px solid var(--line-strong);color:var(--text);font:600 14px var(--font);padding:8px 12px;cursor:pointer;min-height:40px}
 .pk-view:hover{border-color:var(--gold)}
 .pk-view:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
-.pk-hint{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);background:rgba(7,11,22,.85);border:1px solid var(--line-strong);padding:6px 12px;font-size:14px;color:var(--text);pointer-events:none;white-space:nowrap}
+.pk-hint{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);background:rgba(7,11,22,.85);border:1px solid var(--line-strong);padding:6px 12px;font-size:14px;color:var(--text);pointer-events:none;width:max-content;max-width:calc(100% - 24px);text-align:center}
 .pk-over:not([hidden]) ~ .pk-view,.pk-over:not([hidden]) ~ .pk-hint{display:none}
 @media (max-width:480px){.pk-view{top:auto;bottom:140px;right:22px;font-size:13px;padding:6px 10px}}
 
