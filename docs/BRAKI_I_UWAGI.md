@@ -21,9 +21,10 @@ Statusy: **OTWARTE** — niezaimplementowane; **CZĘŚCIOWO** — istnieje czę�
 **Wymagania:** ekran «Wybierz poziom» z typem komnaty i jasnym poziomem 1–10, czytelne «Kontynuuj ostatnią» z nazwą i kodem, «Nowa losowa» oraz czytelny aktualny poziom. Po nawigacji i odświeżeniu wraca właściwa trasa, o ile użytkownik nie zażądał nowej; bez niespodziewanego resetu na poziom 3. Zachować możliwość wklejenia kodu i udostępnienia linku z hashem.
 **Akceptacja:** testy powrotu z `gry.html`, `komnaty.html`, adresu z hashem i przycisku wstecz; przywrócenie ostatniej komnaty po odświeżeniu.
 
-### KC-003 · P1 · CZĘŚCIOWO — Przebudowa panelu edytora: Budowanie / Animacja / Warstwy
+### KC-003 · P1 · DO TESTU — Przebudowa panelu edytora: Budowanie / Animacja / Warstwy
 **Zgłoszenie:** aktualne główne zakładki «Całość», «Do tej warstwy», «Tylko ta warstwa» są techniczne i nieintuicyjne. Właściciel chce jasne działania, jak w przeglądarce budowli.
 **Stan kodu:** po PR #38 są widoki `all/below/single`, suwak, plan, edycja warstwy i eksport całej budowli; sama technika działa, ale hierarchia sterowania jest niewłaściwa.
+**Etap B, gałąź `poprawka/zlecenie-39-edytor`:** trzy zakładki porządkują zadania; Do tej i Tylko ta są w Warstwach. Zachowano zapisy trybu z poprzedniego edytora. Regresje desktop/mobile porównują widoczne i zapisane bloki oraz zawartość wszystkich plików wyeksportowanego datapacka. Ocenę czytelności przez użytkownika pozostawiono do wykonania.
 **Wymagania:** główne, łatwe do odczytania działania **Budowanie**, **Animacja** (obejrzyj, jak model powstaje; sterowanie start/pauza/przewiń) i **Warstwy** (wybór warstwy, plan z góry, edycja). Opcje «tylko wybrana / do wybranej» wyłącznie jako ustawienie dodatkowe w trybie Warstwy. Rozdzielić akcję budowania od oglądania animacji; nie wprowadzać w błąd, że animacja buduje na serwerze.
 **Akceptacja:** dziecko rozpoznaje trzy główne funkcje bez czytania instrukcji; zbudowane bloki, cofanie/ponawianie, ukryte warstwy, zapis i pełny datapack pozostają nienaruszone. Test desktop/mobile.
 
@@ -70,15 +71,17 @@ Statusy: **OTWARTE** — niezaimplementowane; **CZĘŚCIOWO** — istnieje czę�
 **Akceptacja:** potwierdzenie działającego wznowienia gry przez człowieka oraz zielone testy regresji.
 
 
-### KC-011 · P1 · OTWARTE — Skrót myszy: lewy stawia, prawy usuwa
+### KC-011 · P1 · DO TESTU — Skrót myszy: lewy stawia, prawy usuwa
 **Zgłoszenie:** w edytorze budowli użytkownik oczekuje stawiania lewym i kasowania prawym przyciskiem myszy — bez przełączania narzędzia za każdym razem.
 **Stan:** __BT__assets/js/edytor.js__BT__ obsługuje edycję przez główny przycisk; drugi jest ignorowany; trzeba uwzględnić blokowanie menu kontekstowego tylko nad płótnem. Nie psuć obrotu kamery, pędzla, symetrii, cofania ani działania na dotyku.
+**Etap B, gałąź `poprawka/zlecenie-39-edytor`:** w narzędziu Stawiaj lewy klik stawia blok, prawy usuwa. Pipeta i jawnie wybrane Usuń zachowują dotychczasowe zachowanie. Test używa faktycznych kliknięć myszy i dotyku, sprawdza zakres wyłączenia menu kontekstowego, pędzel, symetrię, cofanie i ponawianie. Obsługę na fizycznym telefonie pozostawiono do potwierdzenia.
 **Akceptacja:** klik lewy stawia, prawy usuwa wskazany blok, obrót/przybliżenie działa; mobilne przyciski narzędzia pozostają dostępne. Automatyczne testy interakcji myszy oraz ręczne próby desktop.
 
-### KC-012 · P1 · OTWARTE — Prezentacja warstw sprawia wrażenie budowania w dół
+### KC-012 · P1 · DO TESTU — Prezentacja warstw sprawia wrażenie budowania w dół
 **Zgłoszenie:** na serii dziewięciu zrzutów edytora, przesuwanie przez 9 poziomów nie daje poczucia, że budowla rośnie od fundamentu. Nawet gdy widok «Do tej warstwy» ukrywa wyższe piętra poprawnie matematycznie, UX jest dziwny: kamera, brak jasnego rozróżnienia edycji od odtwarzania i sposób ukrywania elementów.
 **Wymagania:** główna **Animacja** ma zaczynać od dolnej warstwy i stopniowo ujawniać następne bez niezamierzonego przesuwania lub odwracania modelu; wyraźne Start/Pauza/Od nowa i krok +/-; **Warstwy** pozostają narzędziem do oglądania i edycji określonej wysokości. Zachować stały fundament/odniesienie, przewidywalną kamerę oraz możliwość obejrzenia całego obiektu. Przed implementacją porównać widok z 9 referencyjnymi zrzutami użytkownika.
 **Akceptacja:** film/screenshoty dla warstw 1 → ostatnia i ostatnia → 1, widok pełny, animacja i edycja; dziecko rozumie, co rośnie, co jest ukryte, a co usunięte. Brak zmian w rzeczywistych danych budowli podczas samego podglądu.
+**Etap B, gałąź `poprawka/zlecenie-39-edytor`:** animacja ujawnia warstwy od dołu, bez przesuwania kamery, z uruchamianiem, pauzą, resetem i krokami w obie strony. Playwright dla obu widoków przeszedł dziewięć warstw w przód i wstecz, porównał współrzędne kamery, historię zmian i eksport. Zrzuty dziewięciu kroków są w `docs/zrzuty/zlecenie-39-b/`. Dziewięć wcześniejszych zrzutów użytkownika nie było dostępne w załącznikach tej sesji. Do potwierdzenia pozostaje wrażenie podczas własnej pracy użytkownika.
 
 ### KC-013 · P1 · OTWARTE — Wyjątkowe, szczegółowe budowle pokazowe wysokiej jakości (bez płatnej blokady)
 **Zgłoszenie:** obecne 23 budowle są poprawne jako proste projekty, ale właściciel oczekuje dodatkowych spektakularnych projektów *premium pod względem jakości*: inspiracje przesłane w rozmowie 23.11.2026 — wielki budynek ze strzelistą architekturą na latającej wyspie, monumentalna świątynia z kolumnami, kolorowe archipelagi parkour. Oryginalne projekty, bez kopiowania cudzej mapy 1:1. Chodzi o efekt zachwytu i chęć powrotu, **nie** o wymóg płatnego dostępu.

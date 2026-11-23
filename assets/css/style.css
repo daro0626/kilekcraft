@@ -636,6 +636,8 @@ body[data-przepis="lifesteal"] .s-vis{height:150px}
 .ed-layer h2,.ed-layer-info h2{margin:0 0 8px}
 .ed-layer .seg{flex-wrap:wrap}
 .ed-layer .tab{font-size:14px;padding:7px 9px;min-height:36px}
+.ed-mode-panel{margin-top:10px}
+.ed-mode-panel .seg button{min-height:44px}
 .ed-layer-step{display:grid;grid-template-columns:auto auto minmax(0,1fr) auto;align-items:center;gap:8px;margin-top:8px}
 .ed-layer-step label{font-weight:700;font-size:15px}
 .ed-layer-step input{width:100%;min-width:0}
@@ -645,6 +647,7 @@ body[data-przepis="lifesteal"] .s-vis{height:150px}
 #edPlan{display:block;margin-top:8px;width:min(100%,241px);height:auto;image-rendering:pixelated}
 .ed-stage{position:relative;height:min(72vh,640px);min-height:380px;overflow:hidden;background:radial-gradient(ellipse at 50% 20%,rgba(160,107,255,.16),transparent 70%),linear-gradient(180deg,#121a30,#0a0f1e)}
 .ed-stage canvas{position:absolute;inset:0;width:100%!important;height:100%!important;touch-action:none;cursor:crosshair}
+.ed-stage.ed-previewing canvas{cursor:grab}
 .ed-hud{position:absolute;left:12px;top:12px;z-index:2;display:flex;gap:6px;flex-wrap:wrap;pointer-events:none}
 .ed-help{position:absolute;left:12px;right:12px;bottom:10px;z-index:2;font-size:12px;pointer-events:none;text-shadow:0 1px 2px #000}
 .ed-side .lbl{display:block;font-weight:700;margin-bottom:8px}
