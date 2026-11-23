@@ -39,6 +39,7 @@ const targetField = (name = 'cel', all = true) => `
   </div>`;
 const readTarget = (f) => { const v = f.get('cel'); if (v !== 'nick') return { t: v }; const n = (f.get('nick') || '').trim(); return { t: n || 'Nick', bad: !NICK.test(n) }; };
 
+const titleTimes = { fi: 10, sy: 70, fo: 20 };
 const FORMS = {
   give: () => `${targetField()}
     <div class="field"><label for="item">Przedmiot</label><select id="item" name="item">${D.przedmioty.map(p => `<option value="${p.id}">${p.nazwa}</option>`).join('')}</select></div>
@@ -55,9 +56,9 @@ const FORMS = {
     <div class="field"><span class="lbl">Kolor</span><div class="chips colors">${D.kolory_tekstu.map((c, i) => `<label class="chip"><input type="radio" name="col" value="${c.id}" ${c.id === 'gold' ? 'checked' : ''}><span><i class="sw" style="background:${c.hex}"></i>${c.nazwa}</span></label>`).join('')}</div></div>
     <div class="chips" style="margin-bottom:18px"><label class="chip"><input type="checkbox" name="bold" checked><span><b>pogrubiony</b></span></label></div>
     <div class="row3">
-      <div class="field"><label for="fi">Pojawianie (ticki)</label><input type="number" id="fi" name="fi" value="10" min="0" max="200"></div>
-      <div class="field"><label for="sy">Na ekranie</label><input type="number" id="sy" name="sy" value="70" min="0" max="600"></div>
-      <div class="field"><label for="fo">Znikanie</label><input type="number" id="fo" name="fo" value="20" min="0" max="200"></div>
+      <div class="field"><label for="fi">Pojawianie (ticki)</label><input type="number" id="fi" name="fi" value="${titleTimes.fi}" min="0" max="200"></div>
+      <div class="field"><label for="sy">Na ekranie</label><input type="number" id="sy" name="sy" value="${titleTimes.sy}" min="0" max="600"></div>
+      <div class="field"><label for="fo">Znikanie</label><input type="number" id="fo" name="fo" value="${titleTimes.fo}" min="0" max="200"></div>
     </div><p class="muted small">20 ticków to 1 sekunda.</p>`,
   tp: () => `${targetField('cel', true)}
     <div class="row3">
@@ -93,7 +94,7 @@ function build(f) {
     const col = f.get('col'), bold = !!f.get('bold'), tt = f.get('tt') || ' ', st = f.get('st');
     const comp = (text) => JSON.stringify(Object.assign({ text, color: col }, bold ? { bold: true } : {}));
     const fi = +f.get('fi') || 0, sy = +f.get('sy') || 0, fo = +f.get('fo') || 0;
-    if (fi !== 10 || sy !== 70 || fo !== 20) out.cmds.push(`/title @a times ${fi} ${sy} ${fo}`);
+    if (fi !== titleTimes.fi || sy !== titleTimes.sy || fo !== titleTimes.fo) out.cmds.push(`/title @a times ${fi} ${sy} ${fo}`);
     if (st) out.cmds.push(`/title @a subtitle ${comp(st)}`);
     out.cmds.push(`/title @a title ${comp(tt)}`);
     out.pv = { tt, st, hex: D.kolory_tekstu.find(c => c.id === col).hex, bold, fi, sy, fo };
