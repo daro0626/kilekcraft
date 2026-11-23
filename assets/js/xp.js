@@ -22,7 +22,7 @@ export const BADGES = [
   { id: 'hardcore', name: 'Bez litości', desc: 'Wygeneruj komnatę o trudności 9 lub 10', ico: '☠' },
   { id: 'strateg', name: 'Strateg LifeSteal', desc: 'Przetestuj zasady w symulatorze', ico: '♥' },
   { id: 'balans', name: 'Mistrz balansu', desc: 'Ustaw zasady, przy których po 14 dniach gra ponad połowa graczy', ico: '⚖' },
-  { id: 'lowca', name: 'Łowca błędów', desc: 'Zdobądź 1500 punktów w grze Znajdź błąd', ico: '!' },
+  { id: 'lowca', name: 'Łowca błędów', desc: 'Zdobądź 2500 punktów w jednej grze Znajdź błąd', ico: '!' },
   { id: 'parkour', name: 'Skoczek', desc: 'Ukończ wyścig parkour w przeglądarce', ico: '↗' },
   { id: 'speedrun', name: 'Speedrunner', desc: 'Ukończ wyścig o trudności 7 lub więcej', ico: '⏱' },
   { id: 'kolo', name: 'Szczęśliwy los', desc: 'Zakręć kołem wyzwań', ico: '◎' },
