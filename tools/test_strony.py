@@ -344,6 +344,33 @@ def sezon(page):
 M_DNI = 14
 
 
+def cennik(page):
+    from playwright.sync_api import expect
+
+    box = page.locator('#ceny-sprzedazy')
+    search = box.get_by_role('searchbox')
+    category = box.get_by_role('combobox')
+    rows = box.locator('tbody tr')
+    expect(box.get_by_text('Propozycja do zatwierdzenia, nie działa jeszcze na serwerze')).to_be_visible()
+    expect(rows).to_have_count(176)
+    category.select_option(label='Drewno i dekoracje')
+    expect(rows).to_have_count(19)
+    search.fill('topoli')
+    expect(rows).to_have_count(1)
+    expect(rows.first).to_contain_text('niesprzedawalny')
+    search.fill('diament')
+    expect(rows).to_have_count(0)
+    expect(box.get_by_role('status')).to_have_text('Brak pasujących pozycji.')
+    category.select_option('')
+    search.fill('wegiel')
+    expect(rows).to_have_count(2)
+    search.fill('netherite_ingot')
+    expect(rows).to_have_count(1)
+    expect(rows.first).to_contain_text('Netherite Ingot')
+    if page.viewport_size['width'] == 390:
+        assert rows.first.evaluate("r => getComputedStyle(r).display") == 'grid'
+
+
 def run(browser, width, height):
     mobile = width == 390
     context = browser.new_context(viewport={'width': width, 'height': height},
@@ -367,6 +394,8 @@ def run(browser, width, height):
             sezon(page)
         if name == 'edytor':
             export_parity(page)
+        if name == 'lifesteal':
+            cennik(page)
         if name == 'motd':
             actual = page.evaluate('async s => (await import("./assets/js/motd.js")).motdProperty(s)', MOTD_SAMPLE)
             assert actual == motd_property(MOTD_SAMPLE), (actual, motd_property(MOTD_SAMPLE))

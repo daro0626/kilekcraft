@@ -897,3 +897,22 @@ body.touch .pk-keys div:not(.touch-only){display:none}
 .sz-tips{padding-left:20px;line-height:1.6;margin:0 0 16px}
 .sz-foot{margin:14px 0 0;text-align:right}
 .sz-admin-head{margin-top:10px}
+
+/* Cennik LifeSteal */
+.cennik{grid-column:1/-1;min-width:0;scroll-margin-top:92px}
+.cennik-propozycja{display:inline-block;white-space:normal;font-size:1rem}
+.cennik-filtry:not([hidden]){display:flex;flex-wrap:wrap;gap:12px}
+.cennik-filtry label{display:grid;flex:1 1 240px;gap:4px;min-width:0}
+.cennik-filtry :is(input,select){width:100%;min-width:0;padding:8px 10px;border:1px solid var(--line-strong);border-radius:6px;background:var(--bg);color:var(--text);font:inherit}
+.cennik-tabela{width:100%;border-collapse:collapse;text-align:left}
+.cennik-tabela :is(th,td){border-bottom:1px solid var(--line-strong);padding:8px}
+.cennik-tabela :is(th,td):first-child{padding-left:0}
+.cennik-tabela .badge{white-space:normal}
+.cennik-uwaga{display:block}
+@media(max-width:640px){
+  .cennik-tabela:not([hidden]){display:block}
+  .cennik-tabela thead{position:absolute;clip-path:inset(50%);width:1px;height:1px;overflow:hidden}
+  .cennik-tabela tbody{display:grid;gap:8px}
+  .cennik-tabela tbody tr{display:grid;gap:4px;border:1px solid var(--line-strong);border-radius:8px;padding:10px}
+  .cennik-tabela tbody :is(th,td){border:0;padding:0}
+}
