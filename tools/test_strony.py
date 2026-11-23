@@ -837,7 +837,7 @@ def parkour_recovery(page, mobile):
         hook = """
           window.recoveryProbe = {
             state: () => ({p: pos.toArray(), spawn: run.spawn, cp: run.checkpoint, grounded: onGround,
-                           deaths, keys: [...keys], joy, started, first: fp,
+                           deaths, keys: [...keys], joy, started,
                            vel: vel.toArray(), supported: isSolid(Math.floor(pos.x), pos.y - 1, Math.floor(pos.z))}),
             corner() {
               clearInput();
@@ -986,6 +986,7 @@ def parkour_routes(page, mobile):
     page.add_init_script('HTMLCanvasElement.prototype.requestPointerLock = undefined')
     page.goto(f'{BASE}/parkour.html#P1-K-4821')
     expect(page.locator('#ovText')).to_contain_text('P1-K-4821')
+    page.evaluate("localStorage.removeItem('kc:pk:widok')")
     click(page.locator('#play'))
     click(page.locator('.pk-pause'))
     expect(page.locator('#play')).to_be_focused()
