@@ -45,16 +45,17 @@ Pisz do właściciela po polsku, krótko i konkretnie. Na końcu każdej sesji d
 
 ## 3. Zadania po kolei
 
-### R0. Kolejność scalania i konflikt PR #21 z PR #27 (zrób najpierw)
-PR #21 (C10, 11 bloków w edytorze) i PR #27 (budowle w kategoriach) oba dopisują bloki do `assets/js/blocks.js` i oba zapisują `results['paleta']` w `tools/test_commands.py`.
-1. Zaproponuj właścicielowi kolejność: najpierw PR #16–#26 (twoje), potem #27. Po scaleniu twoich zrób na gałęzi `funkcja/budowle-kategorie` merge `main` i rozwiąż konflikty tak:
-   - `blocks.js`: każdy klucz tylko raz. Klucze wspólne (`bricks`, `prismarine`, `white_concrete`, `moss_block`) mają ten sam identyfikator, zostaw jedną definicję (twój kolor i wzór mogą zostać, budowle z #27 używają tylko kluczy).
-   - `test_commands.py`: zostaw ogólny `test_palette` z #27 (sprawdza **każdy** blok z `blocks.js` przez `palette_ids()`) pod kluczem `paleta`. Twój test z próbką z edytora przenieś pod klucz `paleta_edytor` albo usuń, jeśli test ogólny go pokrywa. `PALETTE_SAMPLE` może zostać dla testu zgodności eksportu w `test_strony.py`.
-   - Jeśli PR #20 (C7, vanilla + Paper) zmienia format `data/testy.json`, dopasuj do niego `wyniki.paleta` i `packStatusHTML` w `export.js`.
-   - `data/testy.json`: po scaleniu puść test komend na gałęzi, nie składaj pliku ręcznie.
-2. `tools/test_strony.py` musi dać 30/30, a test komend wszystko zielone.
+### R0. Integracja PR #16–#27 (gałąź `integracja/2026-11-23`, przygotowana przez Claude)
+Claude połączył wszystkie otwarte PR na gałęzi `integracja/2026-11-23` w tej kolejności: #16 hosting, #19 błędy, #18 zakładki, #17 C9 kopia, #23 Lighthouse, #25 parkour, #24 C8 komnaty, #22 warstwy, #20 C7 silniki, #21 C10 paleta, #27 budowle i Sezon, #26 stan zadań. **Niczego nie scalono do `main`.**
 
-Rób w tej kolejności. Przy każdym jest lista plików, kroki i warunek akceptacji. Jeśli z poprzedniego polecenia (przegląd PR #7–#15, zadania C7–C10) coś jest niedokończone, dokończ to przed zadaniem R2.
+Rozwiązane konflikty:
+- `tools/test_strony.py` (#17, #20): dwa niezależne dopiski, zostały oba.
+- `tools/test_commands.py` (#21 z #22): zostały oba zapisy, funkcja `paleta.mcfunction` z C10 i funkcje warstw dla `test` i `drugi` z #22.
+- `tools/test_commands.py` (#27 z #20 i #21): pełny test palety z #27 zapisuje `wyniki.paleta` (każdy blok z `blocks.js`), próbka z edytora z C10 zapisuje teraz `wyniki.paleta_edytor`. Raporty idą do `a.report_dir` z C7.
+- `assets/js/blocks.js` (#21 z #27): każdy blok raz. Przy wspólnych (`bricks`, `prismarine`, `white_concrete`, `moss_block`) zostały definicje z C10.
+- `data/testy.json`, `data/datapack.json`: odświeża test komend na gałęzi integracyjnej, nie składamy ich ręcznie.
+
+Twoje zadanie: przejrzyj rozwiązania konfliktów na tej gałęzi. Jeśli coś jest nie tak, popraw na niej (nie na `main`). Właściciel może potem scalić PR integracyjny zamiast 12 osobnych albo scalać osobne PR w tej samej kolejności.
 
 ### R1. Przegląd PR #27 (budowle + Sezon)
 Szukasz błędów, nie zmieniasz zakresu. Każdy znaleziony błąd = poprawka + test w `tools/test_strony.py`.
@@ -85,9 +86,14 @@ Plik: `lifesteal.html` (przepis w szortach, część 2 zadania A3) i nowy moduł
 - **Akceptacja:** 30/30 w `test_strony.py`, test filtra i wyszukiwarki, zrzuty.
 
 ### R4. Plan testu ekonomii na serwerze właściciela (bez instalowania czegokolwiek)
-Kontekst: serwer LifeSteal Piotrka na MCHosting **już nie istnieje**. Testy będą na serwerze właściciela (albo na nowym, który założy). Nie znamy jeszcze listy pluginów na tym serwerze.
+Kontekst: **przeczytaj najpierw `docs/DOSWIADCZENIA_LIFESTEAL.md`.** Serwer LifeSteal Piotrka był przez nas uruchamiany i testowany. Sekcja 1 tego pliku to rzeczy potwierdzone na tamtym serwerze (m.in. zestaw 21 pluginów wczytuje się razem na Paperze z MCHosting, eliminacja po utracie serc zadziałała). Sekcja 2 to funkcje zainstalowane, których działania dokument przekazania nie potwierdził.
 
-Na serwerze Piotrka był zestaw: S-Economy + Vault (saldo w $), SellPlus + packetevents (`/sell` z GUI i ceny w podpowiedziach), AuctionHouse (rynek graczy), SmartWithdraw (czeki), ScoreboardPL (tablica), LifeStealZ (serca), WorldGuard (blokada `/rtp` na spawnie). **To jest historia, a nie fakt o serwerze właściciela.** Żadnej z tych komend nie wpisuj na stronę jako działającej.
+Czy serwer Piotrka nadal działa, **nie wiemy na pewno**. 23.11 właściciel przekazał, że Piotrek mówi, że go usunął, ale my tego nie sprawdzaliśmy. Zapytaj właściciela, na którym serwerze testujemy (jego własny, nowy albo Piotrka, jeśli jednak jest).
+
+Jak korzystać z doświadczeń:
+- Zestaw S-Economy + Vault, SellPlus + packetevents, AuctionHouse, SmartWithdraw, ScoreboardPL, LifeStealZ, WorldGuard to **punkt startowy**, bo wiemy, że razem się uruchamia. Na nowym serwerze trzeba to potwierdzić od nowa.
+- Na stronie wolno napisać „na serwerze Piotrka ten zestaw pluginów uruchamiał się razem (Paper z MCHosting, panel 26.3, 18.11.2026)”. Nie wolno napisać, że konkretna komenda działa, dopóki nie ma jej w `data/reczne_testy.json`.
+- Lekcje z sekcji 3 (np. `Checks` niedostępny w panelu, blokada `/rtp` przez WorldGuard, test kontem bez OP) wpisz do listy kontrolnej.
 
 Zrób:
 1. `docs/EKONOMIA_TEST.md`: lista kontrolna dla właściciela, krok po kroku, prostym językiem. Najpierw `plugins` i `version` w konsoli (właściciel przepisuje wynik), potem saldo przed i po, `/sell` z próbą ESC i pełnego ekwipunku (przedmioty nie mogą zginąć), rynek z dwóch kont, czek: utworzenie, użycie, próba drugiego użycia, scoreboard (nick, serca, $), restart i trwałość salda. Przy każdym kroku: czego się spodziewamy i co wpisać, jeśli wyszło inaczej.
@@ -132,6 +138,7 @@ Piotrek chce porównać się z kolegami. Kont i serwera nie robimy (zasada 5).
 - Nie usuwaj starego symulatora zasad. Admin z niego korzysta.
 - Nie dodawaj zależności z CDN ani bundlera.
 - Nie wpisuj adresów, nazw ani linków do paneli serwerów właściciela i Piotrka.
+- Nie pisz, że serwer Piotrka nie istnieje, jako pewnika. Mamy tylko relację z 23.11.
 - Nie proponuj blokowania Netheru i Endu (zasada 6).
 
 ## 5. Rzeczy, które czekają na ludzi (nie rób ich za nich)
@@ -151,4 +158,5 @@ Napisz krótko, w tej kolejności:
 
 ## Dziennik pracy
 
+- 2026-11-23 · Claude: gałąź `integracja/2026-11-23` łączy PR #16–#27 w kolejności z R0 (konflikty rozwiązane, testy niżej w R0). Dodany `docs/DOSWIADCZENIA_LIFESTEAL.md`.
 - 2026-11-23 · Claude: PR #27 (20 budowli w 6 kategoriach, test palety na serwerze 42/42, gra „Sezon LifeSteal”). Ten plik. Cennik w `docs/CENNIK_PROPOZYCJA.md`.
