@@ -40,7 +40,7 @@ export const BLOCKS = {
   pumpkin:      { name: 'Dynia',             id: 'minecraft:pumpkin',       c: '#d9822b', pat: 'smooth' },
   glowstone:    { name: 'Jasnogłaz',         id: 'minecraft:glowstone',     c: '#f6d27a', pat: 'lantern', glow: true },
   snow:         { name: 'Blok śniegu',       id: 'minecraft:snow_block',    c: '#f4f8fb', pat: 'noise' },
-  moss:         { name: 'Blok mchu',         id: 'minecraft:moss_block',    c: '#5d7f2c', pat: 'noise' },
+  moss_block:   { name: 'Blok mchu',         id: 'minecraft:moss_block',    c: '#5d7f2c', pat: 'noise' },
   end_stone:    { name: 'Kamień Kresu',      id: 'minecraft:end_stone',     c: '#e4e2a8', pat: 'noise' },
   prismarine:   { name: 'Pryzmaryn',         id: 'minecraft:prismarine',    c: '#5fa39a', pat: 'noise' },
   redstone:     { name: 'Blok czerwienitu',  id: 'minecraft:redstone_block',c: '#c41e14', pat: 'metal', glow: true },

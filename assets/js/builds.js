@@ -310,7 +310,7 @@ function bigTree() {
   blob(C, H + 2, C, 7);
   // świecące owoce i trawa
   for (let i = 0; i < 14; i++) { const [x, y, z] = tips[i % tips.length]; g.set(x + Math.round((r() - .5) * 8), y - 3, z + Math.round((r() - .5) * 8), 'glowstone'); }
-  for (let x = 0; x <= 32; x++) for (let z = 0; z <= 32; z++) if (!g.get(x, 0, z) && Math.hypot(x - C, z - C) < 15) g.set(x, 0, z, r() < .2 ? 'moss' : 'grass');
+  for (let x = 0; x <= 32; x++) for (let z = 0; z <= 32; z++) if (!g.get(x, 0, z) && Math.hypot(x - C, z - C) < 15) g.set(x, 0, z, r() < .2 ? 'moss_block' : 'grass');
   return g.list();
 }
 

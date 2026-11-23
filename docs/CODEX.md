@@ -45,6 +45,15 @@ Pisz do właściciela po polsku, krótko i konkretnie. Na końcu każdej sesji d
 
 ## 3. Zadania po kolei
 
+### R0. Kolejność scalania i konflikt PR #21 z PR #27 (zrób najpierw)
+PR #21 (C10, 11 bloków w edytorze) i PR #27 (budowle w kategoriach) oba dopisują bloki do `assets/js/blocks.js` i oba zapisują `results['paleta']` w `tools/test_commands.py`.
+1. Zaproponuj właścicielowi kolejność: najpierw PR #16–#26 (twoje), potem #27. Po scaleniu twoich zrób na gałęzi `funkcja/budowle-kategorie` merge `main` i rozwiąż konflikty tak:
+   - `blocks.js`: każdy klucz tylko raz. Klucze wspólne (`bricks`, `prismarine`, `white_concrete`, `moss_block`) mają ten sam identyfikator, zostaw jedną definicję (twój kolor i wzór mogą zostać, budowle z #27 używają tylko kluczy).
+   - `test_commands.py`: zostaw ogólny `test_palette` z #27 (sprawdza **każdy** blok z `blocks.js` przez `palette_ids()`) pod kluczem `paleta`. Twój test z próbką z edytora przenieś pod klucz `paleta_edytor` albo usuń, jeśli test ogólny go pokrywa. `PALETTE_SAMPLE` może zostać dla testu zgodności eksportu w `test_strony.py`.
+   - Jeśli PR #20 (C7, vanilla + Paper) zmienia format `data/testy.json`, dopasuj do niego `wyniki.paleta` i `packStatusHTML` w `export.js`.
+   - `data/testy.json`: po scaleniu puść test komend na gałęzi, nie składaj pliku ręcznie.
+2. `tools/test_strony.py` musi dać 30/30, a test komend wszystko zielone.
+
 Rób w tej kolejności. Przy każdym jest lista plików, kroki i warunek akceptacji. Jeśli z poprzedniego polecenia (przegląd PR #7–#15, zadania C7–C10) coś jest niedokończone, dokończ to przed zadaniem R2.
 
 ### R1. Przegląd PR #27 (budowle + Sezon)
