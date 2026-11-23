@@ -657,7 +657,7 @@ details summary{cursor:pointer;color:var(--sky);margin:8px 0}
 .pk-bar .code-row{flex:1;min-width:240px;max-width:380px}
 .pk-quick{display:flex;flex-wrap:wrap;gap:6px}
 .pk-quick .tab{font-size:14px;padding:8px 12px}
-.pk-game{position:relative;aspect-ratio:16/9;overflow:hidden;background:#0d1428;touch-action:none;user-select:none;-webkit-user-select:none}
+.pk-game{position:relative;aspect-ratio:16/9;overflow:hidden;background:#0d1428 url(../parkour-podglad.webp) center/cover;touch-action:none;user-select:none;-webkit-user-select:none}
 @media (max-width:700px){.pk-game{aspect-ratio:3/4}}
 .pk-game canvas{position:absolute;inset:0;width:100%;height:100%}
 .pk-game canvas:focus-visible{outline-offset:-4px}

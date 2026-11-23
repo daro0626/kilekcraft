@@ -44,6 +44,28 @@ def smoke(page, name):
     expect(page.locator('footer')).to_contain_text('NOT AN OFFICIAL MINECRAFT SERVICE.')
 
 
+def parkour(page, mobile):
+    code = page.locator('#code')
+    code.fill('L4-K-4821')
+    code.press('Enter')
+    expect(page.locator('#ovText')).to_contain_text('Labirynt')
+    expect(page.locator('#play')).to_be_visible()
+    if mobile:
+        page.locator('#play').tap()
+        expect(page.locator('#jumpBtn')).to_be_visible()
+        page.locator('#jumpBtn').tap()
+        expect(page.locator('#time')).not_to_have_text('0,00')
+    else:
+        page.locator('#play').press('Enter')
+        expect(page.locator('#gl')).to_be_focused()
+        page.keyboard.press('Space')
+        expect(page.locator('#time')).not_to_have_text('0,00')
+    page.locator('#gl').press('Escape')
+    expect(page.locator('#play')).to_be_focused()
+    expect(page.locator('#ovTitle')).to_have_text('Pauza')
+
+
+
 def hosting(page):
     radios = page.locator('#quiz input[type=radio]').evaluate_all(
         'inputs => inputs.map(input => [input.name, input.value])'
@@ -157,6 +179,8 @@ def run(browser, width, height):
         page.on('console', lambda msg: errors.append(msg.text) if msg.type == 'error' else None)
         page.on('response', lambda r: errors.append(f'{r.status} {r.url}') if r.status >= 400 else None)
         smoke(page, name)
+        if name == 'parkour':
+            parkour(page, mobile)
         if name == 'hosting':
             hosting(page)
         if name == 'edytor':
