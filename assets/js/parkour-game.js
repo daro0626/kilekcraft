@@ -371,7 +371,7 @@ export function initGame(onNext) {
     canvas.tabIndex = -1;
     restart.hidden = !(paused || done);
     if (restartHint) restartHint.hidden = restart.hidden;
-    viewMenu.open = false;
+    closeCameraMenu();
     if (paused && help) help.after(viewMenu);
     clearInput();
     if (locked()) {
@@ -490,20 +490,31 @@ export function initGame(onNext) {
   const pauseBtn = document.createElement('button');
   pauseBtn.type = 'button'; pauseBtn.className = 'pk-pause'; pauseBtn.textContent = 'Pauza';
   pauseBtn.addEventListener('click', () => pause(true));
-  const viewMenu = document.createElement('details');
+  const viewMenu = document.createElement('div');
   viewMenu.className = 'pk-camera';
-  const viewBtn = document.createElement('summary');
-  viewBtn.className = 'pk-view'; viewBtn.textContent = 'Kamera';
+  const viewBtn = document.createElement('button');
+  viewBtn.type = 'button'; viewBtn.className = 'pk-view'; viewBtn.textContent = 'Kamera';
   const viewChoices = document.createElement('div');
+  viewChoices.id = 'pkCameraOptions';
   viewChoices.className = 'pk-camera-options';
   viewChoices.setAttribute('role', 'group');
   viewChoices.setAttribute('aria-label', 'Widok kamery');
+  viewBtn.setAttribute('aria-controls', viewChoices.id);
+  function closeCameraMenu() {
+    viewChoices.hidden = true;
+    viewBtn.setAttribute('aria-expanded', 'false');
+  }
+  closeCameraMenu();
+  viewBtn.addEventListener('click', () => {
+    viewChoices.hidden = !viewChoices.hidden;
+    viewBtn.setAttribute('aria-expanded', String(!viewChoices.hidden));
+  });
   for (const mode of viewOrder) {
     const option = document.createElement('button');
     option.type = 'button'; option.dataset.camera = mode; option.textContent = views[mode];
     option.addEventListener('click', () => {
       setView(mode);
-      viewMenu.open = false;
+      closeCameraMenu();
       viewBtn.focus({ preventScroll: true });
     });
     viewChoices.append(option);
