@@ -60,3 +60,8 @@ Wytyczne mogą się zmienić. Przed publicznym otwarciem strony przeczytaj je po
 ## Paleta edytora
 
 11 identyfikatorów używanych w nowej palecie potwierdził datapack na Paper 26.3 w dniu 2026-11-23. Test uruchomił funkcję, a następnie sprawdził umieszczony blok dla każdego identyfikatora. Wzory tekstur są własnymi wzorami KILEKCRAFT. [Przebieg GitHub Actions](https://github.com/daro0626/kilekcraft/actions/runs/45193922214)
+
+## Identyfikatory przedmiotów w propozycji cennika
+
+- 2026-11-23 · Nazwy pozycji, uwagi i kwoty przepisano z [propozycji właściciela](CENNIK_PROPOZYCJA.md). Dla wariantów wykorzystano rejestr przedmiotów i tagi wygenerowane przez serwer vanilla 26.3 z [manifestu Mojang](https://piston-meta.mojang.com/v1/packages/ead839cbccf0ddf013c3f935f2840080b5cb0d26/26.3.json). Test CI sprawdza każdy wpis osobno w parserze `give`.
+- Topola ma identyfikatory do weryfikacji i cenę pustą. Jej bloki wyłączono z płatnych grup drewna. Bambusowe deski są w osobnej pozycji. Arkusz nie przypisuje płyt muzycznych do dwóch grup cenowych. Obie kwoty zachowano, a listy identyfikatorów czekają na decyzję właściciela.

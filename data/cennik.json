@@ -1,0 +1,1919 @@
+{
+  "_opis": "Proponowane ceny sprzedaży jednej sztuki w $; identyfikatory z rejestru przedmiotów vanilla 26.3.",
+  "status": "propozycja",
+  "zrodlo": "docs/CENNIK_PROPOZYCJA.md",
+  "pozycje": [
+    {
+      "kategoria": "Bloki i materiały",
+      "nazwa": "Ziemia (Dirt)",
+      "cena": 1,
+      "id": [
+        "minecraft:dirt"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Bloki i materiały",
+      "nazwa": "Bruk (Cobblestone)",
+      "cena": 1,
+      "id": [
+        "minecraft:cobblestone"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Bloki i materiały",
+      "nazwa": "Kamień (Stone)",
+      "cena": 2,
+      "id": [
+        "minecraft:stone"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Bloki i materiały",
+      "nazwa": "Łupek (Deepslate)",
+      "cena": 2,
+      "id": [
+        "minecraft:deepslate"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Bloki i materiały",
+      "nazwa": "Piasek / czerwony piasek",
+      "cena": 2,
+      "id": [
+        "minecraft:red_sand",
+        "minecraft:sand"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Bloki i materiały",
+      "nazwa": "Żwir",
+      "cena": 2,
+      "id": [
+        "minecraft:gravel"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Bloki i materiały",
+      "nazwa": "Piaskowiec",
+      "cena": 4,
+      "id": [
+        "minecraft:red_sandstone",
+        "minecraft:sandstone"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Bloki i materiały",
+      "nazwa": "Glina – kulka",
+      "cena": 3,
+      "id": [
+        "minecraft:clay_ball"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Bloki i materiały",
+      "nazwa": "Blok gliny",
+      "cena": 12,
+      "id": [
+        "minecraft:clay"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Bloki i materiały",
+      "nazwa": "Trawa – blok",
+      "cena": 3,
+      "id": [
+        "minecraft:grass_block"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Bloki i materiały",
+      "nazwa": "Błoto / podzol / grzybnia",
+      "cena": 3,
+      "id": [
+        "minecraft:mud",
+        "minecraft:mycelium",
+        "minecraft:podzol"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Bloki i materiały",
+      "nazwa": "Netherrack",
+      "cena": 1,
+      "id": [
+        "minecraft:netherrack"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Bloki i materiały",
+      "nazwa": "Blackstone / bazalt",
+      "cena": 2,
+      "id": [
+        "minecraft:basalt",
+        "minecraft:blackstone"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Bloki i materiały",
+      "nazwa": "End Stone",
+      "cena": 3,
+      "id": [
+        "minecraft:end_stone"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Bloki i materiały",
+      "nazwa": "Obsydian",
+      "cena": 25,
+      "id": [
+        "minecraft:obsidian"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Bloki i materiały",
+      "nazwa": "Płaczący obsydian",
+      "cena": 80,
+      "id": [
+        "minecraft:crying_obsidian"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Bloki i materiały",
+      "nazwa": "Szkło",
+      "cena": 4,
+      "id": [
+        "minecraft:black_stained_glass",
+        "minecraft:blue_stained_glass",
+        "minecraft:brown_stained_glass",
+        "minecraft:cyan_stained_glass",
+        "minecraft:glass",
+        "minecraft:gray_stained_glass",
+        "minecraft:green_stained_glass",
+        "minecraft:light_blue_stained_glass",
+        "minecraft:light_gray_stained_glass",
+        "minecraft:lime_stained_glass",
+        "minecraft:magenta_stained_glass",
+        "minecraft:orange_stained_glass",
+        "minecraft:pink_stained_glass",
+        "minecraft:purple_stained_glass",
+        "minecraft:red_stained_glass",
+        "minecraft:white_stained_glass",
+        "minecraft:yellow_stained_glass"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Bloki i materiały",
+      "nazwa": "Szyba",
+      "cena": 1,
+      "id": [
+        "minecraft:black_stained_glass_pane",
+        "minecraft:blue_stained_glass_pane",
+        "minecraft:brown_stained_glass_pane",
+        "minecraft:cyan_stained_glass_pane",
+        "minecraft:glass_pane",
+        "minecraft:gray_stained_glass_pane",
+        "minecraft:green_stained_glass_pane",
+        "minecraft:light_blue_stained_glass_pane",
+        "minecraft:light_gray_stained_glass_pane",
+        "minecraft:lime_stained_glass_pane",
+        "minecraft:magenta_stained_glass_pane",
+        "minecraft:orange_stained_glass_pane",
+        "minecraft:pink_stained_glass_pane",
+        "minecraft:purple_stained_glass_pane",
+        "minecraft:red_stained_glass_pane",
+        "minecraft:white_stained_glass_pane",
+        "minecraft:yellow_stained_glass_pane"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Bloki i materiały",
+      "nazwa": "Terakota",
+      "cena": 5,
+      "id": [
+        "minecraft:black_terracotta",
+        "minecraft:blue_terracotta",
+        "minecraft:brown_terracotta",
+        "minecraft:cyan_terracotta",
+        "minecraft:gray_terracotta",
+        "minecraft:green_terracotta",
+        "minecraft:light_blue_terracotta",
+        "minecraft:light_gray_terracotta",
+        "minecraft:lime_terracotta",
+        "minecraft:magenta_terracotta",
+        "minecraft:orange_terracotta",
+        "minecraft:pink_terracotta",
+        "minecraft:purple_terracotta",
+        "minecraft:red_terracotta",
+        "minecraft:terracotta",
+        "minecraft:white_terracotta",
+        "minecraft:yellow_terracotta"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Bloki i materiały",
+      "nazwa": "Glazurowana terakota",
+      "cena": 6,
+      "id": [
+        "minecraft:black_glazed_terracotta",
+        "minecraft:blue_glazed_terracotta",
+        "minecraft:brown_glazed_terracotta",
+        "minecraft:cyan_glazed_terracotta",
+        "minecraft:gray_glazed_terracotta",
+        "minecraft:green_glazed_terracotta",
+        "minecraft:light_blue_glazed_terracotta",
+        "minecraft:light_gray_glazed_terracotta",
+        "minecraft:lime_glazed_terracotta",
+        "minecraft:magenta_glazed_terracotta",
+        "minecraft:orange_glazed_terracotta",
+        "minecraft:pink_glazed_terracotta",
+        "minecraft:purple_glazed_terracotta",
+        "minecraft:red_glazed_terracotta",
+        "minecraft:white_glazed_terracotta",
+        "minecraft:yellow_glazed_terracotta"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Bloki i materiały",
+      "nazwa": "Beton",
+      "cena": 6,
+      "id": [
+        "minecraft:black_concrete",
+        "minecraft:blue_concrete",
+        "minecraft:brown_concrete",
+        "minecraft:cyan_concrete",
+        "minecraft:gray_concrete",
+        "minecraft:green_concrete",
+        "minecraft:light_blue_concrete",
+        "minecraft:light_gray_concrete",
+        "minecraft:lime_concrete",
+        "minecraft:magenta_concrete",
+        "minecraft:orange_concrete",
+        "minecraft:pink_concrete",
+        "minecraft:purple_concrete",
+        "minecraft:red_concrete",
+        "minecraft:white_concrete",
+        "minecraft:yellow_concrete"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Bloki i materiały",
+      "nazwa": "Proszek betonowy",
+      "cena": 5,
+      "id": [
+        "minecraft:black_concrete_powder",
+        "minecraft:blue_concrete_powder",
+        "minecraft:brown_concrete_powder",
+        "minecraft:cyan_concrete_powder",
+        "minecraft:gray_concrete_powder",
+        "minecraft:green_concrete_powder",
+        "minecraft:light_blue_concrete_powder",
+        "minecraft:light_gray_concrete_powder",
+        "minecraft:lime_concrete_powder",
+        "minecraft:magenta_concrete_powder",
+        "minecraft:orange_concrete_powder",
+        "minecraft:pink_concrete_powder",
+        "minecraft:purple_concrete_powder",
+        "minecraft:red_concrete_powder",
+        "minecraft:white_concrete_powder",
+        "minecraft:yellow_concrete_powder"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Bloki i materiały",
+      "nazwa": "Śnieg – blok",
+      "cena": 1,
+      "id": [
+        "minecraft:snow_block"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Bloki i materiały",
+      "nazwa": "Lód",
+      "cena": 2,
+      "id": [
+        "minecraft:ice"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Bloki i materiały",
+      "nazwa": "Zbity lód",
+      "cena": 5,
+      "id": [
+        "minecraft:packed_ice"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Bloki i materiały",
+      "nazwa": "Niebieski lód",
+      "cena": 15,
+      "id": [
+        "minecraft:blue_ice"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Bloki i materiały",
+      "nazwa": "Blok cegieł",
+      "cena": 12,
+      "id": [
+        "minecraft:bricks"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Bloki i materiały",
+      "nazwa": "Blok kwarcu",
+      "cena": 48,
+      "id": [
+        "minecraft:quartz_block"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Drewno i dekoracje",
+      "nazwa": "Pień drzewa – każdy gatunek",
+      "cena": 6,
+      "id": [
+        "minecraft:acacia_log",
+        "minecraft:birch_log",
+        "minecraft:cherry_log",
+        "minecraft:crimson_stem",
+        "minecraft:dark_oak_log",
+        "minecraft:jungle_log",
+        "minecraft:mangrove_log",
+        "minecraft:oak_log",
+        "minecraft:pale_oak_log",
+        "minecraft:spruce_log",
+        "minecraft:warped_stem"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Drewno i dekoracje",
+      "nazwa": "Deski – każdy gatunek",
+      "cena": 1.5,
+      "id": [
+        "minecraft:acacia_planks",
+        "minecraft:birch_planks",
+        "minecraft:cherry_planks",
+        "minecraft:crimson_planks",
+        "minecraft:dark_oak_planks",
+        "minecraft:jungle_planks",
+        "minecraft:mangrove_planks",
+        "minecraft:oak_planks",
+        "minecraft:pale_oak_planks",
+        "minecraft:spruce_planks",
+        "minecraft:warped_planks"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Drewno i dekoracje",
+      "nazwa": "Drewniane schody",
+      "cena": 2,
+      "id": [
+        "minecraft:acacia_stairs",
+        "minecraft:bamboo_stairs",
+        "minecraft:birch_stairs",
+        "minecraft:cherry_stairs",
+        "minecraft:crimson_stairs",
+        "minecraft:dark_oak_stairs",
+        "minecraft:jungle_stairs",
+        "minecraft:mangrove_stairs",
+        "minecraft:oak_stairs",
+        "minecraft:pale_oak_stairs",
+        "minecraft:spruce_stairs",
+        "minecraft:warped_stairs"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Drewno i dekoracje",
+      "nazwa": "Drewniana półpłytka",
+      "cena": 1,
+      "id": [
+        "minecraft:acacia_slab",
+        "minecraft:bamboo_slab",
+        "minecraft:birch_slab",
+        "minecraft:cherry_slab",
+        "minecraft:crimson_slab",
+        "minecraft:dark_oak_slab",
+        "minecraft:jungle_slab",
+        "minecraft:mangrove_slab",
+        "minecraft:oak_slab",
+        "minecraft:pale_oak_slab",
+        "minecraft:spruce_slab",
+        "minecraft:warped_slab"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Drewno i dekoracje",
+      "nazwa": "Płot",
+      "cena": 3,
+      "id": [
+        "minecraft:acacia_fence",
+        "minecraft:bamboo_fence",
+        "minecraft:birch_fence",
+        "minecraft:cherry_fence",
+        "minecraft:crimson_fence",
+        "minecraft:dark_oak_fence",
+        "minecraft:jungle_fence",
+        "minecraft:mangrove_fence",
+        "minecraft:oak_fence",
+        "minecraft:pale_oak_fence",
+        "minecraft:spruce_fence",
+        "minecraft:warped_fence"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Drewno i dekoracje",
+      "nazwa": "Furtka",
+      "cena": 4,
+      "id": [
+        "minecraft:acacia_fence_gate",
+        "minecraft:bamboo_fence_gate",
+        "minecraft:birch_fence_gate",
+        "minecraft:cherry_fence_gate",
+        "minecraft:crimson_fence_gate",
+        "minecraft:dark_oak_fence_gate",
+        "minecraft:jungle_fence_gate",
+        "minecraft:mangrove_fence_gate",
+        "minecraft:oak_fence_gate",
+        "minecraft:pale_oak_fence_gate",
+        "minecraft:spruce_fence_gate",
+        "minecraft:warped_fence_gate"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Drewno i dekoracje",
+      "nazwa": "Drzwi drewniane",
+      "cena": 2,
+      "id": [
+        "minecraft:acacia_door",
+        "minecraft:bamboo_door",
+        "minecraft:birch_door",
+        "minecraft:cherry_door",
+        "minecraft:crimson_door",
+        "minecraft:dark_oak_door",
+        "minecraft:jungle_door",
+        "minecraft:mangrove_door",
+        "minecraft:oak_door",
+        "minecraft:pale_oak_door",
+        "minecraft:spruce_door",
+        "minecraft:warped_door"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Drewno i dekoracje",
+      "nazwa": "Klapa drewniana",
+      "cena": 4,
+      "id": [
+        "minecraft:acacia_trapdoor",
+        "minecraft:bamboo_trapdoor",
+        "minecraft:birch_trapdoor",
+        "minecraft:cherry_trapdoor",
+        "minecraft:crimson_trapdoor",
+        "minecraft:dark_oak_trapdoor",
+        "minecraft:jungle_trapdoor",
+        "minecraft:mangrove_trapdoor",
+        "minecraft:oak_trapdoor",
+        "minecraft:pale_oak_trapdoor",
+        "minecraft:spruce_trapdoor",
+        "minecraft:warped_trapdoor"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Drewno i dekoracje",
+      "nazwa": "Liście",
+      "cena": 0.5,
+      "id": [
+        "minecraft:acacia_leaves",
+        "minecraft:azalea_leaves",
+        "minecraft:birch_leaves",
+        "minecraft:cherry_leaves",
+        "minecraft:dark_oak_leaves",
+        "minecraft:flowering_azalea_leaves",
+        "minecraft:jungle_leaves",
+        "minecraft:mangrove_leaves",
+        "minecraft:oak_leaves",
+        "minecraft:pale_oak_leaves",
+        "minecraft:spruce_leaves"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Drewno i dekoracje",
+      "nazwa": "Sadzonka drzewa",
+      "cena": 4,
+      "id": [
+        "minecraft:acacia_sapling",
+        "minecraft:azalea",
+        "minecraft:birch_sapling",
+        "minecraft:cherry_sapling",
+        "minecraft:dark_oak_sapling",
+        "minecraft:flowering_azalea",
+        "minecraft:jungle_sapling",
+        "minecraft:mangrove_propagule",
+        "minecraft:oak_sapling",
+        "minecraft:pale_oak_sapling",
+        "minecraft:spruce_sapling"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Drewno i dekoracje",
+      "nazwa": "Skrzynia",
+      "cena": 10,
+      "id": [
+        "minecraft:chest"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Drewno i dekoracje",
+      "nazwa": "Beczka",
+      "cena": 8,
+      "id": [
+        "minecraft:barrel"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Drewno i dekoracje",
+      "nazwa": "Regał z książkami",
+      "cena": 20,
+      "id": [
+        "minecraft:bookshelf"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Drewno i dekoracje",
+      "nazwa": "Wełna – każdy kolor",
+      "cena": 6,
+      "id": [
+        "minecraft:black_wool",
+        "minecraft:blue_wool",
+        "minecraft:brown_wool",
+        "minecraft:cyan_wool",
+        "minecraft:gray_wool",
+        "minecraft:green_wool",
+        "minecraft:light_blue_wool",
+        "minecraft:light_gray_wool",
+        "minecraft:lime_wool",
+        "minecraft:magenta_wool",
+        "minecraft:orange_wool",
+        "minecraft:pink_wool",
+        "minecraft:purple_wool",
+        "minecraft:red_wool",
+        "minecraft:white_wool",
+        "minecraft:yellow_wool"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Drewno i dekoracje",
+      "nazwa": "Dywan – każdy kolor",
+      "cena": 4,
+      "id": [
+        "minecraft:black_carpet",
+        "minecraft:blue_carpet",
+        "minecraft:brown_carpet",
+        "minecraft:cyan_carpet",
+        "minecraft:gray_carpet",
+        "minecraft:green_carpet",
+        "minecraft:light_blue_carpet",
+        "minecraft:light_gray_carpet",
+        "minecraft:lime_carpet",
+        "minecraft:magenta_carpet",
+        "minecraft:orange_carpet",
+        "minecraft:pink_carpet",
+        "minecraft:purple_carpet",
+        "minecraft:red_carpet",
+        "minecraft:white_carpet",
+        "minecraft:yellow_carpet"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Drewno i dekoracje",
+      "nazwa": "Kwiaty",
+      "cena": 2,
+      "id": [
+        "minecraft:allium",
+        "minecraft:azure_bluet",
+        "minecraft:blue_orchid",
+        "minecraft:cactus_flower",
+        "minecraft:closed_eyeblossom",
+        "minecraft:cornflower",
+        "minecraft:dandelion",
+        "minecraft:golden_dandelion",
+        "minecraft:lilac",
+        "minecraft:lily_of_the_valley",
+        "minecraft:open_eyeblossom",
+        "minecraft:orange_tulip",
+        "minecraft:oxeye_daisy",
+        "minecraft:peony",
+        "minecraft:pink_petals",
+        "minecraft:pink_tulip",
+        "minecraft:pitcher_plant",
+        "minecraft:poppy",
+        "minecraft:red_tulip",
+        "minecraft:rose_bush",
+        "minecraft:spore_blossom",
+        "minecraft:sunflower",
+        "minecraft:torchflower",
+        "minecraft:white_tulip",
+        "minecraft:wildflowers",
+        "minecraft:wither_rose"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Drewno i dekoracje",
+      "nazwa": "Sztandar zwykły",
+      "cena": 10,
+      "id": [
+        "minecraft:black_banner",
+        "minecraft:blue_banner",
+        "minecraft:brown_banner",
+        "minecraft:cyan_banner",
+        "minecraft:gray_banner",
+        "minecraft:green_banner",
+        "minecraft:light_blue_banner",
+        "minecraft:light_gray_banner",
+        "minecraft:lime_banner",
+        "minecraft:magenta_banner",
+        "minecraft:orange_banner",
+        "minecraft:pink_banner",
+        "minecraft:purple_banner",
+        "minecraft:red_banner",
+        "minecraft:white_banner",
+        "minecraft:yellow_banner"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Drewno i dekoracje",
+      "nazwa": "Bambusowe deski",
+      "cena": 0.5,
+      "id": [
+        "minecraft:bamboo_planks"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Drewno i dekoracje",
+      "nazwa": "Bloki z drewna topoli (26.3)",
+      "cena": null,
+      "id": [
+        "minecraft:orange_poplar_leaves",
+        "minecraft:poplar_button",
+        "minecraft:poplar_door",
+        "minecraft:poplar_fence",
+        "minecraft:poplar_fence_gate",
+        "minecraft:poplar_hanging_sign",
+        "minecraft:poplar_log",
+        "minecraft:poplar_planks",
+        "minecraft:poplar_pressure_plate",
+        "minecraft:poplar_sapling",
+        "minecraft:poplar_shelf",
+        "minecraft:poplar_sign",
+        "minecraft:poplar_slab",
+        "minecraft:poplar_stairs",
+        "minecraft:poplar_trapdoor",
+        "minecraft:poplar_wood",
+        "minecraft:red_poplar_leaves",
+        "minecraft:stripped_poplar_log",
+        "minecraft:stripped_poplar_wood",
+        "minecraft:yellow_poplar_leaves"
+      ],
+      "uwagi": "Cena jak odpowiedniki innych drzew"
+    },
+    {
+      "kategoria": "Rudy i cenne surowce",
+      "nazwa": "Węgiel",
+      "cena": 10,
+      "id": [
+        "minecraft:coal"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Rudy i cenne surowce",
+      "nazwa": "Węgiel drzewny",
+      "cena": 8,
+      "id": [
+        "minecraft:charcoal"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Rudy i cenne surowce",
+      "nazwa": "Sztabka miedzi",
+      "cena": 15,
+      "id": [
+        "minecraft:copper_ingot"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Rudy i cenne surowce",
+      "nazwa": "Sztabka żelaza",
+      "cena": 45,
+      "id": [
+        "minecraft:iron_ingot"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Rudy i cenne surowce",
+      "nazwa": "Sztabka złota",
+      "cena": 65,
+      "id": [
+        "minecraft:gold_ingot"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Rudy i cenne surowce",
+      "nazwa": "Redstone – pył",
+      "cena": 4,
+      "id": [
+        "minecraft:redstone"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Rudy i cenne surowce",
+      "nazwa": "Lapis Lazuli",
+      "cena": 5,
+      "id": [
+        "minecraft:lapis_lazuli"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Rudy i cenne surowce",
+      "nazwa": "Kwarc Netheru",
+      "cena": 12,
+      "id": [
+        "minecraft:quartz"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Rudy i cenne surowce",
+      "nazwa": "Odłamek ametystu",
+      "cena": 25,
+      "id": [
+        "minecraft:amethyst_shard"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Rudy i cenne surowce",
+      "nazwa": "Diament",
+      "cena": 1000,
+      "id": [
+        "minecraft:diamond"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Rudy i cenne surowce",
+      "nazwa": "Szmaragd",
+      "cena": 800,
+      "id": [
+        "minecraft:emerald"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Rudy i cenne surowce",
+      "nazwa": "Ruda węgla",
+      "cena": 10,
+      "id": [
+        "minecraft:coal_ore",
+        "minecraft:deepslate_coal_ore"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Rudy i cenne surowce",
+      "nazwa": "Ruda miedzi",
+      "cena": 15,
+      "id": [
+        "minecraft:copper_ore",
+        "minecraft:deepslate_copper_ore"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Rudy i cenne surowce",
+      "nazwa": "Ruda żelaza",
+      "cena": 45,
+      "id": [
+        "minecraft:deepslate_iron_ore",
+        "minecraft:iron_ore"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Rudy i cenne surowce",
+      "nazwa": "Ruda złota",
+      "cena": 65,
+      "id": [
+        "minecraft:deepslate_gold_ore",
+        "minecraft:gold_ore"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Rudy i cenne surowce",
+      "nazwa": "Ruda redstone",
+      "cena": 15,
+      "id": [
+        "minecraft:deepslate_redstone_ore",
+        "minecraft:redstone_ore"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Rudy i cenne surowce",
+      "nazwa": "Ruda diamentów",
+      "cena": 1000,
+      "id": [
+        "minecraft:deepslate_diamond_ore",
+        "minecraft:diamond_ore"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Rudy i cenne surowce",
+      "nazwa": "Ruda szmaragdów",
+      "cena": 800,
+      "id": [
+        "minecraft:deepslate_emerald_ore",
+        "minecraft:emerald_ore"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Rudy i cenne surowce",
+      "nazwa": "Ancient Debris",
+      "cena": 2300,
+      "id": [
+        "minecraft:ancient_debris"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Rudy i cenne surowce",
+      "nazwa": "Netherite Scrap",
+      "cena": 2500,
+      "id": [
+        "minecraft:netherite_scrap"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Rudy i cenne surowce",
+      "nazwa": "Netherite Ingot",
+      "cena": 9500,
+      "id": [
+        "minecraft:netherite_ingot"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Rudy i cenne surowce",
+      "nazwa": "Blok żelaza",
+      "cena": 405,
+      "id": [
+        "minecraft:iron_block"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Rudy i cenne surowce",
+      "nazwa": "Blok złota",
+      "cena": 585,
+      "id": [
+        "minecraft:gold_block"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Rudy i cenne surowce",
+      "nazwa": "Blok diamentów",
+      "cena": 9000,
+      "id": [
+        "minecraft:diamond_block"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Rudy i cenne surowce",
+      "nazwa": "Blok szmaragdów",
+      "cena": 7200,
+      "id": [
+        "minecraft:emerald_block"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Rudy i cenne surowce",
+      "nazwa": "Blok netheritu",
+      "cena": 85500,
+      "id": [
+        "minecraft:netherite_block"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Rolnictwo i uprawy",
+      "nazwa": "Pszenica",
+      "cena": 6,
+      "id": [
+        "minecraft:wheat"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Rolnictwo i uprawy",
+      "nazwa": "Nasiona pszenicy",
+      "cena": 1,
+      "id": [
+        "minecraft:wheat_seeds"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Rolnictwo i uprawy",
+      "nazwa": "Marchewka",
+      "cena": 5,
+      "id": [
+        "minecraft:carrot"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Rolnictwo i uprawy",
+      "nazwa": "Ziemniak",
+      "cena": 5,
+      "id": [
+        "minecraft:potato"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Rolnictwo i uprawy",
+      "nazwa": "Burak",
+      "cena": 4,
+      "id": [
+        "minecraft:beetroot"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Rolnictwo i uprawy",
+      "nazwa": "Dynia",
+      "cena": 9,
+      "id": [
+        "minecraft:pumpkin"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Rolnictwo i uprawy",
+      "nazwa": "Plaster arbuza",
+      "cena": 2,
+      "id": [
+        "minecraft:melon_slice"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Rolnictwo i uprawy",
+      "nazwa": "Blok arbuza",
+      "cena": 16,
+      "id": [
+        "minecraft:melon"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Rolnictwo i uprawy",
+      "nazwa": "Trzcina cukrowa",
+      "cena": 3,
+      "id": [
+        "minecraft:sugar_cane"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Rolnictwo i uprawy",
+      "nazwa": "Bambus",
+      "cena": 0.5,
+      "id": [
+        "minecraft:bamboo"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Rolnictwo i uprawy",
+      "nazwa": "Kaktus",
+      "cena": 2,
+      "id": [
+        "minecraft:cactus"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Rolnictwo i uprawy",
+      "nazwa": "Kelp",
+      "cena": 1,
+      "id": [
+        "minecraft:kelp"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Rolnictwo i uprawy",
+      "nazwa": "Suszony kelp",
+      "cena": 2,
+      "id": [
+        "minecraft:dried_kelp"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Rolnictwo i uprawy",
+      "nazwa": "Ziarna kakao",
+      "cena": 5,
+      "id": [
+        "minecraft:cocoa_beans"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Rolnictwo i uprawy",
+      "nazwa": "Nether Wart",
+      "cena": 7,
+      "id": [
+        "minecraft:nether_wart"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Rolnictwo i uprawy",
+      "nazwa": "Sweet Berries",
+      "cena": 2,
+      "id": [
+        "minecraft:sweet_berries"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Rolnictwo i uprawy",
+      "nazwa": "Glow Berries",
+      "cena": 3,
+      "id": [
+        "minecraft:glow_berries"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Rolnictwo i uprawy",
+      "nazwa": "Jabłko",
+      "cena": 15,
+      "id": [
+        "minecraft:apple"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Rolnictwo i uprawy",
+      "nazwa": "Grzyb czerwony / brązowy",
+      "cena": 4,
+      "id": [
+        "minecraft:brown_mushroom",
+        "minecraft:red_mushroom"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Rolnictwo i uprawy",
+      "nazwa": "Chorus Fruit",
+      "cena": 8,
+      "id": [
+        "minecraft:chorus_fruit"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Rolnictwo i uprawy",
+      "nazwa": "Chorus Flower",
+      "cena": 15,
+      "id": [
+        "minecraft:chorus_flower"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Rolnictwo i uprawy",
+      "nazwa": "Plaster miodu",
+      "cena": 12,
+      "id": [
+        "minecraft:honeycomb"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Rolnictwo i uprawy",
+      "nazwa": "Butelka miodu",
+      "cena": 20,
+      "id": [
+        "minecraft:honey_bottle"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Potwory i zwierzęta",
+      "nazwa": "Rotten Flesh",
+      "cena": 2,
+      "id": [
+        "minecraft:rotten_flesh"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Potwory i zwierzęta",
+      "nazwa": "Kość",
+      "cena": 8,
+      "id": [
+        "minecraft:bone"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Potwory i zwierzęta",
+      "nazwa": "Nić",
+      "cena": 7,
+      "id": [
+        "minecraft:string"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Potwory i zwierzęta",
+      "nazwa": "Proch strzelniczy",
+      "cena": 20,
+      "id": [
+        "minecraft:gunpowder"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Potwory i zwierzęta",
+      "nazwa": "Oko pająka",
+      "cena": 8,
+      "id": [
+        "minecraft:spider_eye"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Potwory i zwierzęta",
+      "nazwa": "Strzała",
+      "cena": 3,
+      "id": [
+        "minecraft:arrow"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Potwory i zwierzęta",
+      "nazwa": "Pióro",
+      "cena": 4,
+      "id": [
+        "minecraft:feather"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Potwory i zwierzęta",
+      "nazwa": "Krzemień",
+      "cena": 3,
+      "id": [
+        "minecraft:flint"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Potwory i zwierzęta",
+      "nazwa": "Skóra",
+      "cena": 18,
+      "id": [
+        "minecraft:leather"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Potwory i zwierzęta",
+      "nazwa": "Atrament",
+      "cena": 5,
+      "id": [
+        "minecraft:ink_sac"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Potwory i zwierzęta",
+      "nazwa": "Świecący atrament",
+      "cena": 15,
+      "id": [
+        "minecraft:glow_ink_sac"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Potwory i zwierzęta",
+      "nazwa": "Slimeball",
+      "cena": 20,
+      "id": [
+        "minecraft:slime_ball"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Potwory i zwierzęta",
+      "nazwa": "Magma Cream",
+      "cena": 25,
+      "id": [
+        "minecraft:magma_cream"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Potwory i zwierzęta",
+      "nazwa": "Ender Pearl",
+      "cena": 55,
+      "id": [
+        "minecraft:ender_pearl"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Potwory i zwierzęta",
+      "nazwa": "Blaze Rod",
+      "cena": 90,
+      "id": [
+        "minecraft:blaze_rod"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Potwory i zwierzęta",
+      "nazwa": "Ghast Tear",
+      "cena": 300,
+      "id": [
+        "minecraft:ghast_tear"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Potwory i zwierzęta",
+      "nazwa": "Phantom Membrane",
+      "cena": 85,
+      "id": [
+        "minecraft:phantom_membrane"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Potwory i zwierzęta",
+      "nazwa": "Shulker Shell",
+      "cena": 1000,
+      "id": [
+        "minecraft:shulker_shell"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Potwory i zwierzęta",
+      "nazwa": "Prismarine Shard",
+      "cena": 12,
+      "id": [
+        "minecraft:prismarine_shard"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Potwory i zwierzęta",
+      "nazwa": "Prismarine Crystal",
+      "cena": 15,
+      "id": [
+        "minecraft:prismarine_crystals"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Potwory i zwierzęta",
+      "nazwa": "Nautilus Shell",
+      "cena": 250,
+      "id": [
+        "minecraft:nautilus_shell"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Potwory i zwierzęta",
+      "nazwa": "Rabbit Foot",
+      "cena": 200,
+      "id": [
+        "minecraft:rabbit_foot"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Potwory i zwierzęta",
+      "nazwa": "Rabbit Hide",
+      "cena": 9,
+      "id": [
+        "minecraft:rabbit_hide"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Potwory i zwierzęta",
+      "nazwa": "Turtle Scute",
+      "cena": 150,
+      "id": [
+        "minecraft:turtle_scute"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Potwory i zwierzęta",
+      "nazwa": "Armadillo Scute",
+      "cena": 20,
+      "id": [
+        "minecraft:armadillo_scute"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Potwory i zwierzęta",
+      "nazwa": "Breeze Rod",
+      "cena": 100,
+      "id": [
+        "minecraft:breeze_rod"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Potwory i zwierzęta",
+      "nazwa": "Wind Charge",
+      "cena": 10,
+      "id": [
+        "minecraft:wind_charge"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Potwory i zwierzęta",
+      "nazwa": "Echo Shard",
+      "cena": 500,
+      "id": [
+        "minecraft:echo_shard"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Jedzenie",
+      "nazwa": "Surowa wołowina",
+      "cena": 25,
+      "id": [
+        "minecraft:beef"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Jedzenie",
+      "nazwa": "Stek",
+      "cena": 30,
+      "id": [
+        "minecraft:cooked_beef"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Jedzenie",
+      "nazwa": "Surowa wieprzowina",
+      "cena": 22,
+      "id": [
+        "minecraft:porkchop"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Jedzenie",
+      "nazwa": "Pieczona wieprzowina",
+      "cena": 28,
+      "id": [
+        "minecraft:cooked_porkchop"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Jedzenie",
+      "nazwa": "Surowy kurczak",
+      "cena": 15,
+      "id": [
+        "minecraft:chicken"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Jedzenie",
+      "nazwa": "Pieczony kurczak",
+      "cena": 20,
+      "id": [
+        "minecraft:cooked_chicken"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Jedzenie",
+      "nazwa": "Surowa baranina",
+      "cena": 18,
+      "id": [
+        "minecraft:mutton"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Jedzenie",
+      "nazwa": "Pieczona baranina",
+      "cena": 25,
+      "id": [
+        "minecraft:cooked_mutton"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Jedzenie",
+      "nazwa": "Surowy dorsz",
+      "cena": 15,
+      "id": [
+        "minecraft:cod"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Jedzenie",
+      "nazwa": "Pieczony dorsz",
+      "cena": 22,
+      "id": [
+        "minecraft:cooked_cod"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Jedzenie",
+      "nazwa": "Surowy łosoś",
+      "cena": 20,
+      "id": [
+        "minecraft:salmon"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Jedzenie",
+      "nazwa": "Pieczony łosoś",
+      "cena": 27,
+      "id": [
+        "minecraft:cooked_salmon"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Jedzenie",
+      "nazwa": "Chleb",
+      "cena": 16,
+      "id": [
+        "minecraft:bread"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Jedzenie",
+      "nazwa": "Pieczony ziemniak",
+      "cena": 6,
+      "id": [
+        "minecraft:baked_potato"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Jedzenie",
+      "nazwa": "Jajko",
+      "cena": 3,
+      "id": [
+        "minecraft:blue_egg",
+        "minecraft:brown_egg",
+        "minecraft:egg"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Jedzenie",
+      "nazwa": "Złote jabłko",
+      "cena": 500,
+      "id": [
+        "minecraft:golden_apple"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Jedzenie",
+      "nazwa": "Zaklęte złote jabłko",
+      "cena": 6000,
+      "id": [
+        "minecraft:enchanted_golden_apple"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Redstone i użytkowe",
+      "nazwa": "Pochodnia",
+      "cena": 1,
+      "id": [
+        "minecraft:torch"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Redstone i użytkowe",
+      "nazwa": "Pochodnia redstone",
+      "cena": 5,
+      "id": [
+        "minecraft:redstone_torch"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Redstone i użytkowe",
+      "nazwa": "Dźwignia",
+      "cena": 2,
+      "id": [
+        "minecraft:lever"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Redstone i użytkowe",
+      "nazwa": "Przycisk",
+      "cena": 1,
+      "id": [
+        "minecraft:acacia_button",
+        "minecraft:bamboo_button",
+        "minecraft:birch_button",
+        "minecraft:cherry_button",
+        "minecraft:crimson_button",
+        "minecraft:dark_oak_button",
+        "minecraft:jungle_button",
+        "minecraft:mangrove_button",
+        "minecraft:oak_button",
+        "minecraft:pale_oak_button",
+        "minecraft:polished_blackstone_button",
+        "minecraft:spruce_button",
+        "minecraft:stone_button",
+        "minecraft:warped_button"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Redstone i użytkowe",
+      "nazwa": "Tłok",
+      "cena": 55,
+      "id": [
+        "minecraft:piston"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Redstone i użytkowe",
+      "nazwa": "Lepki tłok",
+      "cena": 75,
+      "id": [
+        "minecraft:sticky_piston"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Redstone i użytkowe",
+      "nazwa": "Obserwator",
+      "cena": 30,
+      "id": [
+        "minecraft:observer"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Redstone i użytkowe",
+      "nazwa": "Lej (Hopper)",
+      "cena": 220,
+      "id": [
+        "minecraft:hopper"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Redstone i użytkowe",
+      "nazwa": "Dozownik",
+      "cena": 25,
+      "id": [
+        "minecraft:dispenser"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Redstone i użytkowe",
+      "nazwa": "Podajnik",
+      "cena": 20,
+      "id": [
+        "minecraft:dropper"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Redstone i użytkowe",
+      "nazwa": "Szyna",
+      "cena": 10,
+      "id": [
+        "minecraft:rail"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Redstone i użytkowe",
+      "nazwa": "Zasilana szyna",
+      "cena": 60,
+      "id": [
+        "minecraft:powered_rail"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Redstone i użytkowe",
+      "nazwa": "Stół rzemieślniczy",
+      "cena": 5,
+      "id": [
+        "minecraft:crafting_table"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Redstone i użytkowe",
+      "nazwa": "Piec",
+      "cena": 8,
+      "id": [
+        "minecraft:furnace"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Redstone i użytkowe",
+      "nazwa": "Wędzarka",
+      "cena": 15,
+      "id": [
+        "minecraft:smoker"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Redstone i użytkowe",
+      "nazwa": "Piec hutniczy",
+      "cena": 100,
+      "id": [
+        "minecraft:blast_furnace"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Redstone i użytkowe",
+      "nazwa": "Kowadło",
+      "cena": 1200,
+      "id": [
+        "minecraft:anvil"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Redstone i użytkowe",
+      "nazwa": "Stół do zaklinania",
+      "cena": 2000,
+      "id": [
+        "minecraft:enchanting_table"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Redstone i użytkowe",
+      "nazwa": "Statyw alchemiczny",
+      "cena": 90,
+      "id": [
+        "minecraft:brewing_stand"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Redstone i użytkowe",
+      "nazwa": "Ender Chest",
+      "cena": 190,
+      "id": [
+        "minecraft:ender_chest"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Redstone i użytkowe",
+      "nazwa": "Shulker Box",
+      "cena": 1800,
+      "id": [
+        "minecraft:black_shulker_box",
+        "minecraft:blue_shulker_box",
+        "minecraft:brown_shulker_box",
+        "minecraft:cyan_shulker_box",
+        "minecraft:gray_shulker_box",
+        "minecraft:green_shulker_box",
+        "minecraft:light_blue_shulker_box",
+        "minecraft:light_gray_shulker_box",
+        "minecraft:lime_shulker_box",
+        "minecraft:magenta_shulker_box",
+        "minecraft:orange_shulker_box",
+        "minecraft:pink_shulker_box",
+        "minecraft:purple_shulker_box",
+        "minecraft:red_shulker_box",
+        "minecraft:shulker_box",
+        "minecraft:white_shulker_box",
+        "minecraft:yellow_shulker_box"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Rzadkie i wyjątkowe",
+      "nazwa": "Elytra",
+      "cena": 15000,
+      "id": [
+        "minecraft:elytra"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Rzadkie i wyjątkowe",
+      "nazwa": "Totem of Undying",
+      "cena": 3000,
+      "id": [
+        "minecraft:totem_of_undying"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Rzadkie i wyjątkowe",
+      "nazwa": "Nether Star",
+      "cena": 12000,
+      "id": [
+        "minecraft:nether_star"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Rzadkie i wyjątkowe",
+      "nazwa": "Beacon",
+      "cena": 11000,
+      "id": [
+        "minecraft:beacon"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Rzadkie i wyjątkowe",
+      "nazwa": "Trident",
+      "cena": 5000,
+      "id": [
+        "minecraft:trident"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Rzadkie i wyjątkowe",
+      "nazwa": "Mace",
+      "cena": 8000,
+      "id": [
+        "minecraft:mace"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Rzadkie i wyjątkowe",
+      "nazwa": "Heavy Core",
+      "cena": 4500,
+      "id": [
+        "minecraft:heavy_core"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Rzadkie i wyjątkowe",
+      "nazwa": "Heart of the Sea",
+      "cena": 2500,
+      "id": [
+        "minecraft:heart_of_the_sea"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Rzadkie i wyjątkowe",
+      "nazwa": "Siodło",
+      "cena": 300,
+      "id": [
+        "minecraft:saddle"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Rzadkie i wyjątkowe",
+      "nazwa": "Name Tag",
+      "cena": 150,
+      "id": [
+        "minecraft:name_tag"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Rzadkie i wyjątkowe",
+      "nazwa": "Netherite Upgrade Template",
+      "cena": 4000,
+      "id": [
+        "minecraft:netherite_upgrade_smithing_template"
+      ],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Rzadkie i wyjątkowe",
+      "nazwa": "Płyta muzyczna – zwykła",
+      "cena": 500,
+      "id": [],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Rzadkie i wyjątkowe",
+      "nazwa": "Płyta muzyczna – rzadka",
+      "cena": 1500,
+      "id": [],
+      "uwagi": "—"
+    },
+    {
+      "kategoria": "Rzadkie i wyjątkowe",
+      "nazwa": "Dragon Head",
+      "cena": 20000,
+      "id": [
+        "minecraft:dragon_head"
+      ],
+      "uwagi": "—"
+    }
+  ]
+}
