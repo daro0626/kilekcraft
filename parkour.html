@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Wyścig parkour — KILEKCRAFT</title>
-<meta name="description" content="Zagraj w komnatę parkour albo labirynt prosto w przeglądarce. Stoper, punkty kontrolne, lawa i rekordy.">
+<meta name="description" content="Zagraj w komnatę parkour albo labirynt prosto w przeglądarce. Stoper, punkty kontrolne, wspinaczka na górę, woda, lawa i rekordy.">
 <link rel="icon" href="data:,">
 <meta name="theme-color" content="#0b1020">
 <link rel="preload" href="assets/fonts/jersey-10-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
@@ -41,7 +41,7 @@
     <div class="code-row"><label class="sr" for="code">Kod komnaty</label><input type="text" id="code" autocomplete="off" spellcheck="false" placeholder="P3-K-4821"><button type="button" class="btn sm ghost" id="load">Wczytaj</button></div>
     <div class="pk-quick" role="group" aria-label="Szybki wybór">
       <button type="button" class="tab" data-q="P2">Łatwy</button>
-      <button type="button" class="tab" data-q="P5">Lawa</button>
+      <button type="button" class="tab" data-q="G4">Góra</button>
       <button type="button" class="tab" data-q="P8">Trudny</button>
       <button type="button" class="tab" data-q="L4">Labirynt</button>
       <button type="button" class="tab" data-q="rand">Losowy</button>
@@ -54,6 +54,7 @@
       <div><span>Czas</span><b id="time">0,00</b></div>
       <div><span>Śmierci</span><b id="deaths">0</b></div>
       <div><span>Rekord</span><b id="best">—</b></div>
+      <div id="ghostTile" hidden><span>Duch</span><b id="ghost">—</b></div>
     </div>
     <div class="pk-flash" id="flash"></div>
     <div class="pk-over" id="over">
@@ -62,9 +63,10 @@
         <p id="ovText" role="status">Kliknij albo dotknij, żeby zacząć.</p>
         <div class="pk-keys" id="keys">
           <div><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> albo strzałki: ruch</div>
-          <div><kbd>Spacja</kbd>: skok · przeciągnij myszą: obrót kamery</div>
+          <div><kbd>Spacja</kbd>: skok · ruch myszy: obrót kamery · <kbd>V</kbd>: 1. albo 3. osoba</div>
           <div><kbd>R</kbd>: powrót do punktu kontrolnego · <kbd>Esc</kbd>: pauza</div>
           <div class="touch-only">Na telefonie: lewy kciuk to ruch, prawy przycisk to skok</div>
+          <div>Masz już rekord na tej trasie? Przy tobie pobiegnie półprzezroczysty duch twojego najlepszego przejazdu.</div>
         </div>
         <div class="pk-ovbtns"><button type="button" class="btn" id="play">▶ Graj</button><button type="button" class="btn ghost" id="nextLvl" hidden>Trudniej →</button></div>
       </div>
