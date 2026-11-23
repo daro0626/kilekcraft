@@ -13,7 +13,7 @@ Polska, fanowska akademia serwerowców Minecraft Java. Animowana, ale przede wsz
 | `komendy.html` | Kreator komend z podglądem w „grze” i nowymi nazwami gamerule |
 | `budowle.html` | 4 wielkie budowle 3D warstwa po warstwie, z mapą i listą bloków, oraz 2 filmy |
 | `edytor.html` | Edytor 3D z symetrią i cofaniem, eksport do datapacka |
-| `komnaty.html` | Generator parkourów i labiryntów 1–10 z kodem komnaty |
+| `komnaty.html` | Generator parkourów, gór do wspinaczki i labiryntów 1–10 z kodem komnaty |
 | `gry.html` | Zbiór gier: wyścig parkour, Znajdź błąd, koło wyzwań, wygląd serwera |
 | `parkour.html` | Wyścig 3D po komnatach z generatora, stoper, rekordy, duch najlepszego przejazdu, widok z 1. i 3. osoby, mysz jak w grze |
 | `bledy.html` | Gra: znajdź błąd w komendzie (pytania sprawdzane na serwerze) |

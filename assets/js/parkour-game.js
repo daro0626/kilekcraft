@@ -6,7 +6,7 @@ import * as THREE from 'three';
 import { store, reduced, award, badge, sfx, xpBurst, toast } from './core.js';
 import { BLOCKS } from './blocks.js';
 import { materialFor } from './voxel-scene.js';
-import { generate, encode } from './komnaty-gen.js';
+import { generate, encode, kindName } from './komnaty-gen.js';
 
 const $ = (s) => document.querySelector(s);
 const G = 28, JUMP = 8.4, SPEED = 5.6, ACC_G = 40, ACC_A = 14, W = .3, HGT = 1.8;
@@ -109,14 +109,23 @@ export function initGame(onNext) {
     $('#ghostTile').hidden = !ghostData;
     if (ghostData) $('#ghost').textContent = fmt(ghostData[ghostData.length - 1][0]);
     // labirynt: jasne niebo i mocniejsze światło, żeby ściany i droga były czytelne
-    const mz = state.type === 'labirynt';
-    scene.background.set(mz ? 0x4a6fa5 : 0x0d1428); scene.fog.color.copy(scene.background);
-    scene.fog.near = mz ? 40 : 30; scene.fog.far = mz ? 140 : 90;
-    hemi.intensity = mz ? 3.2 : 2.0; sun.intensity = mz ? 3.0 : 2.4;
+    const mz = state.type === 'labirynt', gora = state.type === 'gora';
+    const sky = mz || (gora && state.theme !== 'neon');
+    scene.background.set(sky ? 0x4a6fa5 : 0x0d1428); scene.fog.color.copy(scene.background);
+    scene.fog.near = sky ? 40 : 30; scene.fog.far = sky ? 140 : 90;
+    hemi.intensity = sky ? 3.2 : 2.0; sun.intensity = sky ? 3.0 : 2.4;
     yaw = -Math.PI / 2; pitch = fp ? .15 : mz ? .85 : .38;
+    if (gora) {
+      // na górze patrz wzdłuż trasy (przeciwnie do ruchu wskazówek zegara) i trochę na zbocze
+      const tops = room.blocks.filter(b => b[3] === 'diamond');
+      const cx = tops.reduce((a, b) => a + b[0], 0) / tops.length + .5, cz = tops.reduce((a, b) => a + b[2], 0) / tops.length + .5;
+      const rx = spawn.x - cx, rz = spawn.z - cz, l = Math.hypot(rx, rz) || 1;
+      const fx = -rz / l - .6 * rx / l, fz = rx / l - .6 * rz / l;
+      yaw = Math.atan2(-fx, -fz); pitch = fp ? .05 : .3;
+    }
     reset(true);
     const ghostTxt = ghostData ? ` · 👻 obok pobiegnie twój duch (${fmt(ghostData[ghostData.length - 1][0])} s)` : '';
-    showOver('Gotowy?', `${state.type === 'labirynt' ? 'Labirynt' : 'Parkour'} · trudność ${state.diff} · kod ${code}${ghostTxt}`, false);
+    showOver('Gotowy?', `${kindName(state.type)} · trudność ${state.diff} · kod ${code}${ghostTxt}`, false);
     resize(true);
   }
 
@@ -210,9 +219,11 @@ export function initGame(onNext) {
     moveAxis('x', vel.x * dt); moveAxis('z', vel.z * dt); moveAxis('y', vel.y * dt);
     if (onGround && !was) sfx('land');
     // zdarzenia
-    if (touching('lava') || pos.y < minY - 4) { die(); return; }
-    // parkour: dotknięcie podłogi = upadek, wracasz do punktu kontrolnego
-    if (state.type === 'parkour' && onGround && pos.y < minY + 1.5) { die(); return; }
+    // lawa zawsze, a woda pod trasą parkouru i góry oznacza upadek
+    const climb = state.type !== 'labirynt';
+    if (touching('lava') || (climb && touching('water')) || pos.y < minY - 4) { die(); return; }
+    // parkour i góra: dotknięcie podłogi = upadek, wracasz do punktu kontrolnego
+    if (climb && onGround && pos.y < minY + 1.5) { die(); return; }
     const fb = onGround ? feetBlock() : null;
     if (fb === 'emerald') {
       const cp = new THREE.Vector3(Math.floor(pos.x) + .5, Math.floor(pos.y), Math.floor(pos.z) + .5);
