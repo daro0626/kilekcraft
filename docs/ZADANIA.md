@@ -72,6 +72,19 @@ Każde zadanie kończy się dopiero, gdy spełnia kryteria akceptacji **oraz** b
 - Opcjonalnie: workflow, który wgrywa LifeStealZ na Paper i sprawdza przez RCON `lifestealz hearts add`. Plik pluginu pobieraj tylko z Modrinth albo Hangar.
 - **Akceptacja:** `wyniki.attribute.ok` w `data/testy.json`.
 
+### C7 [Codex] Macierz testów vanilla i Paper
+- **Status:** gotowe w PR #20. Macierz 26.3 wygenerowała wspólny raport z obu silników. Każdy zaliczył 159 przypadków kreatora.
+- Po następnym przebiegu plik `testy.json` z artefaktu `wyniki-komend` dodaj do `data/` przez PR. [PR #20](https://github.com/daro0626/kilekcraft/pull/20)
+
+### C8 [Codex] Test przechodzenia komnat
+- **Status:** gotowe w PR #24. Test Node sprawdza 60 000 komnat w `test-strony.yml`. W profilowaniu G10 na emulowanym telefonie wynik po poprawkach wyniósł 53–55 FPS. [PR #24](https://github.com/daro0626/kilekcraft/pull/24)
+
+### C9 [Codex] Lokalna kopia postępu
+- **Status:** gotowe w PR #17. Panel poziomu eksportuje i importuje XP, odznaki i rekordy przez plik JSON. Playwright sprawdza import poprawnego pliku i odrzucenie niepoprawnego. [PR #17](https://github.com/daro0626/kilekcraft/pull/17)
+
+### C10 [Codex] Rozszerzona paleta edytora
+- **Status:** gotowe w PR #21. Jedenaście nowych materiałów przeszło próbę ustawienia i odczytu bloku przez datapack na Paper 26.3. Tekstury powstają z własnych wzorów. [PR #21](https://github.com/daro0626/kilekcraft/pull/21)
+
 ## B: budowle
 
 ### B2 [Piotrek] Budowanie w grze jak film
