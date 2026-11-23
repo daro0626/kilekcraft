@@ -400,7 +400,7 @@ table.tbl{width:100%;border-collapse:collapse;font-size:15px}
 .bld{display:grid;grid-template-columns:1.6fr 1fr;gap:18px;align-items:start}
 #schemPanel{margin-bottom:18px;padding:12px 16px}
 #schemPanel summary{cursor:pointer;color:var(--sky);font-weight:700}
-#schemFile{max-width:100%;color:var(--text);font:inherit}
+#schemFile:focus-visible+label{outline:3px solid var(--gold);outline-offset:3px}
 #schemStatus:empty{display:none}
 #schemUnknown{overflow-wrap:anywhere}
 .mats .schem-material{display:flex;justify-content:space-between;gap:8px;padding:6px 2px;font-size:15px}
