@@ -98,7 +98,10 @@ function answer(k) {
   $('#next').hidden = false; $('#next').textContent = i + 1 < ROUNDS ? 'Dalej →' : 'Wynik →'; $('#next').focus();
 }
 function end() {
-  const rec = score > best; if (rec) { best = score; store.set('bledy:rekord', best); $('#best').textContent = best; }
+  best = store.get('bledy:rekord', 0);
+  const rec = score > best;
+  if (rec) { best = score; store.set('bledy:rekord', best); }
+  $('#best').textContent = best;
   // rekord czasu liczy się tylko za grę bez pomyłki
   const perfect = hits === ROUNDS, oldT = store.get('bledy:czas', null), timeRec = perfect && (!oldT || total < oldT);
   if (timeRec) store.set('bledy:czas', total);
