@@ -9,15 +9,15 @@ Statusy: **OTWARTE** — niezaimplementowane; **CZĘŚCIOWO** — istnieje czę�
 
 ## Rejestr aktywnych uwag
 
-### KC-001 · P0 · OTWARTE — Intuicyjne menu pauzy w wyścigu parkour
+### KC-001 · P0 · DO TESTU — Intuicyjne menu pauzy w wyścigu parkour
 **Zgłoszenie:** po ESC jest «Pauza» i długa instrukcja, ale nie menu przypominające normalną grę. Teksty są zbyt drobne, a «Wróć do generatora komnat» i «Wszystkie gry» nie tłumaczą, co się stanie.
-**Stan kodu:** `parkour.html` i `assets/js/parkour-game.js`: przyciski Graj, warunkowo Od początku, Trudniej po wygranej; sterowanie drukowane na nakładce; linki poza planszą.
+**Etap A, gałąź `poprawka/zlecenie-39`:** ESC i Pauza otwierają menu z przyciskami Wznów, Od początku, Wybierz poziom i Menu gier. Sterowanie ma osobną rozwijaną sekcję. Test Playwright sprawdza wznowienie tej samej próby i zachowanie rekordu po resecie. Odbiór menu w dłuższej grze przez użytkownika pozostaje do wykonania.
 **Wymagania:** ESC/⏸ wyświetla czytelne, duże przyciski **Wznów**, **Od początku**, **Wybierz poziom** i **Menu gier**; na telefonie to samo. Zasady sterowania przenieść pod opcjonalny przycisk «Sterowanie» (np. na ekranie startu). «Od początku» jasno ostrzega o resecie bieżącej próby, zachowuje trwałe rekordy. Bez gubienia focusu, kursora i obsługi dotykowej.
 **Akceptacja:** pięć scenariuszy: pauza i wznowienie; reset; wybór nowego poziomu; powrót do gier i ponowne wejście; mobile i klawiatura. Bez niejasnych linków udających menu.
 
-### KC-002 · P0 · OTWARTE — Wybór poziomów i zachowanie bieżącej trasy
+### KC-002 · P0 · DO TESTU — Wybór poziomów i zachowanie bieżącej trasy
 **Zgłoszenie:** powrót przez «Wszystkie gry» prowadzi do zaskakującego poziomu, użytkownik widział powrót do trzeciego; brak intuicyjnego wyboru poziomu. Dziecko ma od razu wiedzieć, gdzie jest i co wybrać.
-**Stan kodu:** `assets/js/parkour.js` odczytuje hash lub `store.get('komnata')`, ma awaryjny poziom 3. Przyciski Łatwy, Góra, Trudny, Labirynt, Mistrzowskie, Losowy nie pokazują pełnego wyboru trudności.
+**Etap A, gałąź `poprawka/zlecenie-39`:** wybierasz typ i poziom 1–10, komnatę losową albo wklejasz kod. Przeglądarka zapamiętuje ostatnią trasę niezależnie od wyborów w generatorze. Playwright obejmuje P1 → G4, historię adresów, powrót z menu gier i z generatora oraz odświeżenie. Czytelność wyboru dla użytkownika pozostaje do sprawdzenia.
 **Wymagania:** ekran «Wybierz poziom» z typem komnaty i jasnym poziomem 1–10, czytelne «Kontynuuj ostatnią» z nazwą i kodem, «Nowa losowa» oraz czytelny aktualny poziom. Po nawigacji i odświeżeniu wraca właściwa trasa, o ile użytkownik nie zażądał nowej; bez niespodziewanego resetu na poziom 3. Zachować możliwość wklejenia kodu i udostępnienia linku z hashem.
 **Akceptacja:** testy powrotu z `gry.html`, `komnaty.html`, adresu z hashem i przycisku wstecz; przywrócenie ostatniej komnaty po odświeżeniu.
 
@@ -65,6 +65,7 @@ Statusy: **OTWARTE** — niezaimplementowane; **CZĘŚCIOWO** — istnieje czę�
 ### KC-010 · P2 · DO TESTU — Checkpointy parkouru: regresje w nowych komnatach
 **Zgłoszenie:** na `P4-N-40606` kontakt narożnikiem ze szmaragdem zapisywał odrodzenie poza platformą, powodując niekończący się spadek.
 **Stan:** naprawione i opublikowane w PR #38 (`509fd52`); Codex zgłosił 348 prób regresji, w tym 40 narożnikiem. Użytkownik jeszcze nie potwierdził dłuższej gry po aktualizacji.
+**Etap A, gałąź `poprawka/zlecenie-39`:** dodatkowe 32 lądowania z rozpędem na P4-N-40606. Każde powtarza odrodzenie 5 razy, kontrolując podparcie, liczbę śmierci i wyzerowanie ruchu. Test Node przeszedł. Dłuższa rozgrywka użytkownika pozostaje do sprawdzenia.
 **Wymagania:** utrzymać testy odrodzenia na rogach, krawędziach, przy prędkości oraz przy wielu kolejnych śmierciach; na wykryty problem tworzyć osobny wpis, a nie przepisywać historię.
 **Akceptacja:** potwierdzenie działającego wznowienia gry przez człowieka oraz zielone testy regresji.
 
@@ -85,9 +86,9 @@ Statusy: **OTWARTE** — niezaimplementowane; **CZĘŚCIOWO** — istnieje czę�
 **Wymagania:** najpierw **jeden pilotażowy projekt wzorcowy**, a nie kolejnych 20 prostych brył. Propozycje: latający zamek fantasy z monumentalnymi wieżami, łukami, roślinnością i wielopoziomowym terenem; alternatywnie świątynia w stylu monumentalnym albo parkourowy archipelag. Wysoka jakość modelu: zróżnicowana paleta, gzymsy, schody/łuki, otoczenie, elementy oświetlenia, spójna sylwetka i interesujące detale z bliska. Zaprojektować własną koncepcję i blueprint blokowy, nie tylko powiększyć pętlę proceduralną. Ocenić koszt wydajności, import __BT__.schem__BT__, optymalizację siatki/culling/chunking dla dużych modeli, podgląd 3D, warstwy, listę materiałów, datapack oraz testy na urządzeniach mobilnych. Wygląd na screenie może być ulepszany przez shaders, ale model musi dobrze wyglądać **bez shaderów**.
 **Akceptacja:** najpierw pokazać właścicielowi render/prototyp jednego modelu, porównać wizualnie ze wskazanymi referencjami; bez zatwierdzenia jakości nie tworzyć serii. Model ma być samodzielną rzeczywistą budowlą z bloków, dającą się wyeksportować i zweryfikować w Minecrafcie, nie tylko obrazkiem 3D w przeglądarce. Zmierzyć rozmiar danych, FPS mobile, koszty exportu, zachować sprawność obecnego portalu i nie oznaczać testów manualnych jako ukończonych bez wykonania.
 
-### KC-014 · P1 · OTWARTE — Przycisk «Kamera» i trzeci widok z rękami
+### KC-014 · P1 · DO TESTU — Przycisk «Kamera» i trzeci widok z rękami
 **Zgłoszenie:** zamiast przycisku «1. osoba / 3. osoba» ma być jasny wybór **Kamera**. Użytkownik chce dodatkowo trzeci widok, w którym na ekranie widać ręce postaci podczas parkouru.
-**Stan kodu:** `assets/js/parkour-game.js` trzyma pojedyncze `fp` z booleanem i przełącza dwa widoki przez `V` oraz przycisk `viewBtn`. Brak osobnego widoku z rękami.
+**Etap A, gałąź `poprawka/zlecenie-39`:** menu Kamera i klawisz V przełączają trzy perspektywy. Widok FPS rysuje własne kanciaste ramiona przy dolnych rogach. Wybór zostaje po odświeżeniu. Są testy przełączenia i zapisu oraz zrzuty obu rozmiarów. Ocenę kadru podczas dłuższej gry na fizycznym telefonie pozostawiono do wykonania.
 **Wymagania:** wyraźny przycisk **Kamera**, a po kliknięciu prosty wybór **Zza pleców**, **Z oczu** oraz **Z rękami (FPS)**. Widok z rękami ma pokazywać autorskie, kanciaste ręce awatara, z delikatną animacją ruchu/skoku. Nie kopiować modeli/tekstur z Minecrafta. Zapamiętać wybór i zachować obsługę klawisza V (przełącza kolejne tryby), myszy, telefonu, sterowania postacią oraz kursora/pauzy. Żaden widok nie może zasłaniać przeszkód ani wpływać na fizykę/kolizje.
 **Akceptacja:** 3 tryby działają na desktopie i telefonie; widać ręce w FPS, nie ma przenikania ręki przez przeszkody, perspektywa nie pogarsza czytelności parkouru, sterowanie i kamera działają płynnie, ustawienie przetrwa odświeżenie. Testy screenshotowe i funkcjonalne. Jeśli wydajność jest zbyt niska, zoptymalizować model, a nie zmieniać silnik bez analizy.
 

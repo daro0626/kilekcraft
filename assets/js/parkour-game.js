@@ -44,6 +44,26 @@ export function initGame(onNext) {
   const shadow = new THREE.Mesh(new THREE.CircleGeometry(.38, 16), new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: .35, depthWrite: false }));
   shadow.rotation.x = -Math.PI / 2; scene.add(shadow);
 
+  // Model ramion jest osobnym ujęciem, w dolnych rogach ekranu.
+  const handsScene = new THREE.Scene();
+  const handsCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, .01, 10);
+  handsCamera.position.z = 3;
+  handsScene.add(new THREE.HemisphereLight(0xfff5e5, 0x48385e, 2.7));
+  const sleeve = new THREE.MeshLambertMaterial({ color: 0xac3038 });
+  const glove = new THREE.MeshLambertMaterial({ color: 0xffc3ab });
+  const hands = [-1, 1].map(side => {
+    const hand = new THREE.Group();
+    const forearm = new THREE.Mesh(box, sleeve);
+    forearm.scale.set(.23, .36, .22);
+    const fist = new THREE.Mesh(box, glove);
+    fist.scale.set(.20, .19, .20);
+    fist.position.y = .23;
+    hand.add(forearm, fist);
+    hand.rotation.set(.37, side * .3, side * .22);
+    handsScene.add(hand);
+    return hand;
+  });
+
   // duch: najlepszy zapisany przejazd na tej trasie, bez animacji kończyn
   const ghostMat = new THREE.MeshBasicMaterial({ color: 0x5cc8ff, transparent: true, opacity: .34, depthWrite: false });
   const ghost = new THREE.Group(); ghost.visible = false; ghost.renderOrder = 3; scene.add(ghost);
@@ -205,8 +225,8 @@ export function initGame(onNext) {
     reset(true);
     const ghostTxt = ghostData ? ` · 👻 obok pobiegnie twój duch (${fmt(ghostData[ghostData.length - 1][0])} s)` : '';
     const mi = state.type === 'mistrz' ? MISTRZ[state.diff] : null;
-    showOver(mi ? `M${state.diff} · ${mi.name}` : 'Gotowy?', mi ? `${mi.zasada} Pułapka: ${mi.pulapka}${ghostTxt}`
-      : `${kindName(state.type)} · trudność ${state.diff} · kod ${code}${ghostTxt}`, false);
+    showOver(mi ? `M${state.diff} · ${mi.name}` : kindName(state.type),
+      `Poziom ${state.diff} · kod ${code}${mi ? ` · ${mi.zasada} Pułapka: ${mi.pulapka}` : ''}${ghostTxt}`, 'start');
     resize(true);
   }
 
@@ -219,7 +239,11 @@ export function initGame(onNext) {
   const KEYMAP = { KeyW: 'f', ArrowUp: 'f', KeyS: 'b', ArrowDown: 'b', KeyA: 'l', ArrowLeft: 'l', KeyD: 'r', ArrowRight: 'r', KeyQ: 'tl', KeyE: 'tr' };
   const keys = new Set(); let joy = { x: 0, y: 0 }, jumpBuffer = 0;
   const held = (action) => { for (const c of keys) if (KEYMAP[c] === action) return true; return false; };
-  let fp = store.get('pk:widok', 'trzecia') === 'pierwsza';
+  const views = { trzecia: 'Zza pleców', pierwsza: 'Z oczu', rece: 'Z rękami (FPS)' };
+  const viewOrder = Object.keys(views);
+  const savedView = store.get('pk:widok', 'trzecia');
+  let view = viewOrder.includes(savedView) ? savedView : 'trzecia';
+  let fp = view !== 'trzecia';
   const fmt = (s) => s.toFixed(2).replace('.', ',');
   // duch: [czas, x, y, z, kąt] co REC_DT sekund z najlepszego zapisanego przejazdu
   const REC_DT = .08, MAX_SAMPLES = 2048;
@@ -328,18 +352,27 @@ export function initGame(onNext) {
     sfx('win'); const r = canvas.getBoundingClientRect(); xpBurst(r.left + r.width / 2, r.top + r.height / 2, 30);
     award('pk:' + code, 25); badge('parkour'); if (state.diff >= 7) badge('speedrun');
     if (hadGhost && rec) badge('rywal');
-    showOver(rec ? 'Nowy rekord!' : 'Meta!', `Czas ${fmt(t)} s · śmierci: ${deaths} · kod ${code}`, true, true);
+    showOver(rec ? 'Nowy rekord!' : 'Meta!', `Czas ${fmt(t)} s · śmierci: ${deaths} · kod ${code}`, 'finish', true);
   }
 
   // ---------- nakładka ----------
   const over = $('#over');
-  function showOver(title, text, done, focus = false) {
+  const resume = $('#play'), restart = $('#restartLevel'), randomLevel = $('#randomLevel');
+  const restartHint = $('#restartHint'), help = $('.pk-help');
+  function showOver(title, text, mode, focus = false) {
+    const done = mode === 'finish', paused = mode === 'pause';
     $('#ovTitle').textContent = title; $('#ovText').textContent = text;
-    $('#play').textContent = done ? '↻ Jeszcze raz' : '▶ Graj';
-    $('#nextLvl').hidden = !done || state.diff >= 10; $('#keys').hidden = done;
+    resume.textContent = done ? 'Jeszcze raz' : paused ? 'Wznów' : 'Graj';
+    $('#nextLvl').hidden = !done || state.diff >= 10;
+    if (randomLevel) randomLevel.hidden = mode !== 'start';
+    if (help) help.open = false;
+    else $('#keys').hidden = done;
     over.hidden = false; running = false;
     canvas.tabIndex = -1;
-    $('#restartLevel').hidden = !started && !deaths && !done;
+    restart.hidden = !(paused || done);
+    if (restartHint) restartHint.hidden = restart.hidden;
+    viewMenu.open = false;
+    if (paused && help) help.after(viewMenu);
     clearInput();
     if (locked()) {
       retryLockAt = performance.now() + 1100;
@@ -347,9 +380,10 @@ export function initGame(onNext) {
       document.exitPointerLock();
     }
     hint();
-    if (focus) $('#play').focus();
+    if (focus) resume.focus();
   }
   function play() {
+    gameControls.append(viewMenu);
     if (finished) reset(true);
     over.hidden = true; running = true;
     canvas.tabIndex = 0;
@@ -363,7 +397,7 @@ export function initGame(onNext) {
     cancelAnimationFrame(frameId);
     frameId = requestAnimationFrame(loop);
   }
-  $('#restartLevel').addEventListener('click', () => { reset(true); play(); });
+  restart.addEventListener('click', () => { reset(true); play(); });
   $('#nextLvl').addEventListener('click', () => { const next = { ...state, diff: Math.min(10, state.diff + 1), seed: Math.floor(Math.random() * 99999) + 1 };
     onNext(next); play(); });
 
@@ -373,29 +407,29 @@ export function initGame(onNext) {
   addEventListener('keydown', (e) => {
     if (!running || (e.target instanceof Element && e.target.closest('input,textarea,select'))) return;
     const c = e.code;
-    if (c === 'Escape') { showOver('Pauza', 'Odpocznij chwilę.', false, true); return; }
+    if (c === 'Escape') { pause(true); return; }
     if (e.getModifierState('AltGraph') || e.altKey || e.ctrlKey || e.metaKey) return;
     if (c === 'KeyV') { e.preventDefault(); if (!e.repeat) toggleView(); return; }
     // R: powrót do punktu kontrolnego; w komnatach bez punktów kontrolnych start od zera
     if (c === 'KeyR') { e.preventDefault(); reset(!run.rules.checkpoints); return; }
-    if (c === 'Space' && e.target instanceof Element && e.target.closest('button')) return;
+    if (c === 'Space' && e.target instanceof Element && e.target.closest('button,summary,a')) return;
     if (c === 'Space') { e.preventDefault(); if (!e.repeat) jumpBuffer = .12; return; }
     if (!KEYMAP[c]) return;
     e.preventDefault();
     if (!e.repeat) keys.add(c);
   });
   addEventListener('keyup', (e) => keys.delete(e.code));
-  const pause = () => {
-    if (running) showOver('Pauza', 'Gra czeka na ciebie.', false);
+  const pause = (focus = false) => {
+    if (running) showOver('Pauza', `Poziom ${state.diff} · kod ${encode(state)}`, 'pause', focus);
   };
   // pauza tylko wtedy, gdy fokus naprawdę wyszedł z gry do innego elementu strony
   canvas.addEventListener('blur', (event) => {
     if (event.relatedTarget && !$('#wrapG').contains(event.relatedTarget)) pause();
   });
   document.addEventListener('pointerdown', (e) => { if (running && !$('#wrapG').contains(e.target)) pause(); });
-  addEventListener('blur', pause);
+  addEventListener('blur', () => pause());
   document.addEventListener('visibilitychange', () => { if (document.hidden) pause(); });
-  addEventListener('pagehide', pause);
+  addEventListener('pagehide', () => pause());
 
   // Mysz jak w grze: klik w planszę „łapie” kursor i ruch myszy obraca kamerę bez trzymania przycisku.
   // Esc oddaje kursor i włącza pauzę. Gdy przeglądarka nie pozwala złapać kursora, działa przeciąganie.
@@ -413,7 +447,7 @@ export function initGame(onNext) {
     if (active && !running) { document.exitPointerLock(); return; }
     if (wasLocked && !active) {
       retryLockAt = performance.now() + 1100;
-      pause();
+      pause(true);
     }
     wasLocked = active;
     drag = null;
@@ -449,39 +483,61 @@ export function initGame(onNext) {
   });
   canvas.addEventListener('wheel', (e) => { e.preventDefault(); if (!fp) dist = Math.max(3, Math.min(12, dist + e.deltaY * .01)); }, { passive: false });
 
-  // Widok z pierwszej albo trzeciej osoby (V albo przycisk), zapamiętany w przeglądarce.
+  // Ustawienie kamery zapamiętujemy między komnatami i po odświeżeniu.
   const wrap = $('#wrapG');
   const gameControls = document.createElement('div');
   gameControls.className = 'pk-controls';
   const pauseBtn = document.createElement('button');
   pauseBtn.type = 'button'; pauseBtn.className = 'pk-pause'; pauseBtn.textContent = 'Pauza';
-  pauseBtn.addEventListener('click', () => showOver('Pauza', 'Odpocznij chwilę.', false, true));
-  const viewBtn = document.createElement('button');
-  viewBtn.type = 'button'; viewBtn.className = 'pk-view';
+  pauseBtn.addEventListener('click', () => pause(true));
+  const viewMenu = document.createElement('details');
+  viewMenu.className = 'pk-camera';
+  const viewBtn = document.createElement('summary');
+  viewBtn.className = 'pk-view'; viewBtn.textContent = 'Kamera';
+  const viewChoices = document.createElement('div');
+  viewChoices.className = 'pk-camera-options';
+  viewChoices.setAttribute('role', 'group');
+  viewChoices.setAttribute('aria-label', 'Widok kamery');
+  for (const mode of viewOrder) {
+    const option = document.createElement('button');
+    option.type = 'button'; option.dataset.camera = mode; option.textContent = views[mode];
+    option.addEventListener('click', () => {
+      setView(mode);
+      viewMenu.open = false;
+      viewBtn.focus({ preventScroll: true });
+    });
+    viewChoices.append(option);
+  }
+  viewMenu.append(viewBtn, viewChoices);
   const hintEl = document.createElement('div');
   hintEl.className = 'pk-hint'; hintEl.textContent = canLock
     ? 'Przeciągnij myszą, aby obrócić kamerę. Kliknij planszę, aby spróbować zablokować kursor.'
     : 'Przeciągnij myszą, aby obrócić kamerę.';
-  gameControls.append(pauseBtn, viewBtn);
+  gameControls.append(pauseBtn, viewMenu);
   wrap.append(gameControls, hintEl);
   function viewLabel() {
-    viewBtn.textContent = fp ? '👁 1. osoba' : '👁 3. osoba';
-    viewBtn.setAttribute('aria-label', fp ? 'Widok z pierwszej osoby. Zmień na widok zza postaci (V)' : 'Widok zza postaci. Zmień na pierwszą osobę (V)');
+    viewBtn.setAttribute('aria-label', `Kamera: ${views[view]} (V)`);
+    for (const option of viewChoices.children) option.setAttribute('aria-pressed', option.dataset.camera === view);
     camera.fov = fp ? 78 : 65;
     camera.updateProjectionMatrix();
   }
   function toggleView() {
-    fp = !fp; store.set('pk:widok', fp ? 'pierwsza' : 'trzecia');
-    if (fp) pitch = Math.min(pitch, .35); else pitch = Math.max(pitch, .3);
+    setView(viewOrder[(viewOrder.indexOf(view) + 1) % viewOrder.length]);
+  }
+  function setView(mode) {
+    const wasFirst = fp;
+    view = mode;
+    fp = mode !== 'trzecia';
+    store.set('pk:widok', mode);
+    if (fp !== wasFirst) pitch = fp ? Math.min(pitch, .35) : Math.max(pitch, .3);
     clampPitch(); viewLabel(); draw(performance.now(), true);
   }
-  viewBtn.addEventListener('click', () => { toggleView(); if (running) { canvas.focus(); } });
   function hint() { hintEl.hidden = !(running && !coarse && !locked()); }
   viewLabel(); hint();
   // pomoc o sterowaniu: jedna wersja dla każdej strony z grą
   $('#keys').innerHTML = `<div><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> albo strzałki: ruch · <kbd>Spacja</kbd>: skok</div>
     <div>${canLock ? 'Ruch myszy: obrót kamery (bez trzymania przycisku)' : 'Przeciągnij myszą: obrót kamery'} · <kbd>Q</kbd><kbd>E</kbd>: obrót</div>
-    <div><kbd>V</kbd>: pierwsza albo trzecia osoba · <kbd>R</kbd>: punkt kontrolny · <kbd>Esc</kbd>: pauza</div>
+    <div><kbd>V</kbd>: zmiana kamery · <kbd>R</kbd>: punkt kontrolny · <kbd>Esc</kbd>: pauza</div>
     <div class="touch-only">Na telefonie: lewy kciuk to ruch, prawy kciuk obraca, przycisk to skok</div>
     <div>Masz już rekord na tej trasie? Obok pobiegnie półprzezroczysty duch twojego najlepszego przejazdu.</div>`;
 
@@ -492,7 +548,7 @@ export function initGame(onNext) {
   touchArea.addEventListener('pointerdown', (e) => {
     if (e.pointerType !== 'touch' || !running) return;
     const r = touchArea.getBoundingClientRect();
-    if (e.target.closest('button')) return;
+    if (e.target.closest('button,summary,details')) return;
     touchArea.setPointerCapture(e.pointerId);
     if (e.clientX - r.left < r.width * .45 && stickId === null) { stickId = e.pointerId; stickO = { x: e.clientX, y: e.clientY }; stick.style.left = (e.clientX - r.left - 60) + 'px'; stick.style.top = (e.clientY - r.top - 60) + 'px'; stick.classList.add('on'); }
     else if (lookId === null) { lookId = e.pointerId; lookP = { x: e.clientX, y: e.clientY }; }
@@ -538,6 +594,9 @@ export function initGame(onNext) {
     if (!force && camera.aspect === width / height && renderer.domElement.width === Math.floor(width * renderer.getPixelRatio()) &&
         renderer.domElement.height === Math.floor(height * renderer.getPixelRatio())) return;
     renderer.setSize(width, height, false); camera.aspect = width / height; camera.updateProjectionMatrix();
+    handsCamera.right = Math.max(1, camera.aspect);
+    handsCamera.left = -handsCamera.right;
+    handsCamera.updateProjectionMatrix();
     if (!running) draw(performance.now(), true);
   }
   function loop(now) {
@@ -595,6 +654,15 @@ export function initGame(onNext) {
     }
     if (!reduced) for (const m of lavaMats) m.emissiveIntensity = .7 + Math.sin(now / 300) * .25;
     renderer.render(scene, camera);
+    if (view === 'rece') {
+      const stride = running && !reduced ? sw * .08 : 0;
+      const rise = running && !reduced ? Math.max(-.06, Math.min(.06, vel.y * .01)) : 0;
+      hands.forEach((hand, i) => hand.position.set((2 * i - 1) * handsCamera.right * .76, -.99 + rise + (2 * i - 1) * stride, 0));
+      renderer.autoClear = false;
+      renderer.clearDepth();
+      renderer.render(handsScene, handsCamera);
+      renderer.autoClear = true;
+    }
   }
 
   new ResizeObserver(() => resize()).observe(canvas);
