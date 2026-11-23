@@ -8,7 +8,10 @@ import { OrbitControls } from 'three/addons/OrbitControls.js';
 // Renderowanie nie zajmuje wątku obsługującego dotyk, DOM i napis z bloków.
 async function openScene(container, options) {
   let canvas = document.createElement('canvas');
-  const ratio = window.devicePixelRatio || 1;
+  const scale = devicePixelRatio || 1;
+  const coarse = matchMedia('(pointer: coarse)').matches;
+  const ratio = coarse ? Math.min(scale, 1.5) : scale;
+  const rendererOptions = { ...options, antialias: !coarse && scale < 2 };
   if (canvas.transferControlToOffscreen && typeof Worker !== 'undefined') {
     let worker;
     try {
@@ -17,7 +20,7 @@ async function openScene(container, options) {
       await new Promise((resolve, reject) => {
         worker.onerror = event => { event.preventDefault(); reject(event.message); };
         worker.onmessage = ({ data }) => data === 'ready' ? resolve() : reject(new Error('Brak WebGL 2 w workerze'));
-        worker.postMessage({ type: 'init', canvas: offscreen, options, ratio }, [offscreen]);
+        worker.postMessage({ type: 'init', canvas: offscreen, options: rendererOptions, ratio }, [offscreen]);
       });
       let drawing = false;
       worker.onerror = null;
@@ -42,7 +45,7 @@ async function openScene(container, options) {
     }
   }
   const { createScene } = await import('./voxel-scene.js');
-  const scene = createScene(canvas, options, ratio);
+  const scene = createScene(canvas, rendererOptions, ratio);
   if (!scene) return null;
   container.appendChild(canvas);
   return { ...scene, canvas, draw(frame) { scene.draw(frame); return true; } };

@@ -37,6 +37,8 @@ def export_parity(page):
 def smoke(page, name):
     response = page.goto(f'{BASE}/{name}.html')
     assert response.ok, (name, response.status)
+    if name == 'budowle':
+        page.locator('#viewer').scroll_into_view_if_needed()
     expect(page.locator(READY[name]).first).to_be_attached()
     if name == 'index':
         page.locator('#hero3d').scroll_into_view_if_needed()

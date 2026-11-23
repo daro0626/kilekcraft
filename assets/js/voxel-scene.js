@@ -72,7 +72,7 @@ export function materialFor(type) {
 }
 
 export function createScene(canvas, o, ratio) {
-  const context = canvas.getContext('webgl2', { antialias: ratio < 2, alpha: true, powerPreference: 'low-power' });
+  const context = canvas.getContext('webgl2', { antialias: o.antialias ?? ratio < 2, alpha: true, powerPreference: 'low-power' });
   if (!context) return null;
   const renderer = new THREE.WebGLRenderer({ canvas, context, alpha: true });
   renderer.setPixelRatio(Math.min(ratio, 2));
