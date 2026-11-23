@@ -56,3 +56,8 @@ Wytyczne mogą się zmienić. Przed publicznym otwarciem strony przeczytaj je po
 ## Filmy z budowy
 
 „Miecz w skale” i „Latająca wyspa” to własne animacje KILEKCRAFT przygotowane 2026-11-23 z modeli `miecz` i `wyspa` w [assets/js/builds.js](../assets/js/builds.js). Kadry powstały z tych samych bloków i wzorów tekstur co przeglądarka budowli.
+
+## Identyfikatory przedmiotów w propozycji cennika
+
+- 2026-11-23 · Nazwy pozycji, uwagi i kwoty przepisano z [propozycji właściciela](CENNIK_PROPOZYCJA.md). Dla wariantów wykorzystano rejestr przedmiotów i tagi wygenerowane przez serwer vanilla 26.3 z [manifestu Mojang](https://piston-meta.mojang.com/v1/packages/ead839cbccf0ddf013c3f935f2840080b5cb0d26/26.3.json). Test CI sprawdza każdy wpis osobno w parserze `give`.
+- Topola ma identyfikatory do weryfikacji i cenę pustą. Jej bloki wyłączono z płatnych grup drewna. Bambusowe deski są w osobnej pozycji. Arkusz nie przypisuje płyt muzycznych do dwóch grup cenowych. Obie kwoty zachowano, a listy identyfikatorów czekają na decyzję właściciela.
