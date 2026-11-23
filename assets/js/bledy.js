@@ -16,7 +16,7 @@ if (ver && ver.zweryfikowane?.length) {
 } else $('#vStatus').innerHTML = '<span class="badge wait">pytania czekają na test</span>';
 
 $('#start').disabled = !POOL.length;
-const ROUNDS = Math.min(5, POOL.length), TIME = 15;
+const GAME_ROUNDS = 5, ROUNDS = Math.min(GAME_ROUNDS, POOL.length), TIME = 15;
 let qs = [], i = 0, score = 0, streak = 0, t0 = 0, raf = 0, answered = false, hits = 0, total = 0, fastest = Infinity;
 let best = store.get('bledy:rekord', 0);
 $('#best').textContent = best;
@@ -27,20 +27,29 @@ function rand(n) { const a = new Uint32Array(1); crypto.getRandomValues(a); retu
 function shuffle(a) { for (let k = a.length - 1; k > 0; k--) { const j = rand(k + 1); [a[k], a[j]] = [a[j], a[k]]; } return a; }
 // Najpierw pytania, których jeszcze nie było. Gdy pula się skończy, zaczynamy od nowa,
 // ale bez pytań z ostatniej gry.
+const questionIds = new Set(POOL.map(q => q.id));
+function seenIds() {
+  const saved = store.get('bledy:widziane', []);
+  return [...new Set(Array.isArray(saved) ? saved.filter(id => questionIds.has(id)) : [])];
+}
+
 function pick() {
-  let seen = store.get('bledy:widziane', []).filter(id => POOL.some(q => q.id === id));
-  let fresh = POOL.filter(q => !seen.includes(q.id));
-  if (fresh.length < ROUNDS) {
-    const last = seen.slice(-ROUNDS);
-    seen = last; fresh = POOL.filter(q => !last.includes(q.id));
+  const seen = new Set(seenIds());
+  const out = shuffle(POOL.filter(q => !seen.has(q.id))).slice(0, ROUNDS);
+  if (out.length < ROUNDS) {
+    const previous = [...seen].slice(-ROUNDS);
+    const prefer = shuffle(POOL.filter(q => seen.has(q.id) && !previous.includes(q.id)));
+    const fallback = shuffle(POOL.filter(q => previous.includes(q.id)));
+    out.push(...[...prefer, ...fallback].slice(0, ROUNDS - out.length));
+    seen.clear();
   }
-  const out = shuffle(fresh).slice(0, ROUNDS);
-  store.set('bledy:widziane', [...seen, ...out.map(q => q.id)]);
-  return out;
+  for (const { id } of out) seen.add(id);
+  store.set('bledy:widziane', [...seen]);
+  return shuffle(out);
 }
 function recs() {
   const t = store.get('bledy:czas', null), f = store.get('bledy:najszybsza', null);
-  const left = POOL.length - store.get('bledy:widziane', []).filter(id => POOL.some(q => q.id === id)).length;
+  const left = POOL.length - seenIds().length;
   $('#recs').innerHTML = [
     t ? `Bezbłędnie najszybciej: <b>${sec(t)} s</b>` : '',
     f ? `Najszybsza odpowiedź: <b>${sec(f)} s</b>` : '',
@@ -100,7 +109,7 @@ function answer(k) {
 function end() {
   const rec = score > best; if (rec) { best = score; store.set('bledy:rekord', best); $('#best').textContent = best; }
   // rekord czasu liczy się tylko za grę bez pomyłki
-  const perfect = hits === ROUNDS, oldT = store.get('bledy:czas', null), timeRec = perfect && (!oldT || total < oldT);
+  const perfect = hits === ROUNDS, oldT = store.get('bledy:czas', null), timeRec = hits === GAME_ROUNDS && (!oldT || total < oldT);
   if (timeRec) store.set('bledy:czas', total);
   $('#cmd').innerHTML = ''; $('#next').hidden = true; $('#start').hidden = false; $('#start').textContent = '↻ Nowe pytania';
   $('#start').focus();
