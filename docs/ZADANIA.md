@@ -58,6 +58,12 @@ Każde zadanie kończy się dopiero, gdy spełnia kryteria akceptacji **oraz** b
 
 ## B: budowle
 
+### B2 [Piotrek] Budowanie w grze jak film
+- Pobierz datapack miecza ze strony „Budowle”, wgraj na świat testowy, stań na płaskim terenie i wpisz `/function kilekcraft:miecz/animacja`.
+- Potem w innym miejscu: `/function kilekcraft:miecz/start`, kilka razy `/nastepna` i raz `/cofnij`.
+- Zapisz, czy tempo (pół sekundy na warstwę) jest dobre i czy coś stanęło w złym miejscu.
+- **Akceptacja:** obie drogi zbudowały miecz w tym samym miejscu, w którym stał gracz na starcie.
+
 ### B1 [Claude] Więcej wielkich budowli
 - Pomysły dla Piotrka: smok z kamienia oplatający górę, statek na wodospadzie, zamek z mostem zwodzonym, wulkan z lawą.
 - Bez postaci i mobów z gry (np. Creepera) na stronie. To elementy marki.

@@ -6,7 +6,7 @@ import { OrbitControls } from 'three/addons/OrbitControls.js';
 import { store, reduced, copyText, toast, award, badge, bump, sfx } from './core.js';
 import { BLOCKS, BUILDS, getBuild } from './builds.js';
 import { materialFor } from './voxel-scene.js';
-import { exportLines, mcfunction, datapack, download, safeName, packInfo, exportPanelHTML } from './export.js';
+import { exportLines, mcfunction, datapack, download, safeName, packStatusHTML, exportPanelHTML, modesHTML } from './export.js';
 
 const $ = (s) => document.querySelector(s);
 const N = 48, H = 64, MAX = 8000;
@@ -233,6 +233,7 @@ function changed() {
 function updExport() {
   const name = safeName($('#name').value);
   $('#fnCmd').innerHTML = `<span class="pr">›</span> <span class="hk">/function</span> kilekcraft:${name}`;
+  $('#fnModes').innerHTML = modesHTML($('#name').value);
   const lines = exportLines(normBlocks());
   $('#lineCount').textContent = lines.length;
   $('#lines').textContent = lines.slice(0, 400).join('\n') + (lines.length > 400 ? `\n… i ${lines.length - 400} więcej w pliku` : '');
@@ -249,7 +250,7 @@ $('#dl').addEventListener('click', async (e) => {
   if (award('ed:eksport', 50, { from: { x: r.left + r.width / 2, y: r.top } })) badge('architekt');
   toast('Datapack gotowy. Jeśli plik się nie pobrał, otwórz stronę w zwykłej przeglądarce.');
 });
-packInfo().then(p => { $('#packStatus').innerHTML = p.sprawdzone ? `<span class="badge ok">sprawdzone · ${p.wersja}</span>` : '<span class="badge wait" title="Format datapacka czeka na test na serwerze">datapack czeka na test</span>'; });
+packStatusHTML().then(h => { $('#packStatus').innerHTML = h; });
 
 // odtworzenie zapisu
 const saved = store.get('ed:swiat');

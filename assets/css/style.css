@@ -239,6 +239,8 @@ table.tbl{width:100%;border-collapse:collapse;font-size:15px}
 .tbl th,.tbl td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line-strong);vertical-align:top}
 .tbl th{font:700 13px var(--font);color:var(--muted);letter-spacing:.04em}
 .tbl-wrap{overflow-x:auto}
+.fn-modes{list-style:none;margin:10px 0 4px;padding:0;display:grid;gap:4px;font-size:14px}.fn-modes code{color:var(--gold);word-break:break-all}
+.bd-exp{margin-top:24px}.bd-exp .console{margin-top:8px}
 
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}

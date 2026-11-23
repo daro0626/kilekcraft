@@ -3,7 +3,7 @@
 // =========================================================
 import { store, reduced, copyText, toast, award, badge } from './core.js';
 import { generate, encode, decode, THEMES } from './komnaty-gen.js';
-import { datapack, download, safeName, packInfo, exportPanelHTML } from './export.js';
+import { datapack, download, safeName, packStatusHTML, exportPanelHTML, modesHTML } from './export.js';
 
 const $ = (s) => document.querySelector(s);
 const form = $('#form');
@@ -42,6 +42,7 @@ async function build(animate = true) {
     : [['Skoki', i.skoki], ['Punkty kontrolne', i.punkty], ['Pod spodem', i.dno], ['Kod', code]];
   $('#stats').innerHTML = cells.map(([k, v]) => `<div class="panel"><span>${k}</span><b>${v}</b></div>`).join('');
   $('#fnCmd').innerHTML = `<span class="pr">›</span> <span class="hk">/function</span> kilekcraft:${fnName()}`;
+  $('#fnModes').innerHTML = modesHTML(fnName());
   if (viewer) { viewer.setBuild(room); if (animate && !reduced) viewer.animateBuild(Math.min(3500, 1200 + room.size[1] * 120)); }
   award('komnata:' + code, 10); badge('komnata');
   if (state.diff >= 9) badge('hardcore');
@@ -62,7 +63,7 @@ $('#dl').addEventListener('click', async (e) => {
   award('km:eksport', 30, { from: { x: r.left + r.width / 2, y: r.top } });
   toast('Datapack gotowy. Jeśli plik się nie pobrał, otwórz stronę w zwykłej przeglądarce.');
 });
-packInfo().then(p => { $('#packStatus').innerHTML = p.sprawdzone ? `<span class="badge ok">sprawdzone · ${p.wersja}</span>` : '<span class="badge wait">datapack czeka na test</span>'; });
+packStatusHTML().then(h => { $('#packStatus').innerHTML = h; });
 
 toForm(); showDiff(); await build(false);
 const { createViewer } = await import('./voxel.js');

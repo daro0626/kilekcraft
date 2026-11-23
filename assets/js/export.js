@@ -40,6 +40,56 @@ export function safeName(s) {
   return n || 'budowla';
 }
 
+// ---------- budowanie w grze jak film: warstwa po warstwie ----------
+// Każda warstwa (wysokość y) ma swoją funkcję. Niewidzialny znacznik (marker) zapamiętuje
+// miejsce startu, więc kolejne warstwy stają zawsze w tym samym miejscu, nawet gdy gracz odejdzie.
+// Lustro: tools/test_commands.py (layer_functions). Zmieniaj oba naraz.
+export const OBJ = 'kc_warstwa';
+export function layerFunctions(blocks, title) {
+  const name = safeName(title), tag = 'kc_' + name, who = '#' + name, fn = (f) => `kilekcraft:${name}/${f}`;
+  const at = `at @e[type=minecraft:marker,tag=${tag},limit=1]`;
+  const ys = [...new Set(blocks.filter(b => BLOCKS[b[3]] && BLOCKS[b[3]].id).map(b => b[1]))].sort((a, c) => a - c);
+  const n = ys.length;
+  if (!n) return [];
+  const files = [];
+  ys.forEach((y, i) => {
+    const lines = exportLines(blocks.filter(b => b[1] === y));
+    files.push([`warstwa_${i + 1}`, [...lines, `title @a actionbar {"text":"Warstwa ${i + 1} z ${n}","color":"gold"}`]]);
+    files.push([`usun_${i + 1}`, lines.map(l => l.replace(/ \S+$/, ' minecraft:air'))]);
+  });
+  files.push(['start', [
+    `kill @e[type=minecraft:marker,tag=${tag}]`,
+    `summon minecraft:marker ~ ~ ~ {Tags:["${tag}"]}`,
+    `scoreboard objectives add ${OBJ} dummy`,
+    `scoreboard players set ${who} ${OBJ} 0`,
+    `title @s actionbar {"text":"Start zapamiętany. Warstw: ${n}","color":"green"}`,
+  ]]);
+  files.push(['nastepna', [
+    `scoreboard players add ${who} ${OBJ} 1`,
+    `execute if score ${who} ${OBJ} matches ${n + 1}.. run scoreboard players set ${who} ${OBJ} ${n}`,
+    ...ys.map((_, i) => `execute if score ${who} ${OBJ} matches ${i + 1} ${at} run function ${fn('warstwa_' + (i + 1))}`),
+  ]]);
+  files.push(['cofnij', [
+    ...ys.map((_, i) => `execute if score ${who} ${OBJ} matches ${i + 1} ${at} run function ${fn('usun_' + (i + 1))}`),
+    `execute if score ${who} ${OBJ} matches 1.. run scoreboard players remove ${who} ${OBJ} 1`,
+  ]]);
+  files.push(['animacja', [`function ${fn('start')}`, `schedule function ${fn('krok')} 10t`]]);
+  files.push(['krok', [`function ${fn('nastepna')}`, `execute if score ${who} ${OBJ} matches ..${n - 1} run schedule function ${fn('krok')} 10t`]]);
+  return files.map(([f, lines]) => ({ path: `${name}/${f}.mcfunction`, text: lines.join('\n') + '\n' }));
+}
+
+// Krótka ściąga komend do pokazania pod przyciskiem „Pobierz datapack”
+export function modesHTML(title) {
+  const n = safeName(title), c = (f, t) => `<li><code>/function kilekcraft:${n}${f}</code> ${t}</li>`;
+  return `<ul class="fn-modes">
+    ${c('', 'cała budowla od razu')}
+    ${c('/animacja', 'buduje się sama, warstwa co pół sekundy, jak na filmie')}
+    ${c('/start', 'zapamiętuje miejsce startu, potem:')}
+    ${c('/nastepna', 'stawia następną warstwę')}
+    ${c('/cofnij', 'zabiera ostatnią warstwę')}
+  </ul>`;
+}
+
 export function mcfunction(blocks, title) {
   const lines = exportLines(blocks);
   const hasPortal = blocks.some(b => b[3] === 'portal');
@@ -47,6 +97,8 @@ export function mcfunction(blocks, title) {
     `# KILEKCRAFT: ${title}`,
     `# Postaw się w miejscu startu i wpisz: /function kilekcraft:${safeName(title)}`,
     `# Budowla pojawi się ${OFFSET_X} bloki w stronę +X (na wschód) od ciebie.`,
+    `# Jak film: /function kilekcraft:${safeName(title)}/animacja`,
+    `# Krok po kroku: /function kilekcraft:${safeName(title)}/start, potem /nastepna albo /cofnij`,
     hasPortal ? '# Portal zapal krzesiwem, bo komenda go nie stawia.' : null,
     ...lines,
   ].filter(Boolean).join('\n') + '\n';
@@ -83,6 +135,15 @@ export async function packInfo() {
   return PACK;
 }
 
+// Status z testu na serwerze: osobno cały datapack i budowanie warstwami
+export async function packStatusHTML() {
+  const p = await packInfo();
+  let w = null; try { w = (await (await fetch('data/testy.json', { cache: 'no-store' })).json())?.wyniki?.warstwy || null; } catch { /* brak */ }
+  const all = p.sprawdzone ? `<span class="badge ok">sprawdzone · ${p.wersja}</span>` : '<span class="badge wait">datapack czeka na test</span>';
+  const lay = w && w.ok ? `<span class="badge ok" title="start, nastepna, cofnij i animacja">warstwy sprawdzone · ${w.wersja}</span>` : '<span class="badge wait" title="Funkcje warstwa po warstwie czekają na test na serwerze">warstwy czekają na test</span>';
+  return all + ' ' + lay;
+}
+
 export async function datapack(blocks, title) {
   const info = await packInfo();
   const name = safeName(title);
@@ -90,6 +151,7 @@ export async function datapack(blocks, title) {
   return { name, blob: zip([
     { name: 'pack.mcmeta', data: JSON.stringify(meta, null, 2) },
     { name: `data/kilekcraft/function/${name}.mcfunction`, data: mcfunction(blocks, title) },
+    ...layerFunctions(blocks, title).map(f => ({ name: `data/kilekcraft/function/${f.path}`, data: f.text })),
   ]) };
 }
 
@@ -110,7 +172,8 @@ export function exportPanelHTML() {
     <ol>
       <li>Kliknij <b>Pobierz datapack</b>. Dostaniesz plik <code>.zip</code>.</li>
       <li>Wgraj go <b>bez rozpakowywania</b> do folderu <code>world/datapacks/</code> na serwerze (w panelu hostingu: Pliki).</li>
-      <li>Zrestartuj serwer w panelu. Potem w grze stań w miejscu startu i wpisz komendę poniżej. Potrzebujesz OP.</li>
+      <li>Zrestartuj serwer w panelu. Potem w grze stań w miejscu startu i wpisz komendę z ramki wyżej. Potrzebujesz OP.</li>
     </ol>
+    <p class="muted small" style="margin:6px 0 0">Chcesz zobaczyć, jak rośnie? Wpisz wersję z <b>/animacja</b>. Albo stawiaj sam warstwa po warstwie: <b>/start</b>, potem <b>/nastepna</b> i <b>/cofnij</b>. Pełna lista jest wyżej.</p>
   </div>`;
 }

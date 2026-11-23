@@ -1,7 +1,8 @@
 // =========================================================
 // KILEKCRAFT — przeglądarka budowli warstwa po warstwie.
 // =========================================================
-import { store, reduced, xpBurst, award, badge } from './core.js';
+import { store, reduced, xpBurst, award, badge, copyText, toast } from './core.js';
+import { datapack, download, safeName, packStatusHTML, exportPanelHTML, modesHTML } from './export.js';
 import { BUILDS, BLOCKS, getBuild } from './builds.js';
 
 const $ = (s) => document.querySelector(s);
@@ -104,6 +105,7 @@ async function load(animate) {
   $('#bName').textContent = b.name;
   $('#bSize').textContent = ` · ${b.size[0]}×${b.size[1]}×${b.size[2]} · ${b.blocks.filter(x => !BLOCKS[x[3]].noCount).length.toLocaleString('pl-PL')} bloków`;
   slider.max = b.size[1] - 1;
+  expUpdate();
   if (viewer) viewer.setBuild(b);
   setL(Infinity);
   if (animate && viewer && !reduced) build3d();
@@ -116,6 +118,27 @@ function build3d() {
     if (p < 1) { slider.value = Math.max(0, y); $('#lNum').textContent = Math.max(1, y + 1); requestAnimationFrame(step); } else setL(Infinity); };
   requestAnimationFrame(step);
 }
+// ---------- datapack: postaw na serwerze ----------
+const fnOf = () => safeName(b.short);
+function expUpdate() {
+  $('#bdExpName').textContent = b.short.toLowerCase();
+  $('#fnCmd').innerHTML = `<span class="pr">›</span> <span class="hk">/function</span> kilekcraft:${fnOf()}/animacja`;
+  $('#fnModes').innerHTML = modesHTML(fnOf());
+  const wet = b.blocks.some(x => x[3] === 'lava' || x[3] === 'water');
+  $('#bdWarn').hidden = !wet;
+  if (wet) $('#bdWarn').textContent = 'Ta budowla ma lawę albo wodę. W grze będą płynąć, więc stawiaj ją z dala od drewna i domów.';
+}
+$('#expHelp').innerHTML = exportPanelHTML();
+$('#copyFn').addEventListener('click', (e) => copyText(`/function kilekcraft:${fnOf()}/animacja`, e.currentTarget));
+$('#dl').addEventListener('click', async (e) => {
+  const { blob } = await datapack(b.blocks, b.short);
+  download(blob, `kilekcraft_${fnOf()}.zip`);
+  const r = e.currentTarget.getBoundingClientRect();
+  award('bd:eksport:' + b.id, 30, { from: { x: r.left + r.width / 2, y: r.top } });
+  toast('Datapack gotowy. Jeśli plik się nie pobrał, otwórz stronę w zwykłej przeglądarce.');
+});
+packStatusHTML().then(h => { $('#packStatus').innerHTML = h; });
+
 const play = $('#play');
 play.disabled = true;
 play.addEventListener('click', () => viewer && !reduced && build3d());
