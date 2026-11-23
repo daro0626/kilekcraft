@@ -49,3 +49,8 @@ Uproszczony model: losowe pary walczą, szansa wygranej zależy od umiejętnośc
 
 ## Poziom gracza (`assets/js/xp.js`)
 XP i odznaki w `localStorage` pod kluczem `kc:xp`. Próg poziomu: 25·n·(n−1). Nic nie wychodzi poza przeglądarkę.
+
+
+### Wyniki obu silników
+
+Workflow „Test komend na serwerze” rozstrzyga jedną wersję i uruchamia testy na vanilla i Paper. Opcja `engine` pozwala wybrać pojedynczy silnik. Po przebiegu z dwoma silnikami pobierz artefakt `wyniki-komend`. Plik `testy.json` z artefaktu dodaj do `data/` przez PR. Raport zachowuje wyniki obu silników w `silniki`. Pole `wyniki` służy bieżącym widokom MOTD, datapacka i „Znajdź błąd”. Status kreatora korzysta z wyników zgodnych z wybranym zakresem wersji.

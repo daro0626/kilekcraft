@@ -118,6 +118,22 @@ def hosting(page):
         assert len(names) == len(set(names)) == 3 and all(names), (choices, names)
 
 
+def engine_badges(page):
+    report = page.request.get(f'{BASE}/data/testy.json').json()
+    engines = report.get('silniki')
+    if not engines or not {'vanilla', 'paper'} <= engines.keys():
+        return
+    template = next(key for key in (entry['id'] for entry in DATA['szablony'])
+                    if all(engines[e]['wyniki'][key]['ok'] for e in ('vanilla', 'paper')))
+    page.locator('#ver').select_option('nowa')
+    page.locator('#tabs [data-id="' + template + '"]').click()
+    expected = 'sprawdzone' + ''.join(' · ' + e + ' ' + engines[e]['wyniki'][template]['wersja']
+                                      for e in ('vanilla', 'paper'))
+    expect(page.locator('#status')).to_have_text(expected)
+    page.locator('#ver').select_option('stara')
+    expect(page.locator('#status')).to_have_text('czeka na test')
+    page.locator('#ver').select_option('nowa')
+
 def browser_commands(page, modern):
     # Zbieramy całe wiersze z konsoli kreatora, także kolejność komend wielowierszowych.
     page.locator('#ver').select_option('nowa' if modern else 'stara')
@@ -309,6 +325,7 @@ def run(browser, width, height):
             actual = page.evaluate('async s => (await import("./assets/js/motd.js")).motdProperty(s)', MOTD_SAMPLE)
             assert actual == motd_property(MOTD_SAMPLE), (actual, motd_property(MOTD_SAMPLE))
         if name == 'komendy':
+            engine_badges(page)
             # Przeładuj moduł z wyłączonym efektem maszynopisania.
             page.emulate_media(reduced_motion='reduce')
             page.reload()
