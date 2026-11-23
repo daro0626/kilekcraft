@@ -83,7 +83,8 @@ def comp(text, color, bold=True):
     return json.dumps(d, ensure_ascii=False, separators=(',', ':'))
 
 def commands(new_names=True):
-    c = {k: [] for k in ('give', 'effect', 'title', 'tp', 'gamerule', 'whitelist', 'attribute')}
+    c = {k: [] for k in ('give', 'effect', 'title', 'tp', 'gamerule', 'whitelist', 'attribute', 'gamemode', 'time',
+                         'weather', 'difficulty', 'summon', 'enchant', 'xp', 'kill', 'clear', 'worldborder', 'spawnpoint')}
     for p in DATA['przedmioty']:
         c['give'] += [f"give @a minecraft:{p['id']} 1", f"give @a minecraft:{p['id']} 64"]
     for e in DATA['efekty']:
@@ -103,6 +104,19 @@ def commands(new_names=True):
     # attribute przyjmuje jeden byt, więc „wszyscy” to execute as @a … @s (sprawdzone w CI: @a daje błąd)
     c['attribute'] += [f'execute as @a run attribute @s minecraft:max_health base set {hp}' for hp in (2, 7, 16, 18, 20, 40)]
     c['attribute'] += ['execute as @a run attribute @s minecraft:max_health base reset', 'attribute @p minecraft:max_health base reset']
+    c['gamemode'] += [f"gamemode {m['id']} @a" for m in DATA['tryby']]
+    c['time'] += [f"time set {p['id']}" for p in DATA['pory']]
+    c['weather'] += [f"weather {w['id']}" for w in DATA['pogoda']] + ['weather rain 300s']
+    c['difficulty'] += [f"difficulty {d['id']}" for d in DATA['trudnosci']]
+    c['summon'] += [f"summon minecraft:{m['id']} ~ ~ ~" for m in DATA['moby']]
+    c['summon'].append('summon minecraft:wolf ~ ~ ~ {CustomName:' + json.dumps('Żółw Burek', ensure_ascii=False) + '}')
+    for z in DATA['zaklecia']:
+        c['enchant'] += [f"enchant @a minecraft:{z['id']} 1", f"enchant @a minecraft:{z['id']} {z['max']}"]
+    c['xp'] += ['xp add @a 5 levels', 'xp add @a 100 points', 'xp set @a 0 levels']
+    c['kill'] += [f"kill {k['sel']}" for k in DATA['kill_cele']]
+    c['clear'] += ['clear @a', 'clear @a minecraft:diamond']
+    c['worldborder'] += ['worldborder center 0 0', 'worldborder set 1000', 'worldborder center -100 200', 'worldborder set 2500']
+    c['spawnpoint'] += ['spawnpoint @a 0 64 0', 'setworldspawn 0 64 0']
     return c
 
 BAD = ('Unknown or incomplete command', 'Incorrect argument', '<--[HERE]', 'Unknown item', 'Unknown effect',

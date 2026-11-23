@@ -23,6 +23,8 @@ Każdy fakt na stronie, który może się zmienić, musi tu mieć źródło i da
 
 | Komenda `attribute <cel> minecraft:max_health base set <punkty>` / `base reset`; nazwy atrybutów bez przedrostka `generic.` od 1.21.2; 20 punktów = 10 serc. Cel to **jeden** byt: `attribute @a …` serwer 26.3 odrzuca („Only one entity is allowed”), więc dla wszystkich `execute as @a run attribute @s …` | https://metabot.gg/en/minecraft/commands/attribute ; https://wikily.gg/minecraft/commands/attribute ; https://www.bilibili.com/opus/957257796958552103 (zmiana nazw) | 2026-11-23, **czeka na test CI (C6)** |
 | Obniżenie `max_health` nie zmniejsza od razu bieżącego zdrowia (znany błąd) | https://bugs.mojang.com/browse/MC-180001 ; https://bugs-legacy.mojang.com/browse/MC-16345 | 2026-11-23 |
+| Maksymalne poziomy zaklęć (Ostrość V, Ochrona IV, Wydajność V, Niezniszczalność III, Szczęście III, Grabież III, Naprawa I, Jedwabny dotyk I, Zaklęty ogień II, Moc V, Powolne opadanie IV) | https://wiki.deinserverhost.de/en/wiki/minecraft-enchantments (tabela dla Java 26.2), https://www.sportskeeda.com/minecraft/list-max-level-minecraft-enchantments | 2026-11-23 |
+| Składnia: gamemode, time set, weather (z czasem `300s`), difficulty, summon z CustomName, enchant, xp, kill z filtrem type, clear, worldborder, spawnpoint, setworldspawn | test na serwerze (`tools/test_commands.py`) | czeka na test CI |
 
 Każdy z dwóch serwerów przeszedł 82 próby składni przez RCON. Efekt w grze czeka na test Piotrka. Historyczne nazwy zasad i daty ich wprowadzenia pochodzą z podanych wyżej źródeł.
 
