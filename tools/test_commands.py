@@ -209,9 +209,9 @@ MOTD_SAMPLE = '§4§lK§c§lI§6§lL§e§lE§6§lK§7 Serwer ŻÓŁW 🧱\n§aSe
 def motd_property(raw):
     encoded = raw.encode('utf-16-be', errors='surrogatepass')
     out = []
-    escapes = {10: '\n', 13: '\r', 9: '\t', 92: '\\', 32: '\ '}
+    escapes = {10: '\\n', 13: '\\r', 9: '\\t', 92: '\\\\', 32: '\\ '}
     for (unit,) in struct.iter_unpack('>H', encoded):
-        out.append(escapes.get(unit, '\u%04X' % unit if not 32 <= unit <= 126 else chr(unit)))
+        out.append(escapes.get(unit, '\\u%04X' % unit if not 32 <= unit <= 126 else chr(unit)))
     return 'motd=' + ''.join(out)
 
 def _varint(n):

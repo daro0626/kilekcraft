@@ -22,10 +22,10 @@ export function motdRaw(lines) {
 }
 export function motdProperty(raw) {
   // Java odczytuje sekwencje Unicode po jednej jednostce UTF-16.
-  const escapes = { '\n': '\\n', '\r': '\\r', '\t': '\\t', '\\': '\\\\', ' ': '\\ ' };
+  const escapes = {"\n": "\\n", "\r": "\\r", "\t": "\\t", "\\": "\\\\", " ": "\\ "};
   return 'motd=' + raw.split('').map(ch => {
     const unit = ch.charCodeAt(0);
-    return escapes[ch] ?? (unit < 32 || unit > 126 ? '\\u' + unit.toString(16).toUpperCase().padStart(4, '0') : ch);
+    return escapes[ch] ?? (unit < 32 || unit > 126 ? "\\u" + unit.toString(16).toUpperCase().padStart(4, '0') : ch);
   }).join('');
 }
 function renderMotd(raw) {
