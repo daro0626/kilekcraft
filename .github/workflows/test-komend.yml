@@ -18,6 +18,7 @@ on:
       - tools/test_commands.py
       - tools/polacz_testy.py
       - data/komendy.json
+      - data/cennik.json
       - data/bledy.json
       - assets/js/komendy.js
       - assets/js/export.js

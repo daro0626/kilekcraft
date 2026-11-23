@@ -306,18 +306,21 @@ def command_tabs(page):
 
 def progress_backup(page):
     profile = {'xp': 120, 'badges': {'start': '2026-11-23'}, 'count': {}, 'got': {'badge:start': 1}}
-    page.evaluate("""profile => {
+    season = {'pkt': 900, 'przetrwal': True, 'miejsce': 2, 'dzien': 14}
+    page.evaluate("""([profile, season]) => {
         localStorage.setItem('kc:xp', JSON.stringify(profile));
+        localStorage.setItem('kc:sezon:rekord', JSON.stringify(season));
         localStorage.setItem('kc:pk:best:P3-K-1', '22');
         localStorage.setItem('kc:bledy:rekord', '80');
         localStorage.setItem('kc:motd', '"prywatny opis"');
-    }""", profile)
+    }""", [profile, season])
     page.reload()
     page.locator('.xp-btn').click()
     with page.expect_download() as item:
         page.get_by_role('button', name='Eksportuj postęp').click()
     exported = json.loads(Path(item.value.path()).read_text(encoding='utf-8'))
     assert exported['profil']['xp'] == 120
+    assert exported['rekordy']['sezon:rekord'] == season
     assert exported['profil']['badges'] == profile['badges']
     assert exported['rekordy']['pk:best:P3-K-1'] == 22
     assert 'prywatny opis' not in json.dumps(exported)
@@ -333,8 +336,18 @@ def progress_backup(page):
     upload({**exported, 'rekordy': {'motd': 'nie importuj'}})
     expect(page.locator('[data-backup-status]')).to_contain_text('Nie udało się')
     assert page.evaluate("JSON.parse(localStorage.getItem('kc:xp')).xp") == 120
+    bad = {**season, 'miejsce': 9}
+    upload({**exported, 'rekordy': {'sezon:rekord': bad}})
+    expect(page.locator('[data-backup-status]')).to_contain_text('Nie udało się')
+    key = 'sezon:rekord'
+    better = {**season, 'pkt': 1100}
+    exported['rekordy'][key] = better
     upload(exported)
     expect(page.locator('[data-backup-status]')).to_contain_text('Wczytano kopię')
+    exported['rekordy'][key] = season
+    upload(exported)
+    expect(page.locator('[data-backup-status]')).to_contain_text('Wczytano kopię')
+    assert page.evaluate("JSON.parse(localStorage.getItem('kc:sezon:rekord'))") == better
     assert page.evaluate("JSON.parse(localStorage.getItem('kc:xp')).xp") == 125
     assert page.evaluate("JSON.parse(localStorage.getItem('kc:pk:best:P3-K-1'))") == 18
     assert page.evaluate("localStorage.getItem('kc:pk:ghost:P3-K-1')") is None
@@ -531,20 +544,53 @@ def budowle(page):
     # Każda budowla ma kategorię, a każdy jej blok jest w palecie testowanej na serwerze.
     info = page.evaluate("""async () => {
       const m = await import('./assets/js/builds.js');
+      const { layerFunctions } = await import('./assets/js/export.js');
       const kats = new Set(m.KATEGORIE.map(k => k.id));
-      return m.BUILDS.map(b => ({ id: b.id, kat: kats.has(b.kat), ids: [...new Set(m.getBuild(b.id).blocks.map(x => m.BLOCKS[x[3]]?.id))] }));
+      return m.BUILDS.map(b => {
+        const {blocks, size} = m.getBuild(b.id);
+        const heights = new Set(blocks.map(x => x[1]));
+        const exportLevels = new Set(blocks.filter(x => m.BLOCKS[x[3]]?.id).map(x => x[1]));
+        const layers = layerFunctions(blocks, b.short).filter(f => f.path.includes('/warstwa_'));
+        return { id: b.id, kat: kats.has(b.kat), height: size[1], levels: heights.size, exportCount: layers.length,
+          exportLevels: exportLevels.size, gaps: [...Array(size[1]).keys()].filter(y => !heights.has(y)),
+          minimum: Math.min(...heights), count: blocks.length, ids: [...new Set(blocks.map(x => m.BLOCKS[x[3]]?.id))] };
+      });
     }""")
     pal = set(palette_ids())
     for b in info:
+        assert 0 < b['count'] < 15000 and b['minimum'] == 0, b
+        assert b['exportCount'] == b['exportLevels'], b
+        assert b['levels'] + len(b['gaps']) == b['height'], b
+        if b['gaps']:
+            print('Puste poziomy podglądu:', b['id'], [y + 1 for y in b['gaps']], flush=True)
         assert b['kat'], ('brak kategorii', b['id'])
         missing = [i for i in b['ids'] if i is not None and i not in pal]
         assert not missing, (b['id'], missing)
     # Filtr kategorii: LifeSteal pokazuje tylko swoje budowle i wybiera pierwszą z nich.
     page.locator('.kat-bar [data-k="lifesteal"]').click()
-    expect(page.locator('#picker .pick')).to_have_count(sum(1 for b in info if b['id'] in ('arena', 'oltarz', 'bazar')))
+    expect(page.locator('#picker .pick')).to_have_count(page.evaluate("async () => (await import('./assets/js/builds.js')).BUILDS.filter(b => b.kat === 'lifesteal').length"))
     expect(page.locator('#picker .pick[aria-selected=true]')).to_have_count(1)
     page.locator('.kat-bar [data-k="all"]').click()
     expect(page.locator('#picker .pick')).to_have_count(len(info))
+    page.goto(f'{BASE}/budowle.html?link#rakieta')
+    expect(page.locator('[data-k="miasto"]')).to_have_attribute('aria-pressed', 'true')
+    expect(page.locator('.pick[data-id="rakieta"]')).to_have_attribute('aria-selected', 'true')
+    page.locator('[data-k="lifesteal"]').press('Enter')
+    page.locator('#filmy [data-model="miecz"]').press('Enter')
+    expect(page.locator('.pick[data-id="miecz"]')).to_be_focused()
+    expect(page.locator('.pick[data-id="miecz"]')).to_have_attribute('aria-selected', 'true')
+    page.locator('[data-k="all"]').press('Enter')
+    page.locator('.pick[data-id="wulkan"]').press('Enter')
+    expect(page.locator('.pick[data-id="wulkan"]')).to_have_attribute('aria-selected', 'true')
+    gap = next(b['gaps'][0] for b in info if b['id'] == 'wulkan')
+    page.locator('[data-m="layer"]').click()
+    page.locator('#layer').evaluate("(slider, value) => { slider.value = value; slider.dispatchEvent(new Event('input')); }", gap)
+    expect(page.locator('#lNum')).to_have_text(str(gap + 1))
+    expect(page.locator('#mats')).to_contain_text('Ta warstwa jest pusta.')
+    with page.expect_download() as download:
+        page.locator('#dl').click()
+    assert download.value.suggested_filename.startswith('kilekcraft_wulkan')
+    expect(page.locator('.toast')).to_contain_text('Datapack gotowy')
 
 
 def sezon(page):
@@ -552,37 +598,169 @@ def sezon(page):
     bad = page.evaluate("""async () => {
       const M = await import('./assets/js/sezon-model.js');
       const errs = [];
-      for (let seed = 1; seed <= 300; seed++) {
+      for (const smart of [false, true]) for (let seed = 1; seed <= 300; seed++) {
         const st = M.nowySezon(seed * 7919); let n = 0;
         while (!st.koniec && n++ < 40) {
           const alive = st.boty.filter(b => b.zyje), keys = Object.keys(M.AKCJE);
           const a = keys[(seed + n) % keys.length], c = alive[(seed * n) % alive.length]?.id;
-          ['sprzet', 'totem', 'jablko'].forEach(r => M.kup(st, r));
-          if (!M.dzien(st, a, c)) M.dzien(st, 'farma');
+          if (smart) {
+            M.kup(st, 'sprzet');
+            if (st.ja.serca <= 3) M.kup(st, 'totem');
+            const target = alive.find(b => M.szansa(st, st.ja, b, false) >= .75);
+            if (st.ja.obrona < 2) M.dzien(st, 'baza');
+            else if (target && st.ja.serca >= 4) M.dzien(st, 'walka', target.id);
+            else M.dzien(st, 'farma');
+          } else {
+            ['sprzet', 'totem', 'jablko'].forEach(r => M.kup(st, r));
+            if (!M.dzien(st, a, c)) M.dzien(st, 'farma');
+          }
+          if (st.ja.sojusz && !M.bot(st, st.ja.sojusz)?.zyje) errs.push([seed, 'martwy sojusznik']);
           for (const p of [st.ja, ...st.boty]) if (p.serca < 0 || p.serca > M.MAX || p.sprzet < 1 || p.sprzet > 4) errs.push([seed, p.nick, p.serca]);
         }
         if (!st.koniec || !st.wynik) errs.push([seed, 'bez końca']);
       }
+      for (let seed=1; seed<=100; seed++) {
+        const st = M.nowySezon(seed), ally = st.boty[0];
+        st.ja.sojusz = ally.id; ally.sojusz = true; ally.serca = 1;
+        M.dzien(st, 'baza');
+        if (!ally.zyje && (st.ja.sojusz === ally.id || ally.sojusz)) errs.push([seed, 'sojusz po odpadnięciu']);
+      }
+      const unknown = M.nowySezon(1);
+      if (M.dzien(unknown, 'toString') || M.kup(unknown, 'toString')) errs.push('nieznany ruch');
       return errs.slice(0, 5);
     }""")
     assert not bad, bad
     # Interfejs: cały sezon klawiaturą/dotykiem, aż do ekranu wyniku.
     page.evaluate("localStorage.removeItem('kc:sezon:stan')")
     page.reload()
-    page.locator('#szStart').click()
+    page.locator('#szStart').press('Enter')
     expect(page.locator('.sz-day b')).to_have_text('1')
-    page.locator('[data-akcja="walka"]').click()
+    expect(page.locator('.sz-act').first).to_be_focused()
+    page.evaluate("""() => {
+        const past = JSON.parse(localStorage.getItem('kc:sezon:stan'));
+        delete past.statystyki.ataki;
+        delete past.statystyki.atakiW;
+        past.ja.kasa = 1000;
+        past.ja.sprzet = 1;
+        localStorage.setItem('kc:sezon:stan', JSON.stringify(past));
+    }""")
+    page.reload()
+    status = page.locator('#szOstatni')
+    page.evaluate("window.liveSeason = document.querySelector('#szOstatni')")
+    page.locator('[data-buy="totem"]').press('Enter')
+    expect(page.locator('.sz-act').first).to_be_focused()
+    expect(status).to_contain_text('Kupujesz totem')
+    page.locator('[data-akcja="walka"]').press('Enter')
+    expect(page.locator('.sz-target').first).to_be_focused()
     expect(page.locator('.sz-target').first).to_contain_text('szansa wygranej')
-    page.locator('#szBack').click()
+    page.locator('.sz-target').first.press('Enter')
+    state = page.evaluate("JSON.parse(localStorage.getItem('kc:sezon:stan'))")
+    assert state['statystyki']['ataki'] == 1 and state['statystyki']['atakiW'] in (0, 1), state['statystyki']
+    assert page.evaluate("window.liveSeason === document.querySelector('#szOstatni')")
+    expect(page.locator('.sz-log')).not_to_have_attribute('aria-live', 'polite')
     for _ in range(M_DNI):
         if page.locator('#szAgain').count():
             break
-        page.locator('[data-akcja="baza"]').click()
-    expect(page.locator('#szAgain')).to_be_visible()
+        expect(page.locator('.sz-act').first).to_be_focused()
+        page.locator('[data-akcja="baza"]').press('Enter')
+    expect(page.locator('#szAgain')).to_be_focused()
     expect(page.locator('.sz-tips li').first).to_be_visible()
 
 
 M_DNI = 14
+
+
+def symulator_admin(page):
+    form = page.locator('#form')
+    form.scroll_into_view_if_needed()
+    expect(page.locator('#kpis .kpi')).to_have_count(4)
+    expect(page.locator('#dayNum')).to_have_text('14')
+    field = form.locator('#gracze')
+    field.press('End')
+    expect(form.locator('[data-v=gracze]')).to_have_text('30')
+    form.locator('#run').press('Enter')
+    expect(page.locator('#dayNum')).to_have_text('1')
+    form.locator('#run').press('Enter')
+    form.locator('#skip').press('Enter')
+    expect(page.locator('#dayNum')).to_have_text('14')
+    expect(page.locator('#rank li')).to_have_count(8)
+
+
+def cennik(page):
+    from playwright.sync_api import expect
+
+    box = page.locator('#ceny-sprzedazy')
+    search = box.get_by_role('searchbox')
+    category = box.get_by_role('combobox')
+    rows = box.locator('tbody tr')
+    expect(box.get_by_text('Propozycja do zatwierdzenia, nie działa jeszcze na serwerze')).to_be_visible()
+    expect(rows).to_have_count(176)
+    category.select_option(label='Drewno i dekoracje')
+    expect(rows).to_have_count(19)
+    search.fill('topoli')
+    expect(rows).to_have_count(1)
+    expect(rows.first).to_contain_text('niesprzedawalny')
+    search.fill('diament')
+    expect(rows).to_have_count(0)
+    expect(box.get_by_role('status')).to_have_text('Brak pasujących pozycji.')
+    category.select_option('')
+    search.fill('wegiel')
+    expect(rows).to_have_count(2)
+    search.fill('netherite_ingot')
+    expect(rows).to_have_count(1)
+    expect(rows.first).to_contain_text('Netherite Ingot')
+    report = json.loads(Path('data/testy.json').read_text(encoding='utf-8'))
+    expect(rows.first).to_contain_text(f"identyfikator sprawdzony · {report['wyniki']['cennik']['wersja']}")
+    if page.viewport_size['width'] == 390:
+        assert rows.first.evaluate("r => getComputedStyle(r).display") == 'grid'
+    search.fill('plyta muzyczna')
+    expect(rows).to_have_count(2)
+    expect(rows.get_by_text('czeka na test', exact=True)).to_have_count(2)
+
+
+def sezon_code(page):
+    from playwright.sync_api import expect
+
+    # Osobne konteksty naśladują dwóch graczy, z dostępem do schowka w przeglądarce testowej.
+    browser = page.context.browser
+    options = dict(viewport=page.viewport_size, reduced_motion='reduce')
+    with browser.new_context(permissions=['clipboard-read', 'clipboard-write'], **options) as local:
+        player = local.new_page()
+        player.goto(f'{BASE}/symulator.html')
+        player.evaluate("""async () => {
+          const M = await import('./assets/js/sezon-model.js');
+          localStorage.setItem('kc:sezon:stan', JSON.stringify(M.nowySezon(123)));
+        }""")
+        player.reload()
+        player.locator('[data-akcja="farma"]').click()
+        player.locator('[data-buy="jablko"]').click()
+        player.locator('[data-akcja="walka"]').click()
+        player.locator('.sz-target').first.click()
+        while player.locator('#szAgain').count() == 0:
+            player.locator('[data-akcja="baza"]').click()
+        player.locator('#szCopy').click()
+        expect(player.locator('#szCopyStatus')).to_have_text('Kod wyniku skopiowany.')
+        code = player.evaluate('navigator.clipboard.readText()')
+        assert code == player.locator('#szOwnCode').input_value()
+        score = player.locator('.sz-pts b').inner_text()
+        player.reload()
+        expect(player.locator('#szOwnCode')).to_have_value(code)
+    with browser.new_context(**options) as remote:
+        friend = remote.new_page()
+        friend.goto(f'{BASE}/symulator.html')
+        assert friend.evaluate("localStorage.getItem('kc:sezon:stan')") is None
+        field = friend.locator('#szFriendCode')
+        bad = code[:10] + ('A' if code[10] != 'A' else 'B') + code[11:]
+        field.fill(bad)
+        field.press('Enter')
+        expect(field).to_have_attribute('aria-invalid', 'true')
+        expect(friend.locator('#szFriendScore')).to_have_count(0)
+        field.fill(code)
+        field.press('Enter')
+        expect(friend.locator('#szFriendScore')).to_have_text(score)
+        assert friend.evaluate("localStorage.getItem('kc:sezon:rekord')") is None
+        friend.locator('#szSame').click()
+        assert friend.evaluate("JSON.parse(localStorage.getItem('kc:sezon:stan')).seed") == 123
 
 
 def run(browser, width, height):
@@ -614,8 +792,12 @@ def run(browser, width, height):
             budowle(page)
         if name == 'symulator':
             sezon(page)
+            symulator_admin(page)
+            sezon_code(page)
         if name == 'edytor':
             export_parity(page)
+        if name == 'lifesteal':
+            cennik(page)
         if name == 'motd':
             actual = page.evaluate('async s => (await import("./assets/js/motd.js")).motdProperty(s)', MOTD_SAMPLE)
             assert actual == motd_property(MOTD_SAMPLE), (actual, motd_property(MOTD_SAMPLE))

@@ -4,11 +4,18 @@
 // =========================================================
 import { store, reduced, award, badge } from './core.js';
 import * as M from './sezon-model.js';
+import { encodeSeason, decodeSeason } from './sezon-kod.js';
 
 const $ = (s, el = document) => el.querySelector(s);
-const root = $('#sezon');
+const root = $('#sezon'), game = $('#szGra'), announcement = $('#szOstatni');
 let st = store.get('sezon:stan', null);
 if (st && (!st.ja || !Array.isArray(st.boty))) st = null;
+if (st) {
+  st.statystyki = { ataki: 0, atakiW: 0, ...st.statystyki };
+  if (!Array.isArray(st.ruchy)) st.ruchy = null;
+  if (st.ja.sojusz && !M.bot(st, st.ja.sojusz)?.zyje) st.ja.sojusz = null;
+}
+let kolega = null;
 let wybor = null; // 'walka' albo 'sojusz', gdy gracz wybiera rywala
 
 const esc = (t) => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -16,32 +23,28 @@ const serca = (n, max = M.MAX) => `<span class="sz-hearts" aria-label="${n} serc
 const pct = (p) => Math.round(p * 100) + '%';
 const zapisz = () => store.set('sezon:stan', st);
 
-function start() {
-  const a = new Uint32Array(1); crypto.getRandomValues(a);
-  st = M.nowySezon((a[0] % 999999) + 1); wybor = null; zapisz();
+function start(seed) {
+  if (seed === undefined) {
+    const a = new Uint32Array(1); crypto.getRandomValues(a);
+    seed = (a[0] % 999999) + 1;
+  }
+  st = M.nowySezon(seed); wybor = null; kolega = null; zapisz();
   award('sezon:start', 20);
-  render(true);
+  render(true, 0);
 }
 
 function intro() {
+  $('#szLimit').textContent = M.MAX;
   const rek = store.get('sezon:rekord', null);
-  root.innerHTML = `
-    <div class="sz-intro">
-      <div>
-        <h2 class="section-heading">Sezon LifeSteal: przetrwaj 14 dni</h2>
-        <p>Grasz z 7 botami. Każdy dzień to jedna decyzja: kopiesz, farmisz, wzmacniasz bazę, polujesz na rywala albo zawierasz sojusz. W nocy boty ruszają same i napadają na siebie i na ciebie.</p>
-        <ul class="sz-rules">
-          <li>Startujesz z 5 sercami, możesz mieć najwyżej ${M.MAX}.</li>
-          <li>Wygrana walka zabiera rywalowi jedno serce. Kto straci ostatnie, odpada z sezonu.</li>
-          <li>W tym sezonie potwory w jaskini też zabierają serce.</li>
-          <li>Za pieniądze kupisz sprzęt, totem i złote jabłko.</li>
-        </ul>
-        <p class="muted small">To gra z uproszczonymi zasadami. Na prawdziwym serwerze zasady ustawia plugin i admin.</p>
-        <button type="button" class="btn" id="szStart">▶ Zacznij sezon</button>
-        ${rek ? `<p class="sz-rec">Twój rekord: <b>${rek.pkt.toLocaleString('pl-PL')} pkt</b> (${rek.przetrwal ? 'miejsce ' + rek.miejsce : 'odpadłeś w dniu ' + rek.dzien})</p>` : ''}
-      </div>
-    </div>`;
-  $('#szStart').addEventListener('click', start);
+  if (rek) {
+    const record = $('.sz-rec', root);
+    const score = document.createElement('b');
+    score.textContent = rek.pkt.toLocaleString('pl-PL') + ' pkt';
+    record.replaceChildren('Twój rekord: ', score, rek.przetrwal ? ` (miejsce ${rek.miejsce})` : ` (odpadłeś w dniu ${rek.dzien})`);
+    record.hidden = false;
+  }
+  $('#szStart').disabled = false;
+  $('#szIntroCompare').innerHTML = porownanieHTML(rek);
 }
 
 function statsHTML() {
@@ -92,7 +95,27 @@ function rankingHTML() {
 }
 
 function logHTML(n = 8) {
-  return `<ul class="sz-log" aria-live="polite">${st.log.slice(-n).reverse().map(l => `<li class="${l.w || ''}"><span>dz. ${l.d}</span>${esc(l.t)}</li>`).join('')}</ul>`;
+  return `<ul class="sz-log">${st.log.slice(-n).reverse().map(l => `<li class="${l.w || ''}"><span>dz. ${l.d}</span>${esc(l.t)}</li>`).join('')}</ul>`;
+}
+
+function porownanieHTML(swoj) {
+  const pkt = (wynik) => wynik.pkt.toLocaleString('pl-PL') + ' pkt';
+  return `<div class="sz-compare">
+    <h3>Porównaj sezon z kolegą</h3>
+    <form id="szCompare">
+      <label for="szFriendCode">Wklej kod kolegi</label>
+      <div class="sz-code-row">
+        <input type="text" id="szFriendCode" maxlength="104" required autocomplete="off" spellcheck="false">
+        <button type="submit" class="btn sm ghost">Porównaj</button>
+      </div>
+    </form>
+    <p id="szCompareError" role="status" class="muted small"></p>
+    ${kolega ? `<div class="sz-comparison" tabindex="-1" aria-label="Porównanie wyników">
+      <div>Wynik kolegi: <b id="szFriendScore">${pkt(kolega.wynik)}</b></div>
+      <div>${st?.koniec ? 'Twój wynik' : 'Twój rekord'}: <b>${swoj ? pkt(swoj) : 'brak'}</b></div>
+      <button type="button" class="btn sm ghost" id="szSame">Zagraj ten sam sezon</button>
+    </div>` : ''}
+  </div>`;
 }
 
 function koniecHTML() {
@@ -100,6 +123,7 @@ function koniecHTML() {
   if (nowy) store.set('sezon:rekord', { pkt: w.pkt, przetrwal: w.przetrwal, miejsce: w.miejsce, dzien: w.dzien });
   if (w.przetrwal) { award('sezon:przetrwal', 60); badge('sezon'); }
   if (w.przetrwal && w.miejsce === 1) award('sezon:zwyciestwo', 80);
+  const code = encodeSeason(st);
   return `<div class="sz-end ${w.przetrwal ? 'ok' : 'zle'}">
     <h2 class="section-heading">${w.przetrwal ? (w.miejsce === 1 ? 'Wygrałeś sezon!' : `Przetrwałeś! Miejsce ${w.miejsce}`) : `Odpadasz w dniu ${w.dzien}`}</h2>
     <p class="sz-pts"><b>${w.pkt.toLocaleString('pl-PL')} pkt</b>${nowy ? ' <span class="badge ok">nowy rekord</span>' : ` <span class="muted">rekord: ${rek.pkt.toLocaleString('pl-PL')} pkt</span>`}</p>
@@ -107,13 +131,22 @@ function koniecHTML() {
     <h3>Czego uczy ten sezon</h3>
     <ul class="sz-tips">${M.wnioski(st).map(t => `<li>${esc(t)}</li>`).join('')}</ul>
     <button type="button" class="btn" id="szAgain">↻ Nowy sezon</button>
+    ${code ? `<div class="sz-share">
+      <label for="szOwnCode">Twój kod wyniku</label>
+      <div class="sz-code-row">
+        <input type="text" id="szOwnCode" value="${code}" readonly spellcheck="false">
+        <button type="button" class="btn sm ghost" id="szCopy">Kopiuj kod wyniku</button>
+      </div>
+      <p id="szCopyStatus" role="status" class="muted small"></p>
+    </div>` : '<p class="muted small">Kod wyniku będzie dostępny po rozegraniu nowego sezonu.</p>'}
+    ${porownanieHTML(w)}
   </div>`;
 }
 
-function render(focusTop) {
+function render(focusTop, logBefore = st?.log.length) {
   if (!st) { intro(); return; }
   const ev = M.WYDARZENIA[st.dzien];
-  root.innerHTML = `
+  game.innerHTML = `
     ${statsHTML()}
     ${ev && !st.koniec ? `<div class="sz-event"><b>${ev.t}</b> ${ev.d}</div>` : ''}
     <div class="sz-grid">
@@ -121,6 +154,7 @@ function render(focusTop) {
       <aside class="sz-side"><h3>Ranking sezonu</h3>${rankingHTML()}<h3>Dziennik</h3>${logHTML()}</aside>
     </div>
     ${st.koniec ? '' : '<p class="sz-foot"><button type="button" class="btn sm ghost" id="szReset">Zacznij od nowa</button></p>'}`;
+  if (st.log.length > logBefore) announcement.textContent = st.log.at(-1).t;
   if (focusTop) {
     const t = $('.sz-act, .sz-target, #szAgain', root);
     t && t.focus({ preventScroll: true });
@@ -128,18 +162,65 @@ function render(focusTop) {
   }
 }
 
+root.addEventListener('submit', (e) => {
+  if (e.target.id !== 'szCompare') return;
+  e.preventDefault();
+  const input = $('#szFriendCode', game);
+  const code = input.value;
+  try {
+    kolega = decodeSeason(code);
+  } catch {
+    kolega = null;
+    render(false);
+    const field = $('#szFriendCode', game);
+    field.value = code;
+    field.setAttribute('aria-invalid', 'true');
+    $('#szCompareError', game).textContent = 'Nie udało się odczytać kodu. Poproś kolegę o cały kod wyniku.';
+    field.focus();
+    return;
+  }
+  render(false);
+  $('#szFriendCode', game).value = code;
+  $('.sz-comparison', game).focus();
+});
+
+async function copyCode() {
+  const input = $('#szOwnCode', game);
+  const status = $('#szCopyStatus', game);
+  try {
+    await navigator.clipboard.writeText(input.value);
+    status.textContent = 'Kod wyniku skopiowany.';
+  } catch {
+    input.focus();
+    input.select();
+    status.textContent = 'Zaznaczono kod. Skopiuj go ręcznie.';
+  }
+}
+
 root.addEventListener('click', (e) => {
   const t = e.target.closest('button'); if (!t || t.disabled) return;
   if (t.id === 'szReset' && !t.dataset.sure) { t.dataset.sure = '1'; t.textContent = 'Na pewno? Kliknij jeszcze raz'; return; }
-  if (t.id === 'szAgain' || t.id === 'szReset') { start(); return; }
+  if (t.id === 'szStart' || t.id === 'szAgain' || t.id === 'szReset') { start(); return; }
+  if (t.id === 'szSame' && kolega) { start(kolega.seed); return; }
+  if (t.id === 'szCopy') { copyCode(); return; }
+  if (!st) return;
   if (t.id === 'szBack') { wybor = null; render(true); return; }
-  if (t.dataset.buy) { M.kup(st, t.dataset.buy); zapisz(); render(); $(`[data-buy="${t.dataset.buy}"]`, root)?.focus(); return; }
+  const before = st.log.length;
+  if (t.dataset.buy) {
+    const item = t.dataset.buy;
+    M.kup(st, item);
+    zapisz();
+    render(false, before);
+    const next = $(`[data-buy="${item}"]:not(:disabled)`, game) || $('.sz-act', game);
+    next?.focus();
+    return;
+  }
   if (t.dataset.akcja) {
     const a = t.dataset.akcja;
     if (a === 'walka' || a === 'sojusz') { wybor = a; render(true); return; }
-    M.dzien(st, a); zapisz(); render(true); return;
+    M.dzien(st, a); zapisz(); render(true, before); return;
   }
-  if (t.dataset.cel) { M.dzien(st, wybor, t.dataset.cel); wybor = null; zapisz(); render(true); }
+  if (t.dataset.cel) { M.dzien(st, wybor, t.dataset.cel); wybor = null; zapisz(); render(true, before); }
 });
 
 render(false);

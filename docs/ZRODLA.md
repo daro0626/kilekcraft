@@ -60,3 +60,29 @@ Wytyczne mogą się zmienić. Przed publicznym otwarciem strony przeczytaj je po
 ## Paleta edytora
 
 11 identyfikatorów używanych w nowej palecie potwierdził datapack na Paper 26.3 w dniu 2026-11-23. Test uruchomił funkcję, a następnie sprawdził umieszczony blok dla każdego identyfikatora. Wzory tekstur są własnymi wzorami KILEKCRAFT. [Przebieg GitHub Actions](https://github.com/daro0626/kilekcraft/actions/runs/45193922214)
+
+## Identyfikatory przedmiotów w propozycji cennika
+
+- 2026-11-23 · Nazwy pozycji, uwagi i kwoty przepisano z [propozycji właściciela](CENNIK_PROPOZYCJA.md). Dla wariantów wykorzystano rejestr przedmiotów i tagi wygenerowane przez serwer vanilla 26.3 z [manifestu Mojang](https://piston-meta.mojang.com/v1/packages/ead839cbccf0ddf013c3f935f2840080b5cb0d26/26.3.json). Test CI sprawdza każdy wpis osobno w parserze `give`.
+- Topola ma identyfikatory do weryfikacji i cenę pustą. Jej bloki wyłączono z płatnych grup drewna. Bambusowe deski są w osobnej pozycji. Arkusz nie przypisuje płyt muzycznych do dwóch grup cenowych. Obie kwoty zachowano, a listy identyfikatorów czekają na decyzję właściciela.
+
+
+## Ekonomia (do testu na serwerze właściciela)
+
+Sprawdzone 2026-11-23 w katalogach twórców. Wersje poniżej opisują deklarowaną zgodność i dostępne polecenia. Rzeczywiste nazwy oraz wersje na serwerze ustali właściciel w [liście prób](EKONOMIA_TEST.md). Przy komendach z manifestu użyto pliku `plugin.yml` z podanego wydania.
+
+| Nazwa z wcześniejszego serwera | Wydanie i zgodność deklarowana | Komendy udokumentowane dla wydania | Źródło |
+|---|---|---|---|
+| S-Economy | 1.2.3, Paper 26.3 | Opis projektu podaje `/s-economy reload`. Manifest wydania nie zawiera listy komend, więc pełna składnia dla tej wersji wymaga sprawdzenia. | [Wydanie](https://modrinth.com/plugin/s-economy/version/1Z7SLuSD), [opis twórcy](https://modrinth.com/plugin/s-economy) |
+| Vault | 1.7.3. Katalog oryginalnego Vault nie deklaruje Paper 26.x. Osobny projekt VaultUnlocked 2.20.3 deklaruje Paper 26.3. | Dla oryginału brak wydania z potwierdzoną deklaracją 26.x. Manifest VaultUnlocked 2.20.3 wymienia administracyjne `/vault-info`, `/vault-convert [economy1] [economy2]`. | [Vault](https://www.spigotmc.org/resources/vault.34315/), [VaultUnlocked 2.20.3](https://modrinth.com/plugin/vaultunlocked/version/qZgRzoYs) |
+| SellPlus | 1.1-PATCH, Paper 26.3 | `/sell [shulkerselltoggle\|reload]`, `/worth [toggle\|reload]`. | [Wydanie](https://modrinth.com/project/w8qO6Iem/version/X7iZzuw9), [opis twórcy](https://modrinth.com/project/w8qO6Iem) |
+| PacketEvents | 2.14.0+spigot, Paper 26.3 | Biblioteka pakietów. W manifeście wydania brak komendy związanej ze sprzedażą. | [Wydanie](https://modrinth.com/plugin/packetevents/version/m78nFxYg) |
+| AuctionHouse | Istnieją różne projekty o tej nazwie. Wydanie Auction House Plugin ElaineQheart 1.5.7 deklaruje Paper 26.3. | Autor projektu opisuje `/ah` i `/ah sell 10`. Wydanie 1.5.7 nie dokumentuje pełnej składni w manifeście. Najpierw ustal dostawcę pluginu. | [Hangar projektu](https://hangar.papermc.io/ElaineQheart/AuctionHousePlugin/), [wydanie 1.5.7](https://modrinth.com/plugin/auction-house-plugin/version/qW4IY0r6) |
+| SmartWithdraw | 4.0.1, Paper 26.3 | Manifest podaje `/withdraw <amount> [currency]`. Dokumentacja 4.0.1 opisuje też polecenia administracyjne projektu. | [Wydanie](https://modrinth.com/plugin/smartwithdraw/version/3MAhGrv5), [dokumentacja 4.0.1](https://www.spigotmc.org/resources/smartwithdraw-physical-currency-banknotes-vault-economy.136111/field?field=documentation) |
+| ScoreboardPL | 1.7.5, Paper 26.3 | `/scoreboard <toggle\|reload\|info\|set>`, aliasy `/sb` i `/sboard`. | [Wydanie](https://modrinth.com/plugin/scoreboardpl/version/laCbSkIx) |
+| LifeStealZ | 2.21.1, Paper 26.3 | Manifest wymienia `/lifestealz` (alias `/lsz`), `/eliminate`, `/revive`, `/withdrawheart`, `/hearts`. Dostęp zależy od uprawnień. | [Wydanie](https://modrinth.com/plugin/lifestealz/version/DqixaESV) |
+| WorldGuard | 7.0.21, Paper 26.3 | Dokumentacja serii 7.0 opisuje `/wg version` i polecenia regionów `/rg`. W katalogu wydania brak osobnej listy składni. Polecenie `/rtp` wymaga ustalenia dostawcy na serwerze. | [Wydanie](https://modrinth.com/plugin/worldguard/version/fiHLM6oY), [dokumentacja 7.0](https://worldguard.enginehub.org/en/latest/commands/) |
+
+### Raport serwerowy integracji R0–R8
+
+- 2026-11-23 · `data/testy.json` i `data/datapack.json` pochodzą z artefaktu `wyniki-komend`, ID 14855325690. Macierz uruchomiła vanilla 26.3 i Paper 26.3 build 259 (STABLE). Oba silniki zaliczyły po 159 prób komend, 49 bloków palety i 506 identyfikatorów propozycji cennika. [Przebieg GitHub Actions](https://github.com/daro0626/kilekcraft/actions/runs/45249170608)

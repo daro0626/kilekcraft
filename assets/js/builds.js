@@ -483,6 +483,83 @@ function spawnHub() {
   return g.list();
 }
 
+// ---------- Stacja orbitalna ----------
+function spaceStation() {
+  const g = new Grid();
+  // Korytarz z oknami i kapsuły na końcach.
+  for (let x = -10; x <= 10; x++) for (let y = 7; y <= 11; y++) for (let z = -2; z <= 2; z++) {
+    if (y === 7 || y === 11 || Math.abs(z) === 2) {
+      g.set(x, y, z, Math.abs(z) === 2 && y === 9 && x % 4 !== 0 ? 'glass' : 'white_concrete');
+    }
+  }
+  for (const side of [-1, 1]) {
+    for (let x = 11; x <= 15; x++) for (let y = 6; y <= 12; y++) for (let z = -3; z <= 3; z++) {
+      const border = y === 6 || y === 12 || Math.abs(z) === 3 || x === 15;
+      if (border) g.set(side * x, y, z, y === 9 && Math.abs(z) <= 2 ? 'glass' : 'quartz');
+    }
+    // Dwa rozwinięte panele wzdłuż żelaznej belki.
+    for (let z = 0; z <= 14; z++) g.set(0, 8, side * z, 'iron');
+    for (let x = -8; x <= 8; x++) for (let z = 6; z <= 14; z++) {
+      const border = Math.abs(x) === 8 || x === 0 || z === 6 || z === 14;
+      g.set(x, 8, side * z, border ? 'iron' : z % 3 === 0 ? 'black_concrete' : 'blue_concrete');
+    }
+    for (const z of [6, 14]) g.set(0, 9, side * z, 'lantern');
+  }
+  for (let y = 5; y <= 14; y++) g.set(0, y, 0, 'iron');
+  g.set(0, 4, 0, 'lantern');
+  g.set(0, 15, 0, 'red_concrete');
+  return g.list();
+}
+
+// ---------- Bunkier w zboczu ----------
+function hillsideBunker() {
+  const g = new Grid();
+  for (let x = -10; x <= 10; x++) for (let z = 0; z <= 18; z++) {
+    g.set(x, 0, z, Math.abs(x) <= 5 && z >= 2 ? 'smooth_stone' : 'grass');
+    const height = Math.min(8, Math.floor((z + 2) / 2)) - Math.max(0, Math.abs(x) - 6);
+    for (let y = 1; y <= height; y++) {
+      const inside = Math.abs(x) <= 4 && z <= 14 && y <= 4;
+      if (!inside) g.set(x, y, z, y === height ? 'grass' : 'stone');
+    }
+  }
+  for (let x = -5; x <= 5; x++) for (let y = 1; y <= 5; y++) {
+    if (Math.abs(x) <= 1 && y <= 3) continue;
+    const slit = y === 3 && Math.abs(x) === 3;
+    g.set(x, y, 2, slit ? 'glass' : y === 5 ? 'iron' : 'stone_bricks');
+    if (slit) g.del(x, y, 3);
+  }
+  for (const x of [-4, 4]) for (let z = 5; z <= 12; z += 3) {
+    g.set(x, 3, z, 'lantern');
+    g.set(x, 1, z, 'spruce_planks');
+  }
+  for (let z = 0; z < 2; z++) for (let x = -1; x <= 1; x++) g.set(x, 0, z, 'smooth_stone');
+  return g.list();
+}
+
+// ---------- Sklep LifeSteal ----------
+function heartShop() {
+  const g = new Grid();
+  for (let x = -7; x <= 7; x++) for (let z = -2; z <= 8; z++) {
+    g.set(x, 0, z, (x + z) % 2 === 0 ? 'stone_bricks' : 'smooth_stone');
+    if (z < 0) continue;
+    g.set(x, 6, z, z === 0 ? 'white_concrete' : 'spruce_planks');
+    const outer = Math.abs(x) === 7 || z === 8;
+    if (outer) for (let y = 1; y < 6; y++) g.set(x, y, z, y === 3 && x % 3 !== 0 ? 'glass' : 'bricks');
+  }
+  for (const x of [-7, 7]) for (let y = 1; y <= 6; y++) g.set(x, y, 0, 'spruce_log');
+  for (let x = -6; x <= 6; x++) {
+    g.set(x, 5, -1, x % 2 === 0 ? 'red_concrete' : 'white_wool');
+    if (Math.abs(x) <= 4) g.set(x, 1, 3, 'spruce_planks');
+  }
+  for (const x of [-5, 5]) g.set(x, 4, 0, 'lantern');
+  for (const [x, type] of [[-3, 'hay'], [0, 'gold'], [3, 'emerald']]) g.set(x, 2, 3, type);
+  const heart = ['##.##', '#####', '.###.', '..#..'];
+  for (let row = 0; row < heart.length; row++) for (let x = 0; x < heart[row].length; x++) {
+    if (heart[row][x] === '#') g.set(x - 2, 10 - row, 1, 'red_concrete');
+  }
+  return g.list();
+}
+
 export const KATEGORIE = [
   { id: 'sredniowiecze', name: 'Średniowiecze' },
   { id: 'natura', name: 'Natura' },
@@ -513,6 +590,9 @@ export const BUILDS = [
   { id: 'wiezowiec', kat: 'miasto', name: 'Wieżowiec', short: 'Wieżowiec', desc: 'Szklany wieżowiec na 44 bloki, coraz węższy u góry, z anteną i czerwonym światłem.', make: skyscraper },
   { id: 'oltarz', kat: 'lifesteal', name: 'Ołtarz serc', short: 'Ołtarz', desc: 'Wielkie serce z czerwonego betonu stoi na obsydianie. Pasuje na spawn serwera LifeSteal.', make: heartAltar },
   { id: 'bazar', kat: 'lifesteal', name: 'Spawn z bazarem', short: 'Bazar', desc: 'Okrągły plac z fontanną, ośmioma straganami i bramą. Miejsce na sklep i spotkania graczy.', make: spawnHub },
+  { id: 'stacja', kat: 'miasto', name: 'Stacja orbitalna', short: 'Stacja', desc: 'Dwie kapsuły łączy korytarz z oknami. Niebieskie panele rozkładają się po obu stronach anteny.', make: spaceStation },
+  { id: 'bunkier', kat: 'przetrwanie', name: 'Bunkier w zboczu', short: 'Bunkier', desc: 'W trawiastym zboczu jest kamienne schronienie z podświetlanymi wnękami. Wejście poznasz po wąskich oknach.', make: hillsideBunker },
+  { id: 'sklep-serc', kat: 'lifesteal', name: 'Sklep LifeSteal', short: 'Sklep serc', desc: 'Pod pasiastą markizą stoi lada z towarem na pokaz. Czerwone serce nad dachem widać z placu.', make: heartShop },
 ];
 
 const cache = {};

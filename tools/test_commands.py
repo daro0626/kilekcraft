@@ -309,6 +309,25 @@ def test_palette(rcon):
     return ok_ids, errs
 
 
+def test_cennik(rcon):
+    """Sprawdza parser give na pustym serwerze, bez zmiany ekwipunku gracza."""
+    data = json.loads((ROOT / 'data/cennik.json').read_text(encoding='utf-8'))
+    ids = sorted({item for row in data['pozycje'] for item in row['id']})
+    verified, errors = [], []
+    for item in ids:
+        cmd = f'give @a {item} 1'
+        if not re.fullmatch(r'minecraft:[a-z0-9_]+', item):
+            errors.append({'komenda': cmd, 'odpowiedz': 'Nieprawidłowy format identyfikatora'})
+            continue
+        reply = rcon.cmd(cmd).strip()
+        if reply == 'No player was found':
+            verified.append(item)
+        else:
+            errors.append({'komenda': cmd, 'odpowiedz': reply[:300]})
+            print('CENNIK', cmd, '→', reply[:160])
+    return verified, errors, len(ids)
+
+
 # ---------------------------------------------------------------- gra „Znajdź błąd”
 def test_bledy(rcon):
     """Zła komenda musi dać błąd, dobra musi przejść. Zwraca listę sprawdzonych id i błędy."""
@@ -503,6 +522,12 @@ def main():
             ensure_ascii=False, indent=2), encoding='utf-8')
     else:
         failed += 1
+    cids, cerrs, ctotal = test_cennik(rcon)
+    print(f'Identyfikatory cennika: {len(cids)}/{ctotal}')
+    results['cennik'] = {'ok': ctotal > 0 and not cerrs, 'wersja': version, 'silnik': label,
+                         'data': date.today().isoformat(), 'przetestowano': ctotal,
+                         'zweryfikowane': cids, 'bledy': cerrs}
+    failed += not results['cennik']['ok']
     try: rcon.cmd('stop')
     except Exception: pass
     proc.wait(timeout=120)
