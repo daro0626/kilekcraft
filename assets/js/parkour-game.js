@@ -44,6 +44,14 @@ export function initGame(onNext) {
   const shadow = new THREE.Mesh(new THREE.CircleGeometry(.38, 16), new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: .35, depthWrite: false }));
   shadow.rotation.x = -Math.PI / 2; scene.add(shadow);
 
+  // duch: najlepszy zapisany przejazd na tej trasie, bez animacji kończyn
+  const ghostMat = new THREE.MeshBasicMaterial({ color: 0x5cc8ff, transparent: true, opacity: .34, depthWrite: false });
+  const ghost = new THREE.Group(); ghost.visible = false; ghost.renderOrder = 3; scene.add(ghost);
+  const gmk = (w, h, d, y, x = 0) => { const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), ghostMat); m.position.set(x, y, 0); ghost.add(m); };
+  gmk(.22, .7, .26, .35, -.13); gmk(.22, .7, .26, .35, .13);
+  gmk(.56, .7, .32, 1.05); gmk(.46, .44, .44, 1.62);
+  gmk(.16, .62, .2, 1.05, -.37); gmk(.16, .62, .2, 1.05, .37);
+
   // ---------- świat ----------
   let solid = new Map(), room = null, spawn = new THREE.Vector3(), minY = 0;
   const lavaMats = new Set();
@@ -97,9 +105,13 @@ export function initGame(onNext) {
     minY = Math.min(...room.blocks.map(b => b[1]));
     best = store.get('pk:best:' + code, null);
     $('#best').textContent = best ? fmt(best) : '—';
+    ghostData = store.get('pk:ghost:' + code, null);
+    $('#ghostTile').hidden = !ghostData;
+    if (ghostData) $('#ghost').textContent = fmt(ghostData[ghostData.length - 1][0]);
     yaw = -Math.PI / 2; pitch = state.type === 'labirynt' ? .85 : .38;
     reset(true);
-    showOver('Gotowy?', `${state.type === 'labirynt' ? 'Labirynt' : 'Parkour'} · trudność ${state.diff} · kod ${code}`, false);
+    const ghostTxt = ghostData ? ` · 👻 obok pobiegnie twój duch (${fmt(ghostData[ghostData.length - 1][0])} s)` : '';
+    showOver('Gotowy?', `${state.type === 'labirynt' ? 'Labirynt' : 'Parkour'} · trudność ${state.diff} · kod ${code}${ghostTxt}`, false);
     resize(true);
   }
 
@@ -109,9 +121,22 @@ export function initGame(onNext) {
   let tNow = 0, deaths = 0, best = null, checkpoint = null, walkPhase = 0, faceYaw = 0;
   const keys = new Set(); let joy = { x: 0, y: 0 }, jumpBuffer = 0;
   const fmt = (s) => s.toFixed(2).replace('.', ',');
+  // duch: [czas, x, y, z, kąt] co REC_DT sekund z najlepszego zapisanego przejazdu
+  const REC_DT = .08;
+  let ghostData = null, ghostIdx = 0, recording = [], recTimer = 0;
+  function ghostPoseAt(t) {
+    const data = ghostData;
+    if (!data || !data.length) return null;
+    while (ghostIdx < data.length - 2 && data[ghostIdx + 1][0] <= t) ghostIdx++;
+    while (ghostIdx > 0 && data[ghostIdx][0] > t) ghostIdx--;
+    const a = data[ghostIdx], b = data[Math.min(ghostIdx + 1, data.length - 1)];
+    const span = b[0] - a[0], f = span > 0 ? Math.min(1, Math.max(0, (t - a[0]) / span)) : 0;
+    let dy = b[4] - a[4]; dy = Math.atan2(Math.sin(dy), Math.cos(dy));
+    return { x: a[1] + (b[1] - a[1]) * f, y: a[2] + (b[2] - a[2]) * f, z: a[3] + (b[3] - a[3]) * f, yaw: a[4] + dy * f };
+  }
 
   function reset(full) {
-    if (full) { checkpoint = spawn.clone(); deaths = 0; started = false; finished = false; tNow = 0; }
+    if (full) { checkpoint = spawn.clone(); deaths = 0; started = false; finished = false; tNow = 0; recording = []; recTimer = 0; ghostIdx = 0; }
     pos.copy(checkpoint || spawn); vel.set(0, 0, 0); onGround = true;
     jumpBuffer = 0;
     $('#deaths').textContent = deaths; $('#time').textContent = fmt(tNow);
@@ -183,16 +208,29 @@ export function initGame(onNext) {
       const cp = new THREE.Vector3(Math.floor(pos.x) + .5, Math.floor(pos.y), Math.floor(pos.z) + .5);
       if (!checkpoint || checkpoint.distanceTo(cp) > 1.5) { checkpoint = cp; sfx('checkpoint'); toast('Punkt kontrolny!'); }
     }
+    // nagrywanie trajektorii do ducha (tylko gdy bieg trwa)
+    if (started) {
+      if (!recording.length) recording.push([0, pos.x, pos.y, pos.z, faceYaw]);
+      recTimer -= dt;
+      if (recTimer <= 0) { recording.push([tNow, pos.x, pos.y, pos.z, faceYaw]); recTimer = REC_DT; }
+    }
     if (fb === 'diamond' && started && !finished) win();
   }
 
   function win() {
     finished = true; running = false;
     const t = tNow; $('#time').textContent = fmt(t);
-    const code = encode(state), rec = !best || t < best;
-    if (rec) { best = t; store.set('pk:best:' + code, t); $('#best').textContent = fmt(t); }
+    recording.push([t, pos.x, pos.y, pos.z, faceYaw]);
+    const code = encode(state), rec = !best || t < best, hadGhost = !!ghostData;
+    if (rec) {
+      best = t; store.set('pk:best:' + code, t); $('#best').textContent = fmt(t);
+      ghostData = recording.map((s) => s.map((n) => Math.round(n * 100) / 100));
+      store.set('pk:ghost:' + code, ghostData);
+      $('#ghostTile').hidden = false; $('#ghost').textContent = fmt(t);
+    }
     sfx('win'); const r = canvas.getBoundingClientRect(); xpBurst(r.left + r.width / 2, r.top + r.height / 2, 30);
     award('pk:' + code, 25); badge('parkour'); if (state.diff >= 7) badge('speedrun');
+    if (hadGhost && rec) badge('rywal');
     showOver(rec ? 'Nowy rekord!' : 'Meta!', `Czas ${fmt(t)} s · śmierci: ${deaths} · kod ${code}`, true, true);
   }
 
@@ -307,6 +345,16 @@ export function initGame(onNext) {
     if (running) frameId = requestAnimationFrame(loop);
   }
   function draw(now, snap = false) {
+    // duch: najlepszy zapisany przejazd, biegnie w tempie własnego czasu
+    if (ghostData) {
+      ghost.visible = running;
+      const g = ghostPoseAt(tNow);
+      if (g) {
+        ghost.position.set(g.x, g.y, g.z);
+        let dy = g.yaw - ghost.rotation.y; dy = Math.atan2(Math.sin(dy), Math.cos(dy));
+        ghost.rotation.y += dy * (snap ? 1 : .25);
+      }
+    } else ghost.visible = false;
     // postać
     player.position.copy(pos);
     let dy = faceYaw - player.rotation.y; dy = Math.atan2(Math.sin(dy), Math.cos(dy)); player.rotation.y += dy * .25;
