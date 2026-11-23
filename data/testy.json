@@ -51,6 +51,14 @@
       "przetestowano": 6,
       "bledy": []
     },
+    "attribute": {
+      "ok": true,
+      "wersja": "26.3",
+      "silnik": "vanilla 26.3",
+      "data": "2026-11-23",
+      "przetestowano": 8,
+      "bledy": []
+    },
     "motd": {
       "ok": true,
       "wersja": "26.3",
@@ -592,6 +600,54 @@
       "szablon": "whitelist",
       "komenda": "whitelist remove Test_Gracz",
       "odpowiedz": "Removed test_gracz from the whitelist",
+      "ok": true
+    },
+    {
+      "szablon": "attribute",
+      "komenda": "execute as @a run attribute @s minecraft:max_health base set 2",
+      "odpowiedz": "",
+      "ok": true
+    },
+    {
+      "szablon": "attribute",
+      "komenda": "execute as @a run attribute @s minecraft:max_health base set 7",
+      "odpowiedz": "",
+      "ok": true
+    },
+    {
+      "szablon": "attribute",
+      "komenda": "execute as @a run attribute @s minecraft:max_health base set 16",
+      "odpowiedz": "",
+      "ok": true
+    },
+    {
+      "szablon": "attribute",
+      "komenda": "execute as @a run attribute @s minecraft:max_health base set 18",
+      "odpowiedz": "",
+      "ok": true
+    },
+    {
+      "szablon": "attribute",
+      "komenda": "execute as @a run attribute @s minecraft:max_health base set 20",
+      "odpowiedz": "",
+      "ok": true
+    },
+    {
+      "szablon": "attribute",
+      "komenda": "execute as @a run attribute @s minecraft:max_health base set 40",
+      "odpowiedz": "",
+      "ok": true
+    },
+    {
+      "szablon": "attribute",
+      "komenda": "execute as @a run attribute @s minecraft:max_health base reset",
+      "odpowiedz": "",
+      "ok": true
+    },
+    {
+      "szablon": "attribute",
+      "komenda": "attribute @p minecraft:max_health base reset",
+      "odpowiedz": "No entity was found",
       "ok": true
     }
   ]
