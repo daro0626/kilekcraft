@@ -1,0 +1,84 @@
+# KILEKCRAFT — BRAKI I UWAGI UŻYTKOWNIKA
+
+**Stały rejestr rzeczy omówionych, lecz niedokończonych lub niezweryfikowanych.**
+Utworzono: 2026-11-23. Podstawa: zgłoszenia właściciela oraz przegląd kodu gałęzi `main` po PR #38 (commit `509fd52`).
+
+> **To jest źródło prawdy o zgłoszeniach UX i brakach, nie lista ogólnych pomysłów.** Nie wolno oznaczyć zadania jako GOTOWE wyłącznie dlatego, że przechodzą testy automatyczne. Każdy agent przed rozpoczęciem KILEKCRAFT czyta ten plik i `AGENTS.md`. Po każdej zmianie aktualizuje status, PR/commit, wyniki testów oraz pozostałe ryzyka. Nie usuwać zgłoszeń — przenosić do historii ukończonych.
+
+Statusy: **OTWARTE** — niezaimplementowane; **CZĘŚCIOWO** — istnieje część funkcji, ale cel nie został osiągnięty; **DO TESTU** — wdrożone technicznie, wymaga sprawdzenia; **ZAMKNIĘTE** — ukończone i potwierdzone. Priorytety: P0 — blokuje grę / kluczowy UX, P1 — ważna funkcja, P2 — jakość i walidacja.
+
+## Rejestr aktywnych uwag
+
+### KC-001 · P0 · OTWARTE — Intuicyjne menu pauzy w wyścigu parkour
+**Zgłoszenie:** po ESC jest «Pauza» i długa instrukcja, ale nie menu przypominające normalną grę. Teksty są zbyt drobne, a «Wróć do generatora komnat» i «Wszystkie gry» nie tłumaczą, co się stanie.
+**Stan kodu:** `parkour.html` i `assets/js/parkour-game.js`: przyciski Graj, warunkowo Od początku, Trudniej po wygranej; sterowanie drukowane na nakładce; linki poza planszą.
+**Wymagania:** ESC/⏸ wyświetla czytelne, duże przyciski **Wznów**, **Od początku**, **Wybierz poziom** i **Menu gier**; na telefonie to samo. Zasady sterowania przenieść pod opcjonalny przycisk «Sterowanie» (np. na ekranie startu). «Od początku» jasno ostrzega o resecie bieżącej próby, zachowuje trwałe rekordy. Bez gubienia focusu, kursora i obsługi dotykowej.
+**Akceptacja:** pięć scenariuszy: pauza i wznowienie; reset; wybór nowego poziomu; powrót do gier i ponowne wejście; mobile i klawiatura. Bez niejasnych linków udających menu.
+
+### KC-002 · P0 · OTWARTE — Wybór poziomów i zachowanie bieżącej trasy
+**Zgłoszenie:** powrót przez «Wszystkie gry» prowadzi do zaskakującego poziomu, użytkownik widział powrót do trzeciego; brak intuicyjnego wyboru poziomu. Dziecko ma od razu wiedzieć, gdzie jest i co wybrać.
+**Stan kodu:** `assets/js/parkour.js` odczytuje hash lub `store.get('komnata')`, ma awaryjny poziom 3. Przyciski Łatwy, Góra, Trudny, Labirynt, Mistrzowskie, Losowy nie pokazują pełnego wyboru trudności.
+**Wymagania:** ekran «Wybierz poziom» z typem komnaty i jasnym poziomem 1–10, czytelne «Kontynuuj ostatnią» z nazwą i kodem, «Nowa losowa» oraz czytelny aktualny poziom. Po nawigacji i odświeżeniu wraca właściwa trasa, o ile użytkownik nie zażądał nowej; bez niespodziewanego resetu na poziom 3. Zachować możliwość wklejenia kodu i udostępnienia linku z hashem.
+**Akceptacja:** testy powrotu z `gry.html`, `komnaty.html`, adresu z hashem i przycisku wstecz; przywrócenie ostatniej komnaty po odświeżeniu.
+
+### KC-003 · P1 · CZĘŚCIOWO — Przebudowa panelu edytora: Budowanie / Animacja / Warstwy
+**Zgłoszenie:** aktualne główne zakładki «Całość», «Do tej warstwy», «Tylko ta warstwa» są techniczne i nieintuicyjne. Właściciel chce jasne działania, jak w przeglądarce budowli.
+**Stan kodu:** po PR #38 są widoki `all/below/single`, suwak, plan, edycja warstwy i eksport całej budowli; sama technika działa, ale hierarchia sterowania jest niewłaściwa.
+**Wymagania:** główne, łatwe do odczytania działania **Budowanie**, **Animacja** (obejrzyj, jak model powstaje; sterowanie start/pauza/przewiń) i **Warstwy** (wybór warstwy, plan z góry, edycja). Opcje «tylko wybrana / do wybranej» wyłącznie jako ustawienie dodatkowe w trybie Warstwy. Rozdzielić akcję budowania od oglądania animacji; nie wprowadzać w błąd, że animacja buduje na serwerze.
+**Akceptacja:** dziecko rozpoznaje trzy główne funkcje bez czytania instrukcji; zbudowane bloki, cofanie/ponawianie, ukryte warstwy, zapis i pełny datapack pozostają nienaruszone. Test desktop/mobile.
+
+### KC-004 · P1 · OTWARTE — Działający import budowli .schem, zamiast zapowiedzi «Wkrótce»
+**Zgłoszenie:** na `budowle.html` widać «Wkrótce: twoje budowle z Kilek World». Właściciel nie chce publikować atrap i obietnic funkcji, których nie można użyć.
+**Stan kodu:** HTML zawiera dosłowną zapowiedź, a `docs/ZADANIA.md` (B3) opisuje plan importu Sponge Schematic v2/v3 — implementacji brak.
+**Wymagania:** umożliwić wczytanie własnego pliku `.schem` (gdy technicznie możliwe: Sponge v2/v3), podgląd 3D oraz warstw i materiałów, komunikaty błędów, limity rozmiaru/ochrona przed uszkodzonym plikiem, testy autentycznych lub wygenerowanych zgodnych plików. Nie dopisywać fikcyjnych budowli z prywatnego serwera. Gdy funkcja nie jest gotowa, **usunąć widoczną zapowiedź z publicznego interfejsu** i pozostawić ją jako zadanie w tym rejestrze; nie oznaczać jako ukończone, dopóki import nie działa.
+**Akceptacja:** prawdziwy plik `.schem` daje poprawne wymiary, materiały i warstwy; błędny plik nie wysypuje strony. Brak napisu «Wkrótce» na opublikowanej stronie.
+
+### KC-005 · P1 · OTWARTE — Koło wyzwań ma generować przykład budowli
+**Zgłoszenie:** losowanie samego tematu, materiału, czasu i zasady nie wystarcza. Użytkownik chce konkretny przykład tego, co zbudować, najlepiej z przeniesieniem do edytora.
+**Stan kodu:** `assets/js/kolo.js`: 20 tematów × 10 ograniczeń materiałowych × 5 czasów × 10 zasad = 10 000 kombinacji; obecnie losuje tekst i otwiera niezależny edytor.
+**Wymagania:** dla wylosowanego zestawu przygotować sensowną, dostosowaną do ograniczeń propozycję (nazwa + krótki opis + prosty podgląd/model, jeśli możliwe) i przycisk «Buduj w edytorze» z przeniesieniem pomysłu/szablonu. Przykład: Zamek + bez kamienia + 30 minut + coś ma się ruszać → drewniany zamek z ruchomym mostem. Uwaga: ruchome mechanizmy w prawdziwym Minecrafcie muszą naprawdę działać albo być jasno opisane jako pomysł wymagający redstone; nie udawać, że istnieją. Losowania sprzeczne/nierealne należy poprawiać lub ponawiać. Nie nadpisywać zapisanej budowli bez zgody.
+**Akceptacja:** przykładowe losowania mają wiarygodny projekt; przekazanie do edytora działa; testy wariantów i powrotu.
+
+### KC-006 · P1 · OTWARTE — Biblioteka ikonek serwera i przywrócenie serca
+**Zgłoszenie:** początkowa ikona serca znika po edycji, nie ma możliwości jej przywrócenia poza rysowaniem od zera. Właściciel chce wybieralne gotowe miniatury.
+**Stan kodu:** `assets/js/motd.js` ma tylko stały wzór `HEART` jako domyślny, a potem trwały zapis lokalny.
+**Wymagania:** galeria ~20 autorskich miniatur pixel art 16×16 (np. serce, miecz, kilof, skrzynia, tarcza, korona, ogień), przyciski «Przywróć serce», «Edytuj», «Zapisz moją ikonę», «Pobierz PNG». Zmiana szablonu nie niszczy własnej pracy bez potwierdzenia. Wszystkie eksportują się jako prawidłowe `server-icon.png` 64×64, bez kopiowania oficjalnych grafik Minecrafta.
+**Akceptacja:** przywracanie po wielu edycjach, zapis/odczyt, eksport PNG, mobile/klawiatura.
+
+### KC-007 · P1 · CZĘŚCIOWO — Pełne mechaniki komnat w Minecrafcie
+**Zgłoszenie:** zawartość powinna działać również na rzeczywistym serwerze, nie tylko w grze przeglądarkowej.
+**Stan kodu:** `docs/ZADANIA.md`: M1–M5 i M9 mają mapy możliwe do sprawdzenia w Minecrafcie; M6, M7, M8 i M10 zawierają dodatkowe mechaniki (ciemność, znikające bloki, rosnąca lawa), które **na razie działają tylko w przeglądarce**.
+**Wymagania:** dokończyć brakujące mechaniki datapacków i zweryfikować konkretną wersję gry (Vanilla/Paper). Unikać oznakowania «sprawdzone» dla mechaniki, której CI nie uruchomił.
+**Akceptacja:** test serwerowy każdej mechaniki, porównanie z opisem na stronie i ewentualny test manualny przed ogłoszeniem gotowości do grania.
+
+### KC-008 · P1 · DO TESTU — Datapacki: testy CI ≠ ręczne sprawdzenie budowli
+**Zgłoszenie:** czy datapack smoka i innych budowli naprawdę da się pobrać i wykonać na serwerze?
+**Potwierdzone:** `data/datapack.json` na `main`: `sprawdzone: true`, wersja 26.3; `data/testy.json`: `wyniki.datapack.ok = true`, 8 prób, wynik CI. Raport użytkownika po PR #38: zielone testy Vanilla i Paper. To potwierdza testowaną technikę datapacka, **nie** ręczne ustawienie każdej z 23 budowli na serwerze Piotrka.
+**Wymagania:** przygotować bezpieczną listę prób (kopię świata, płaski obszar, komendy, oczekiwane skutki) dla smoka, areny i kilku dużych budowli; w razie błędów rejestrować kod i wersję. Wskaźniki «sprawdzone» opisać precyzyjnie: test CI danej rzeczy vs test użytkownika.
+**Akceptacja:** wyniki manualnego uruchomienia lub uczciwy status «do sprawdzenia w świecie gry»; nigdy nie wymyślać wyników.
+
+### KC-009 · P2 · OTWARTE — Audyt interfejsu wszystkich stron przed szerokim udostępnianiem
+**Zgłoszenie:** za dużo małego tekstu, niejasne linki, ukryte przyciski, strony z sekcją «wkrótce» i funkcje oznaczone jako gotowe mimo braków.
+**Wymagania:** przejrzeć wszystkie strony na komputerze i telefonie z perspektywy 11-letniego gracza: jednoznaczne przyciski, czytelność, brak zastępczych kontrolek, brak obietnic «wkrótce» w publicznym UI, realne powroty i zachowanie postępu. Zgłaszać każdą nowo wykrytą niespójność jako osobny numer KC. Nie usuwać wymaganych ostrzeżeń o bezpieczeństwie i rzeczywistych ograniczeniach technicznych; zwięźle przenieść je w odpowiednie miejsce.
+**Akceptacja:** lista zbadanych stron, ręczne scenariusze, Playwright desktop/mobile, Lighthouse; po testach dostępnych na stronie brak fałszywych deklaracji funkcjonalności.
+
+### KC-010 · P2 · DO TESTU — Checkpointy parkouru: regresje w nowych komnatach
+**Zgłoszenie:** na `P4-N-40606` kontakt narożnikiem ze szmaragdem zapisywał odrodzenie poza platformą, powodując niekończący się spadek.
+**Stan:** naprawione i opublikowane w PR #38 (`509fd52`); Codex zgłosił 348 prób regresji, w tym 40 narożnikiem. Użytkownik jeszcze nie potwierdził dłuższej gry po aktualizacji.
+**Wymagania:** utrzymać testy odrodzenia na rogach, krawędziach, przy prędkości oraz przy wielu kolejnych śmierciach; na wykryty problem tworzyć osobny wpis, a nie przepisywać historię.
+**Akceptacja:** potwierdzenie działającego wznowienia gry przez człowieka oraz zielone testy regresji.
+
+## Zasady pracy Codexa i Claude
+
+1. **Jeden agent wykonawczy na dany zakres.** Nie uruchamiać równocześnie Claude i Codexa nad tym samym fragmentem; to marnuje limity i powoduje konflikty.
+2. **Najpierw obecne P0, potem P1.** Nie dodawać nowych komnat ani ozdobników przed usunięciem zgłoszonych braków.
+3. Po każdej zmianie dopisać: numer KC, status, commit/PR, testy, znane ograniczenia i dowód, że **realny** problem użytkownika rozwiązano.
+4. **Automatyczne testy są konieczne, ale nie wystarczają.** Utrzymywać testy regresji i sprawdzać rzeczywiste przepływy w interfejsie.
+5. Nie kasować ani po cichu pomijać żadnych uwag. Jeśli czegoś nie da się wykonać, oznaczyć «BLOKADA», powód i minimalny kolejny krok.
+6. **Nie zmieniać ani nie scalać kodu bez odpowiedniego zlecenia.** Ten plik jest listą zadań, a nie zgodą na automatyczne wdrożenie wszystkiego. Uprawnienie do publikacji musi wynikać z konkretnego polecenia właściciela.
+7. Dotychczasowy `docs/ZADANIA.md` zawiera inne, starsze plany techniczne (m.in. hosting, LifeSteal, PWA, import schem). Nie mylić jego zapowiedzi ze zrealizowanymi funkcjami. Niniejszy rejestr dotyczy problemów wprost zgłoszonych w rozmowie; nie jest pełnym audytem każdego pomysłu z historii projektu.
+
+## Historia ukończonych
+
+- 2026-11-23 · PR #38 · **Techniczne sterowanie warstwami edytora** wdrożono (Całość / Do tej / Tylko ta), lecz UX pozostaje otwarty jako **KC-003**.
+- 2026-11-23 · PR #38 · **Naprawa zapisu checkpointu poza platformą** wdrożona; trwa monitorowanie regresji w **KC-010**.
