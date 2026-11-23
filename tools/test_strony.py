@@ -159,6 +159,25 @@ def bug_quiz(page, size, correct, expect_record):
     page.unroute('**/data/testy.json')
 
 
+def command_tabs(page):
+    bar = page.get_by_role('tablist', name='Rodzaj komendy')
+    tabs = bar.get_by_role('tab')
+    expect(tabs).to_have_count(18)
+    tabs.first.focus()
+    tabs.first.press('ArrowLeft')
+    expect(tabs.last).to_be_focused()
+    expect(tabs.last).to_have_attribute('aria-selected', 'true')
+    expect(page.get_by_role('tabpanel')).to_have_attribute('aria-labelledby', tabs.last.get_attribute('id'))
+    assert bar.evaluate("""bar => {
+        const tab = bar.querySelector('[aria-selected=true]').getBoundingClientRect();
+        const bounds = bar.getBoundingClientRect();
+        return tab.left >= bounds.left - 1 && tab.right <= bounds.right + 1;
+    }""")
+    tabs.last.press('ArrowRight')
+    expect(tabs.first).to_be_focused()
+    expect(bar.locator('[tabindex="0"]')).to_have_count(1)
+
+
 def browser_commands(page, modern):
     # Zbieramy całe wiersze z konsoli kreatora, także kolejność komend wielowierszowych.
     page.locator('#ver').select_option('nowa' if modern else 'stara')
@@ -354,6 +373,7 @@ def run(browser, width, height):
             actual = page.evaluate('async s => (await import("./assets/js/motd.js")).motdProperty(s)', MOTD_SAMPLE)
             assert actual == motd_property(MOTD_SAMPLE), (actual, motd_property(MOTD_SAMPLE))
         if name == 'komendy':
+            command_tabs(page)
             # Przeładuj moduł z wyłączonym efektem maszynopisania.
             page.emulate_media(reduced_motion='reduce')
             page.reload()
