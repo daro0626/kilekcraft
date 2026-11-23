@@ -11,7 +11,9 @@ import { exportLines, mcfunction, datapack, download, safeName, packStatusHTML, 
 const $ = (s) => document.querySelector(s);
 const N = 48, H = 64, MAX = 8000;
 const PALETTE = ['stone', 'cobble', 'stone_bricks', 'smooth_stone', 'oak_planks', 'oak_log', 'dark_log', 'leaves', 'grass', 'dirt', 'sand', 'glass',
-  'quartz', 'white_wool', 'black_concrete', 'red_concrete', 'blue_concrete', 'gold', 'iron', 'diamond', 'emerald', 'amethyst', 'purpur', 'obsidian', 'lantern', 'lava'];
+  'quartz', 'white_wool', 'black_concrete', 'red_concrete', 'blue_concrete', 'gold', 'iron', 'diamond', 'emerald', 'amethyst', 'purpur', 'obsidian', 'lantern', 'lava',
+  'bricks', 'copper_block', 'cut_copper', 'prismarine', 'dark_prismarine', 'white_concrete', 'green_concrete',
+  'red_wool', 'blue_wool', 'moss_block', 'packed_ice'];
 
 let dirty = true, visible = true;
 let tool = 'build', brush = '1', sym = 'none', cur = store.get('ed:blok', 'stone_bricks');

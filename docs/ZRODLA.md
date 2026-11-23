@@ -56,3 +56,7 @@ Wytyczne mogą się zmienić. Przed publicznym otwarciem strony przeczytaj je po
 ## Filmy z budowy
 
 „Miecz w skale” i „Latająca wyspa” to własne animacje KILEKCRAFT przygotowane 2026-11-23 z modeli `miecz` i `wyspa` w [assets/js/builds.js](../assets/js/builds.js). Kadry powstały z tych samych bloków i wzorów tekstur co przeglądarka budowli.
+
+## Paleta edytora
+
+11 identyfikatorów używanych w nowej palecie potwierdził datapack na Paper 26.3 w dniu 2026-11-23. Test uruchomił funkcję, a następnie sprawdził umieszczony blok dla każdego identyfikatora. Wzory tekstur są własnymi wzorami KILEKCRAFT. [Przebieg GitHub Actions](https://github.com/daro0626/kilekcraft/actions/runs/45193922214)
