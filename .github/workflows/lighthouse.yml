@@ -19,7 +19,7 @@ jobs:
         run: |
           python3 -m http.server 8000 --bind 127.0.0.1 &
           mkdir -p "$RUNNER_TEMP/raporty"
-          for page in index serwer hosting komendy budowle edytor komnaty symulator gry bledy parkour kolo motd wyzwanie; do
+          for page in index serwer hosting komendy budowle edytor komnaty symulator gry bledy parkour kolo motd lifesteal wyzwanie; do
             "$RUNNER_TEMP/audyt/node_modules/.bin/lighthouse" "http://127.0.0.1:8000/$page.html" \
               --only-categories=performance,accessibility --chrome-flags="--headless --enable-unsafe-swiftshader" \
               --quiet --output=json --output=html --output-path="$RUNNER_TEMP/raporty/$page"

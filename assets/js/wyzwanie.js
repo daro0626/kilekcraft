@@ -7,7 +7,7 @@
 // kod + ziarno = zawsze ta sama komnata).
 // =========================================================
 import { store, toast } from './core.js';
-import { encode, THEMES } from './komnaty-gen.js';
+import { encode, THEMES, kindName } from './komnaty-gen.js';
 import { badge } from './xp.js';
 
 const $ = (s) => document.querySelector(s);
@@ -26,7 +26,7 @@ function stateFor(key) {
   const h = hash('kilekcraft-wyzwanie-' + key);
   const themes = Object.keys(THEMES);
   return {
-    type: (h % 5) === 0 ? 'labirynt' : 'parkour',   // mniej więcej jeden dzień na pięć to labirynt
+    type: (h % 5) === 0 ? 'labirynt' : (h % 5) === 1 ? 'gora' : 'parkour',   // co piąty dzień labirynt, co piąty góra
     diff: 2 + ((h >>> 5) % 7),                       // trudność 2–8: grywalne dla większości
     theme: themes[(h >>> 10) % themes.length],
     seed: 1 + ((h >>> 3) % 99998),
@@ -41,8 +41,8 @@ let current = state;
 
 $('#dzienKod').textContent = code;
 $('#dzienTitul').textContent = `Wyzwanie dnia · ${ludzki(today)}`;
-$('#dzienOpis').textContent = `${state.type === 'labirynt' ? 'Labirynt' : 'Parkour'} · trudność ${state.diff} · ${THEMES[state.theme].name}. Ta sama komnata dla wszystkich do końca dnia (wg zegara na twoim urządzeniu).`;
-$('#ovText').textContent = `${state.type === 'labirynt' ? 'Labirynt' : 'Parkour'} · trudność ${state.diff} · kod ${code}`;
+$('#dzienOpis').textContent = `${kindName(state.type)} · trudność ${state.diff} · ${THEMES[state.theme].name}. Ta sama komnata dla wszystkich do końca dnia (wg zegara na twoim urządzeniu).`;
+$('#ovText').textContent = `${kindName(state.type)} · trudność ${state.diff} · kod ${code}`;
 
 function renderHistory() {
   const ul = $('#historia');
@@ -54,7 +54,7 @@ function renderHistory() {
     const c = encode(st);
     const best = store.get('pk:best:' + c, null);
     const li = document.createElement('li');
-    li.innerHTML = `<i>${i === 0 ? 'Dziś' : ludzki(d)}</i> — ${st.type === 'labirynt' ? 'Labirynt' : 'Parkour'} ${st.diff}, kod ${c}: ${best ? fmt(best) + ' s' : 'nie grałeś'}`;
+    li.innerHTML = `<i>${i === 0 ? 'Dziś' : ludzki(d)}</i> — ${kindName(st.type)} ${st.diff}, kod ${c}: ${best ? fmt(best) + ' s' : 'nie grałeś'}`;
     ul.appendChild(li);
   }
 }
@@ -104,7 +104,7 @@ $('#play').addEventListener('click', async () => {
 $('#udostepnij').addEventListener('click', async () => {
   const best = store.get('pk:best:' + code, null);
   if (!best) { toast('Najpierw ukończ dzisiejsze wyzwanie!'); return; }
-  const text = `Wyzwanie dnia KILEKCRAFT (${ludzki(today)}): ${state.type === 'labirynt' ? 'Labirynt' : 'Parkour'} ${state.diff}, kod ${code}. Mój czas: ${fmt(best)} s. Spróbujesz pobić?`;
+  const text = `Wyzwanie dnia KILEKCRAFT (${ludzki(today)}): ${kindName(state.type)} ${state.diff}, kod ${code}. Mój czas: ${fmt(best)} s. Spróbujesz pobić?`;
   try {
     await navigator.clipboard.writeText(text);
     toast('Skopiowano! Wklej w rozmowie z kolegami.');

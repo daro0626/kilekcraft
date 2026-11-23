@@ -21,6 +21,11 @@ Każdy fakt na stronie, który może się zmienić, musi tu mieć źródło i da
 | `natural_health_regeneration` (dawne naturalRegeneration) | https://wisehosting.com/help/how-to-enable-disable-different-gamerules | 2026-11-23 |
 | Składnia komend sześciu szablonów na vanilla 26.3 i Paper 26.3 build 258 | [Test vanilla](https://github.com/daro0626/kilekcraft/actions/runs/45136900087) · [Test Paper](https://github.com/daro0626/kilekcraft/actions/runs/45136991692) | 2026-11-23 |
 
+| Komenda `attribute <cel> minecraft:max_health base set <punkty>` / `base reset`; nazwy atrybutów bez przedrostka `generic.` od 1.21.2; 20 punktów = 10 serc. Cel to **jeden** byt: `attribute @a …` serwer 26.3 odrzuca („Only one entity is allowed”), więc dla wszystkich `execute as @a run attribute @s …` | https://metabot.gg/en/minecraft/commands/attribute ; https://wikily.gg/minecraft/commands/attribute ; https://www.bilibili.com/opus/957257796958552103 (zmiana nazw) | 2026-11-23, **czeka na test CI (C6)** |
+| Obniżenie `max_health` nie zmniejsza od razu bieżącego zdrowia (znany błąd) | https://bugs.mojang.com/browse/MC-180001 ; https://bugs-legacy.mojang.com/browse/MC-16345 | 2026-11-23 |
+| Maksymalne poziomy zaklęć (Ostrość V, Ochrona IV, Wydajność V, Niezniszczalność III, Szczęście III, Grabież III, Naprawa I, Jedwabny dotyk I, Zaklęty ogień II, Moc V, Powolne opadanie IV) | https://wiki.deinserverhost.de/en/wiki/minecraft-enchantments (tabela dla Java 26.2), https://www.sportskeeda.com/minecraft/list-max-level-minecraft-enchantments | 2026-11-23 |
+| Składnia: gamemode, time set, weather (z czasem `300s`), difficulty, summon z CustomName, enchant, xp, kill z filtrem type, clear, worldborder, spawnpoint, setworldspawn | test na serwerze (`tools/test_commands.py`) | czeka na test CI |
+
 Każdy z dwóch serwerów przeszedł 82 próby składni przez RCON. Efekt w grze czeka na test Piotrka. Historyczne nazwy zasad i daty ich wprowadzenia pochodzą z podanych wyżej źródeł.
 
 ## Hostingi
@@ -30,6 +35,16 @@ Każdy z dwóch serwerów przeszedł 82 próby składni przez RCON. Efekt w grze
 | exaroton: 1 kredyt = 0,01 €, 1 kredyt/GB/h, 10 kredytów/mies. za miejsce, 5 kredytów na start | https://support.exaroton.com/hc/en-us/articles/360019687657-Pricing | 2026-11-23 |
 | Ceny 8 GB: FugyHost, KeyHost, Hostinger, Pukawka, Space-Node, TostHost | https://space-node.net/blog/hosting-serwera-minecraft-porownanie-2026 (**uwaga: autorem jest jeden z porównywanych hostów**) | 2026-11-10 |
 | Minehut: limity darmowego planu, źródła się różnią | https://mineguard.pro/en/blog/aternos-vs-paid-hosting-comparison | niepewne |
+| MCHosting: darmowy plan 2 GB / 10 graczy / 3 GB dysku, usypia bez graczy, bez limitu czasu; Starter 19 zł (3 GB, 20 graczy), Standard 35 zł (6 GB, 40), Pro 55 zł (10 GB), Max 89 zł (16 GB) za 30 dni z VAT 23%; −10% za 90 dni; BLIK, Przelewy24, karta; serwery w Norymberdze (Hetzner, netcup); Java + Bedrock | https://mchosting.pl/ (strona hosta) | 2026-11-23 |
+
+## Pluginy (przepis LifeSteal)
+| Fakt | Źródło | Sprawdzono |
+|---|---|---|
+| LifeStealZ: darmowy plugin LifeSteal na Paper/Purpur/Spigot, licencja GPL-3.0; kradzież serc, eliminacja przy zerze, wypłata serc jako przedmiot, własne przepisy, przedmiot ożywienia | https://modrinth.com/plugin/lifestealz | 2026-11-23 |
+| LifeStealZ: Modrinth podaje wsparcie do 26.3, Hangar do 26.1.2 (wersja 2.21.1) — **źródła się różnią**, przepis każe sprawdzić przed instalacją | https://modrinth.com/plugin/lifestealz ; https://hangar.papermc.io/KartoffelChipss/LifestealZ | 2026-11-23 |
+| LifeStealZ: `startHearts: 10`, `maxHearts: 20`, `preventTotems` domyślnie `false`; komendy `/hearts`, `/revive`, `/eliminate`, `/lifestealz hearts <add\|set> <gracz> <ile>`; uprawnienie `lifestealz.withdraw` domyślnie włączone | https://hangar.papermc.io/KartoffelChipss/LifestealZ | 2026-11-23, **plugin nie testowany przez nas** |
+
+Nazwy komendy do wypłaty serca nie podajemy, bo źródła jej nie pokazują. Dopisze ją Piotrek po instalacji (zadanie A8).
 
 ## Marka
 | Fakt | Źródło | Sprawdzono |

@@ -9,14 +9,15 @@ Polska, fanowska akademia serwerowców Minecraft Java. Animowana, ale przede wsz
 |---|---|
 | `index.html` | Napis z bloków, które spadają i reagują na kursor, tablica split-flap i obracająca się wyspa 3D |
 | `serwer.html` | Przepis „Pierwszy serwer z kolegami” w 9 szortach |
+| `lifesteal.html` | Przepis „LifeSteal z ekonomią serc” w 9 szortach: serca komendą albo pluginem |
 | `hosting.html` | Doradca: 4 pytania → 3 najlepsze hostingi z kosztem miesięcznym |
-| `komendy.html` | Kreator komend z podglądem w „grze” i nowymi nazwami gamerule |
+| `komendy.html` | Kreator komend z podglądem w „grze”: 18 rodzajów (przedmioty, efekty, napisy, teleport, zasady, biała lista, serca, tryb gry, pora dnia, pogoda, trudność, moby, zaklęcia, XP, usuwanie bytów, czyszczenie ekwipunku, granica świata, spawn) |
 | `budowle.html` | 4 wielkie budowle 3D warstwa po warstwie, z mapą i listą bloków, oraz 2 filmy |
 | `edytor.html` | Edytor 3D z symetrią i cofaniem, eksport do datapacka |
-| `komnaty.html` | Generator parkourów i labiryntów 1–10 z kodem komnaty |
+| `komnaty.html` | Generator parkourów, gór do wspinaczki i labiryntów 1–10 z kodem komnaty |
 | `gry.html` | Zbiór gier: wyścig parkour, Znajdź błąd, koło wyzwań, wygląd serwera |
-| `parkour.html` | Wyścig 3D po komnatach z generatora, stoper, rekordy i duch najlepszego przejazdu |
-| `wyzwanie.html` | Wyzwanie dnia: jedna komnata parkour/labirynt dziennie, ta sama dla wszystkich, licząca się z datą |
+| `parkour.html` | Wyścig 3D po komnatach z generatora, stoper, rekordy, duch najlepszego przejazdu, widok z 1. i 3. osoby, mysz jak w grze |
+| `wyzwanie.html` | Wyzwanie dnia: jedna komnata dziennie (parkour, góra albo labirynt), ta sama dla wszystkich, licząca się z datą |
 | `bledy.html` | Gra: znajdź błąd w komendzie (pytania sprawdzane na serwerze) |
 | `kolo.html` | Koło wyzwań budowlanych ze stoperem |
 | `motd.html` | Kolorowy opis serwera i ikona 64×64 z podglądem listy serwerów |

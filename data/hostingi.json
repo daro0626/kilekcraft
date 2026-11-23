@@ -19,6 +19,23 @@
       "link": "https://aternos.org"
     },
     {
+      "id": "mchosting-free",
+      "nazwa": "MCHosting (darmowy plan)",
+      "typ": "darmowy",
+      "kraj": "Niemcy (Norymberga), strona po polsku",
+      "cena_opis": "0 zł",
+      "cena_pln_mies": 0,
+      "ram": 2, "gracze_max": 10, "usypia": true,
+      "java": true, "bedrock": true, "pluginy": true,
+      "plusy": ["Za darmo, bez karty i bez limitu czasu", "Java i Bedrock na jednym serwerze (crossplay)", "Pluginy z panelu jednym kliknięciem", "Strona i panel po polsku"],
+      "minusy": ["Usypia po kilku minutach bez graczy. Budzi się, gdy ktoś wchodzi", "2 GB RAM i do 10 graczy", "3 GB na dysku, bez kopii zapasowych"],
+      "dla_kogo": "Pierwszy serwer z kolegami, gdy nie musi działać całą dobę.",
+      "zrodlo": "https://mchosting.pl/",
+      "sprawdzono": "2026-11-23",
+      "pewnosc": "wysoka",
+      "link": "https://mchosting.pl/"
+    },
+    {
       "id": "exaroton",
       "nazwa": "exaroton",
       "typ": "godzinowy",
@@ -51,6 +68,12 @@
       "pewnosc": "niska",
       "link": "https://minehut.com"
     },
+    { "id": "mchosting", "nazwa": "MCHosting", "typ": "abonament", "kraj": "Niemcy (Norymberga), strona po polsku", "cena_opis": "od 19 zł / 30 dni (Starter 3 GB), z VAT", "cena_pln_mies": 19, "ram": 3, "java": true, "bedrock": true, "pluginy": true,
+      "plany": [{ "nazwa": "Starter", "ram": 3, "gracze": 20, "cena": 19 }, { "nazwa": "Standard", "ram": 6, "gracze": 40, "cena": 35 }, { "nazwa": "Pro", "ram": 10, "gracze": 999, "cena": 55 }, { "nazwa": "Max", "ram": 16, "gracze": 999, "cena": 89 }],
+      "plusy": ["Działa 24/7, koledzy wchodzą, kiedy chcą", "Płatność BLIK-iem, Przelewy24 albo kartą", "Plany od 3 do 16 GB, łatwo przejść na większy", "Kopie zapasowe (Starter: ostatnia 1, Standard: 7)", "Za 90 dni z góry 10% taniej"],
+      "minusy": ["Serwery w Niemczech, ping trochę wyższy niż z serwera w Polsce", "Mody działają tylko dla graczy z Javą"],
+      "dla_kogo": "Serwer działający cały czas, z płatnością BLIK-iem.",
+      "zrodlo": "https://mchosting.pl/", "sprawdzono": "2026-11-23", "pewnosc": "wysoka", "link": "https://mchosting.pl/" },
     { "id": "fugyhost", "nazwa": "FugyHost Gold (8 GB)", "typ": "abonament", "kraj": "Polska", "cena_opis": "35,90 zł / 30 dni", "cena_pln_mies": 35.90, "ram": 8, "java": true, "pluginy": true,
       "plusy": ["Serwer w Polsce", "Płatność w złotówkach"], "minusy": ["Strona porównania nie podaje, czy cena zawiera VAT"], "dla_kogo": "Serwer 24/7 dla większej grupy.",
       "zrodlo": "https://space-node.net/blog/hosting-serwera-minecraft-porownanie-2026", "sprawdzono": "2026-11-10", "pewnosc": "srednia" },

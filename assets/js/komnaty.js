@@ -2,7 +2,7 @@
 // KILEKCRAFT — strona generatora komnat.
 // =========================================================
 import { store, reduced, copyText, toast, award, badge } from './core.js';
-import { generate, encode, decode, THEMES } from './komnaty-gen.js';
+import { generate, encode, decode, THEMES, kindName } from './komnaty-gen.js';
 import { datapack, download, safeName, packInfo, exportPanelHTML } from './export.js';
 
 const $ = (s) => document.querySelector(s);
@@ -34,12 +34,14 @@ async function build(animate = true) {
   $('#code').value = code; $('#playLink').href = 'parkour.html#' + code; store.set('komnata', state);
   try { history.replaceState(null, '', '#' + code); } catch { /* podgląd bez historii */ }
   const T = THEMES[state.theme];
-  $('#kTitle').textContent = `${state.type === 'labirynt' ? 'Labirynt' : 'Parkour'} · ${T.name}`;
+  $('#kTitle').textContent = `${kindName(state.type)} · ${T.name}`;
   $('#kSize').textContent = ` · ${room.size.join('×')} · ${room.blocks.length.toLocaleString('pl-PL')} bloków`;
   const i = room.info;
   const cells = state.type === 'labirynt'
     ? [['Komórki', i.komorki], ['Wysokość ścian', i.wysokosc], ['Wymiary', `${room.size[0]}×${room.size[2]}`], ['Kod', code]]
-    : [['Skoki', i.skoki], ['Punkty kontrolne', i.punkty], ['Pod spodem', i.dno], ['Kod', code]];
+    : state.type === 'gora'
+      ? [['Skoki', i.skoki], ['Wysokość', i.wysokosc + ' bloków'], ['Pod spodem', i.dno], ['Kod', code]]
+      : [['Skoki', i.skoki], ['Punkty kontrolne', i.punkty], ['Pod spodem', i.dno], ['Kod', code]];
   $('#stats').innerHTML = cells.map(([k, v]) => `<div class="panel"><span>${k}</span><b>${v}</b></div>`).join('');
   $('#fnCmd').innerHTML = `<span class="pr">›</span> <span class="hk">/function</span> kilekcraft:${fnName()}`;
   if (viewer) { viewer.setBuild(room); if (animate && !reduced) viewer.animateBuild(Math.min(3500, 1200 + room.size[1] * 120)); }
