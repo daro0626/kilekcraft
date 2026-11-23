@@ -100,22 +100,34 @@ def hosting(page):
     for name, value in radios:
         groups.setdefault(name, []).append(value)
     assert len(groups) == 4 and all(groups.values()), groups
-    for values in product(*groups.values()):
-        choices = dict(zip(groups, values))
-        names = page.evaluate("""choices => {
+    def results(choices):
+        return page.evaluate("""choices => {
             const old = document.querySelector('#results article');
             let changed = false;
             for (const [name, value] of Object.entries(choices)) {
-                const input = document.querySelector(`#quiz input[name="${name}"][value="${value}"]`);
-                if (!input.checked) {
-                    input.click();
-                    changed = true;
-                }
+                const input = document.querySelector('#quiz input[name="' + name + '"][value="' + value + '"]');
+                if (!input.checked) { input.click(); changed = true; }
             }
             if (changed && old.isConnected) throw Error('Brak aktualizacji wyników');
-            return [...document.querySelectorAll('#results article h3')].map(h => h.textContent.trim());
+            return {
+                need: Number(document.querySelector('#ramNum').textContent),
+                plans: [...document.querySelectorAll('#results article')].map(card => [
+                    card.dataset.host, card.dataset.ram === '' ? null : Number(card.dataset.ram),
+                ]),
+            };
         }""", choices)
-        assert len(names) == len(set(names)) == 3 and all(names), (choices, names)
+
+    for values in product(*groups.values()):
+        choices = dict(zip(groups, values))
+        result = results(choices)
+        plans = result['plans']
+        assert 1 <= len(plans) <= 3 and len(plans) == len({p[0] for p in plans}), (choices, plans)
+        assert all(ram is None or ram >= result['need'] for _, ram in plans), (choices, result)
+
+    for hours, winner in ((720, 'mchosting'), (75, 'aternos')):
+        assert results(dict(gracze=5, czas=hours, dodatki=2, budzet=20))['plans'][0][0] == winner
+    large = results(dict(gracze=40, czas=720, dodatki=3, budzet=999))
+    assert large['need'] == 12 and all(ram >= 12 for _, ram in large['plans']), large
 
 
 def browser_commands(page, modern):
