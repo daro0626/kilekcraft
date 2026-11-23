@@ -1,6 +1,7 @@
 import { store } from './store.js';
 
 const SCORE = 'bledy:rekord';
+const SEASON = 'sezon:rekord';
 const TIME = new Set(['bledy:czas', 'bledy:najszybsza']);
 const PARKOUR = /^pk:best:[PGL](?:10|[1-9])-[KNLE]-[0-9]{1,9}$/;
 const FORMAT = 'kilekcraft-postep';
@@ -10,6 +11,11 @@ const object = value => value && typeof value === 'object' && !Array.isArray(val
 const validKey = key => key.length <= 160 && key !== '__proto__' && key !== 'constructor' && key !== 'prototype';
 const count = value => Number.isSafeInteger(value) && value >= 0 && value <= 1e9;
 function validRecord(key, value) {
+  if (key === SEASON) {
+    return object(value) && Object.keys(value).length === 4 && count(value.pkt) &&
+      typeof value.przetrwal === 'boolean' && Number.isInteger(value.miejsce) && value.miejsce >= 1 && value.miejsce <= 8 &&
+      Number.isInteger(value.dzien) && value.dzien >= 1 && value.dzien <= 14 && (!value.przetrwal || value.dzien === 14);
+  }
   if (key === SCORE) return count(value);
   return (TIME.has(key) || PARKOUR.test(key)) && Number.isFinite(value) && value > 0 && value <= 1e9;
 }
@@ -44,7 +50,11 @@ export function restore(text, profile, badgeIds) {
   const changes = [];
   for (const [key, value] of entries(records)) {
     const current = store.get(key);
-    const better = !validRecord(key, current) || (key === SCORE ? value > current : value < current);
+    let better = !validRecord(key, current);
+    if (!better) {
+      if (key === SEASON) better = value.pkt > current.pkt;
+      else better = key === SCORE ? value > current : value < current;
+    }
     if (!better) continue;
     changes.push([key, value]);
     // Duch z tego urządzenia należy do starego czasu.
