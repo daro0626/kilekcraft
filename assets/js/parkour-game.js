@@ -57,29 +57,76 @@ export function initGame(onNext) {
   const lavaMats = new Set();
   const k3 = (x, y, z) => x + ',' + y + ',' + z;
   const faceSteps = [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]];
+  // W górze są długie płaszczyzny z jednego materiału. Łączymy je
+  // w obrębie fragmentu mapy, żeby nadal odrzucać fragmenty poza kadrem.
+  const mountainMaterials = new Map();
+  function repeatTexture(material) {
+    if (!material.map || material.transparent) return material;
+    if (!mountainMaterials.has(material)) {
+      const copy = material.clone();
+      copy.map = material.map.clone();
+      copy.map.wrapS = copy.map.wrapT = THREE.RepeatWrapping;
+      copy.map.needsUpdate = true;
+      mountainMaterials.set(material, copy);
+    }
+    return mountainMaterials.get(material);
+  }
+
   function buildMeshes() {
     const chunks = new Map();
-    const { position, normal, uv } = box.attributes;
+    const { position, normal } = box.attributes;
+    const point = i => new THREE.Vector3().fromBufferAttribute(position, i);
+    const directions = faceSteps.map((_, index) => {
+      const corner = point(index * 4);
+      return { corner, u: point(index * 4 + 1).sub(corner), v: point(index * 4 + 2).sub(corner),
+        normal: new THREE.Vector3().fromBufferAttribute(normal, index * 4) };
+    });
+    const origin = new THREE.Vector3();
+    const mountain = state.type === 'gora';
+    const chunkShift = mountain ? 4 : 3;
     for (const [x, y, z, type] of room.blocks) {
       const materials = materialFor(type);
+      origin.set(x, y, z);
       for (const [face, [dx, dy, dz]] of faceSteps.entries()) {
         const adjacent = solid.get(k3(x + dx, y + dy, z + dz));
-        if (adjacent && !BLOCKS[adjacent].alpha && BLOCKS[adjacent].pat !== 'leaves') continue;
+        if (adjacent && (!BLOCKS[adjacent].alpha && BLOCKS[adjacent].pat !== 'leaves' ||
+                         mountain && adjacent === type && type === 'water')) continue;
         const material = Array.isArray(materials) ? materials[face] : materials;
-        const key = [x >> 3, y >> 3, z >> 3, material.id].join(',');
-        if (!chunks.has(key)) chunks.set(key, { material, positions: [], normals: [], uvs: [], indices: [] });
+        const rendered = mountain ? repeatTexture(material) : material;
+        const key = [x >> chunkShift, y >> chunkShift, z >> chunkShift, rendered.id].join(',');
+        if (!chunks.has(key)) chunks.set(key, {
+          material: rendered, positions: [], normals: [], uvs: [], indices: [], planes: new Map(),
+        });
         const chunk = chunks.get(key);
-        const start = chunk.positions.length / 3;
-        for (let v = face * 4; v < face * 4 + 4; v++) {
-          chunk.positions.push(x + .5 + position.getX(v), y + .5 + position.getY(v), z + .5 + position.getZ(v));
-          chunk.normals.push(normal.getX(v), normal.getY(v), normal.getZ(v));
-          chunk.uvs.push(uv.getX(v), uv.getY(v));
-        }
-        chunk.indices.push(start, start + 2, start + 1, start + 2, start + 3, start + 1);
+        const dir = directions[face];
+        if (mountain && !material.transparent) {
+          const slice = face + ':' + origin.dot(dir.normal);
+          if (!chunk.planes.has(slice)) chunk.planes.set(slice, { dir, cells: new Map() });
+          const u = origin.dot(dir.u), v = origin.dot(dir.v);
+          chunk.planes.get(slice).cells.set(u + ',' + v, { x, y, z, u, v });
+        } else quad(chunk, dir, { x, y, z }, 1, 1);
         if (type === 'lava') lavaMats.add(material);
       }
     }
-    for (const { material, positions, normals, uvs, indices } of chunks.values()) {
+    for (const chunk of chunks.values()) {
+      for (const { dir, cells } of chunk.planes.values()) {
+        for (const first of cells.values()) {
+          const { u, v } = first;
+          let width = 1, height = 1;
+          while (cells.has(u + width + ',' + v)) width++;
+          rows: while (true) {
+            for (let i = 0; i < width; i++) {
+              if (!cells.has((u + i) + ',' + (v + height))) break rows;
+            }
+            height++;
+          }
+          for (let i = 0; i < width; i++) for (let j = 0; j < height; j++) {
+            cells.delete((u + i) + ',' + (v + j));
+          }
+          quad(chunk, dir, first, width, height);
+        }
+      }
+      const { material, positions, normals, uvs, indices } = chunk;
       const geometry = new THREE.BufferGeometry();
       geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
       geometry.setAttribute('normal', new THREE.Float32BufferAttribute(normals, 3));
@@ -90,10 +137,23 @@ export function initGame(onNext) {
       level.add(mesh);
     }
   }
+
+  function quad(chunk, { corner, u, v, normal }, { x, y, z }, width, height) {
+    const start = chunk.positions.length / 3;
+    for (const [a, b] of [[0, 0], [width, 0], [0, height], [width, height]]) {
+      chunk.positions.push(x + .5 + corner.x + a * u.x + b * v.x,
+                           y + .5 + corner.y + a * u.y + b * v.y,
+                           z + .5 + corner.z + a * u.z + b * v.z);
+      chunk.normals.push(normal.x, normal.y, normal.z);
+      chunk.uvs.push(a, height - b);
+    }
+    chunk.indices.push(start, start + 2, start + 1, start + 2, start + 3, start + 1);
+  }
   let state;
   function loadLevel(nextState) {
     state = nextState;
     room = generate(state);
+    renderer.setPixelRatio(coarse && state.type === 'gora' ? Math.min(.72, ratio) : ratio);
     const code = encode(state);
     for (const mesh of level.children) mesh.geometry.dispose();
     level.clear(); solid = new Map(); lavaMats.clear();
@@ -413,8 +473,8 @@ export function initGame(onNext) {
   function resize(force = false) {
     const { clientWidth: width, clientHeight: height } = canvas;
     if (!state || !width || !height) return;
-    if (!force && camera.aspect === width / height && renderer.domElement.width === Math.floor(width * ratio) &&
-        renderer.domElement.height === Math.floor(height * ratio)) return;
+    if (!force && camera.aspect === width / height && renderer.domElement.width === Math.floor(width * renderer.getPixelRatio()) &&
+        renderer.domElement.height === Math.floor(height * renderer.getPixelRatio())) return;
     renderer.setSize(width, height, false); camera.aspect = width / height; camera.updateProjectionMatrix();
     if (!running) draw(performance.now(), true);
   }

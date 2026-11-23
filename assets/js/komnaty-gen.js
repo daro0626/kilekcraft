@@ -29,11 +29,13 @@ class G {
   constructor() { this.m = new Map(); }
   set(x, y, z, t) { this.m.set(x + ',' + y + ',' + z, [x, y, z, t]); }
   has(x, y, z) { return this.m.has(x + ',' + y + ',' + z); }
-  out() {
+  out(route) {
     const a = [...this.m.values()];
     let mx = Infinity, my = Infinity, mz = Infinity, Mx = -Infinity, My = -Infinity, Mz = -Infinity;
     for (const [x, y, z] of a) { mx = Math.min(mx, x); my = Math.min(my, y); mz = Math.min(mz, z); Mx = Math.max(Mx, x); My = Math.max(My, y); Mz = Math.max(Mz, z); }
-    return { blocks: a.map(([x, y, z, t]) => [x - mx, y - my, z - mz, t]), size: [Mx - mx + 1, My - my + 1, Mz - mz + 1] };
+    const result = { blocks: a.map(([x, y, z, t]) => [x - mx, y - my, z - mz, t]), size: [Mx - mx + 1, My - my + 1, Mz - mz + 1] };
+    if (route) result.route = route.map(([x, y, z, w, d]) => [x - mx, y - my, z - mz, w, d]);
+    return result;
   }
 }
 
@@ -48,7 +50,8 @@ function parkour(diff, theme, seed) {
   const size = diff <= 3 ? 2 : diff <= 6 ? (R() < .5 ? 2 : 1) : 1;
   let x = 0, y = 2, z = 0, dirZ = 0, prevW = 1;
   plat(-2, y, -1, 3, 3, T.alt); g.set(-1, y, 0, 'gold'); // start (złoty środek)
-  const path = [];
+  const path = [[-2, y, -1, 3, 3]];
+  let lastSide = 0;
   for (let j = 0; j < jumps; j++) {
     const up = diff >= 3 && R() < .35 ? 1 : (diff >= 5 && R() < .2 ? -1 : 0);
     const maxGap = up === 1 ? maxUp : up === -1 ? Math.min(3, maxFlat + 1) : maxFlat;
@@ -57,18 +60,24 @@ function parkour(diff, theme, seed) {
     // skręt w bok co jakiś czas
     if (R() < .45) dirZ = Math.max(-1, Math.min(1, dirZ + (R() < .5 ? -1 : 1)));
     if (Math.abs(z) > 7 && Math.sign(dirZ) === Math.sign(z)) dirZ = 0;
-    const sideways = dirZ !== 0 && R() < .6;
+    const sideways = dirZ !== 0 && R() < .6 && (lastSide === 0 || dirZ === lastSide);
     const w = j % 8 === 7 ? 2 : (diff <= 6 ? size : 1);
-    if (sideways) { z = dirZ > 0 ? z + prevW + gap : z - gap - w; } else { x += prevW + gap; }
+    if (sideways) {
+      z = dirZ > 0 ? z + prevW + gap : z - gap - w;
+      lastSide = dirZ;
+    } else {
+      x += prevW + gap;
+      lastSide = 0;
+    }
     prevW = w;
     y = Math.max(2, y + up);
     const cp = j % 8 === 7; // punkt kontrolny co 8 skoków
     plat(x, y, z, w, w, cp ? 'emerald' : (R() < .5 ? T.plat : T.alt));
-    if (cp) g.set(x, y + 1, z, 'lantern');
-    path.push([x, y, z]);
+    path.push([x, y, z, w, w]);
   }
   // meta
-  x += prevW + 1; plat(x, y, z - 1, 3, 3, 'diamond'); g.set(x + 1, y + 1, z, 'lantern');
+  x += prevW + 1; plat(x, y, z - 1, 3, 3, 'diamond');
+  path.push([x, y, z - 1, 3, 3]);
   // dno: przy trudności 5+ woda, lawa albo pustka (zależnie od motywu), wcześniej bezpieczna podłoga
   const pts = [...g.m.values()];
   const minX = Math.min(...pts.map(p => p[0])) - 1, maxX = Math.max(...pts.map(p => p[0])) + 1;
@@ -78,7 +87,7 @@ function parkour(diff, theme, seed) {
   // obramowanie areny
   for (let a = minX - 1; a <= maxX + 1; a++) for (const b of [minZ - 1, maxZ + 1]) for (let h = 0; h <= 1; h++) g.set(a, h, b, T.wall);
   for (let b = minZ - 1; b <= maxZ + 1; b++) for (const a of [minX - 1, maxX + 1]) for (let h = 0; h <= 1; h++) g.set(a, h, b, T.wall);
-  const o = g.out();
+  const o = g.out(path);
   return { ...o, info: { skoki: jumps, punkty: Math.floor(jumps / 8), dno: danger ? dnoName(floor) : 'podłoga' } };
 }
 
@@ -130,59 +139,52 @@ function mountain(diff, theme, seed) {
       else if (side) g.set(x, y, z, T.rock);
     }
   }
-  const maxFlat = diff >= 4 ? 3 : 2, maxUp = diff >= 7 ? 2 : 1, pUp = .62 + diff * .02;
-  const cells = (cx, cz, w) => { const a = []; const o = Math.floor(w / 2); for (let i = 0; i < w; i++) for (let k = 0; k < w; k++) a.push([cx - o + i, cz - o + k]); return a; };
-  // odległość krawędzi dwóch platform w poziomie (puste bloki między nimi)
-  const gapOf = (A, B) => {
-    const ax = A.map(c => c[0]), az = A.map(c => c[1]), bx = B.map(c => c[0]), bz = B.map(c => c[1]);
-    const gx = Math.max(0, Math.min(...bx) - Math.max(...ax) - 1, Math.min(...ax) - Math.max(...bx) - 1);
-    const gz = Math.max(0, Math.min(...bz) - Math.max(...az) - 1, Math.min(...az) - Math.max(...bz) - 1);
-    return Math.hypot(gx, gz);
-  };
-  // platforma musi mieć 4 bloki odstępu od innych platform w pionie (głowa przy skoku)
-  // i wolne miejsce nad sobą, ale może wisieć nad szerszym zboczem niżej
-  const placed = new Map();
-  const clear = (A, y) => A.every(([x, z]) => {
-    for (let d = 0; d <= 3; d++) if (g.has(x, y + d, z)) return false;
-    return !(placed.get(x + ',' + z) || []).some(py => Math.abs(py - y) <= 4);
-  });
-  const put = (A, y, t) => { for (const [x, z] of A) { g.set(x, y, z, typeof t === 'function' ? t() : t); const k = x + ',' + z; placed.set(k, [...(placed.get(k) || []), y]); } };
-  // start: złoty środek na kamiennej półce u podnóża
-  let y = 2, ang = 0, rs = rAt(y) + 4;
-  let prev = cells(Math.round(rs), 0, 3);
-  put(prev, y, T.gplat[1]);
-  g.set(Math.round(rs), y, 0, 'gold');
-  let jumps = 0, cps = 0, misses = 0;
-  while (y < top - 1 && jumps < 120 && misses < 200) {
-    const up = R() < pUp ? 1 : 0;
-    const ny = Math.min(top - 1, y + up);
-    const cp = (jumps + 1) % 8 === 0;
-    const w = cp || diff <= 3 ? 2 : (diff <= 6 && R() < .5 ? 2 : 1);
-    const maxGap = up ? maxUp : maxFlat, want = Math.max(1, maxGap - (R() < .5 ? 1 : 0));
-    const rp = rAt(ny) + 2 + w / 2;
-    let best = null;
-    for (let step = .5; step <= 7; step += .25) {
-      const a = ang + step / rp, cand = cells(Math.round(Math.cos(a) * rp), Math.round(Math.sin(a) * rp), w);
-      const gp = gapOf(prev, cand);
-      if (gp < .99 || gp > maxGap + .01 || !clear(cand, ny)) continue;
-      if (!best || Math.abs(gp - want) < Math.abs(best.gp - want)) best = { a, cand, gp };
-      if (Math.abs(gp - want) < .3) break;
-    }
-    if (!best) { ang += .15; misses++; continue; }
-    ang = best.a; y = ny; prev = best.cand; jumps++;
-    put(prev, y, cp ? 'emerald' : T.gplat[jumps % 2]);
-    if (cp) { cps++; const [lx, lz] = prev[prev.length - 1]; g.set(lx, y + 1, lz, 'lantern'); }
+  // Stały krok wokół czterech boków zapobiega ślepym zakończeniom losowej spirali.
+  // Kolejne platformy są oddalone w jednej osi, także przy narożnikach.
+  const width = diff <= 6 ? 2 : 1;
+  const gap = diff >= 7 ? 2 : 1;
+  const step = width + gap;
+  const radius = Math.ceil((base + 3) / step) * step;
+  let x = radius, y = 2, z = 0, dx = 0, dz = 1;
+  let jumps = 0, cps = 0, flat = false, lastDX = 0;
+  const path = [];
+  function platform(x, y, z, w, material) {
+    for (let i = 0; i < w; i++) for (let j = 0; j < w; j++) g.set(x + i, y, z + j, material);
+    path.push([x, y, z, w, w]);
   }
-  // kładka z ostatniej platformy na szczyt (stopień 1 w górę)
-  const [px, pz] = prev[0], len = Math.hypot(px, pz);
-  for (let d = len - 1; d > 1.5; d -= .5) {
-    const x = Math.round(px / len * d), z = Math.round(pz / len * d);
+  platform(x, y, z, width, T.gplat[1]);
+  g.set(x, y, z, 'gold');
+  while (y < top - 1) {
+    lastDX = dx;
+    x += dx * step;
+    z += dz * step;
+    if (Math.abs(x + dx * step) > radius || Math.abs(z + dz * step) > radius) {
+      [dx, dz] = [-dz, dx];
+    }
+    flat = !flat && R() < .42 - diff * .025;
+    if (!flat) y++;
+    jumps++;
+    const checkpoint = jumps % 8 === 0;
+    if (checkpoint) cps++;
+    platform(x, y, z, width, checkpoint ? 'emerald' : T.gplat[R() < .5 ? 0 : 1]);
+  }
+  // Pierwszy blok kładki jest o jeden wyżej. Dalej można podejść do mety po równym.
+  const corner = Math.abs(x) === radius && Math.abs(z) === radius;
+  const xFirst = corner ? lastDX === 0 : Math.abs(x) === radius;
+  const inward = xFirst ? [-Math.sign(x), 0] : [0, -Math.sign(z)];
+  x += inward[0] > 0 ? width : inward[0];
+  z += inward[1] > 0 ? width : inward[1];
+  path.push([x, top, z, 1, 1]);
+  while (x || z) {
     if (!g.has(x, top, z)) g.set(x, top, z, T.gplat[0]);
+    if (xFirst ? x !== 0 : z === 0) x -= Math.sign(x);
+    else z -= Math.sign(z);
+    path.push([x, top, z, 1, 1]);
   }
   // pod spodem: woda, lawa albo pustka
   if (T.danger) for (let x = -base - 7; x <= base + 7; x++) for (let z = -base - 7; z <= base + 7; z++)
     if (inDisc(x, z, base + 7) && !inDisc(x, z, base - 1)) g.set(x, 0, z, T.danger);
-  return { ...g.out(), info: { skoki: jumps, punkty: cps, dno: dnoName(T.danger), wysokosc: top } };
+  return { ...g.out(path), info: { skoki: jumps, punkty: cps, dno: dnoName(T.danger), wysokosc: top } };
 }
 
 export function generate({ type, diff, theme, seed }) {
