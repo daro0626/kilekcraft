@@ -75,6 +75,11 @@ export function layerFunctions(blocks, title) {
   ]]);
   files.push(['animacja', [`function ${fn('start')}`, `schedule function ${fn('krok')} 10t`]]);
   files.push(['krok', [`function ${fn('nastepna')}`, `execute if score ${who} ${OBJ} matches ..${n - 1} run schedule function ${fn('krok')} 10t`]]);
+  files.push(['koniec', [
+    `schedule clear ${fn('krok')}`,
+    `kill @e[type=minecraft:marker,tag=${tag}]`,
+    `scoreboard players reset ${who} ${OBJ}`,
+  ]]);
   return files.map(([f, lines]) => ({ path: `${name}/${f}.mcfunction`, text: lines.join('\n') + '\n' }));
 }
 
@@ -87,6 +92,7 @@ export function modesHTML(title) {
     ${c('/start', 'zapamiętuje miejsce startu, potem:')}
     ${c('/nastepna', 'stawia następną warstwę')}
     ${c('/cofnij', 'zabiera ostatnią warstwę')}
+    ${c('/koniec', 'kończy animację i usuwa znacznik. Użyj po ostatnim cofnięciu')}
   </ul>`;
 }
 

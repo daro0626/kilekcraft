@@ -173,6 +173,8 @@ def layer_functions(blocks, name):
                   + [f'execute if score {who} {OBJ} matches 1.. run scoreboard players remove {who} {OBJ} 1']))
     files.append(('animacja', [f"function {fn('start')}", f"schedule function {fn('krok')} 10t"]))
     files.append(('krok', [f"function {fn('nastepna')}", f"execute if score {who} {OBJ} matches ..{n - 1} run schedule function {fn('krok')} 10t"]))
+    files.append(('koniec', [f"schedule clear {fn('krok')}", f'kill @e[type=minecraft:marker,tag={tag}]',
+                             f'scoreboard players reset {who} {OBJ}']))
     return [{'path': f'{name}/{f}.mcfunction', 'text': '\n'.join(lines) + '\n'} for f, lines in files]
 
 def pack_version(jar):
@@ -205,9 +207,11 @@ def write_pack(wd, meta):
     (d / 'data' / 'kilekcraft' / 'function').mkdir(parents=True, exist_ok=True)
     (d / 'pack.mcmeta').write_text(json.dumps({'pack': {'description': 'KILEKCRAFT test', **meta}}), encoding='utf-8')
     (d / 'data' / 'kilekcraft' / 'function' / 'test.mcfunction').write_text('\n'.join(export_lines(SAMPLE)) + '\n', encoding='utf-8')
-    (d / 'data' / 'kilekcraft' / 'function' / 'test').mkdir(exist_ok=True)
-    for f in layer_functions(SAMPLE, 'test'):
-        (d / 'data' / 'kilekcraft' / 'function' / f['path']).write_text(f['text'], encoding='utf-8')
+    for name in ('test', 'drugi'):
+        folder = d / 'data' / 'kilekcraft' / 'function'
+        (folder / name).mkdir(exist_ok=True)
+        for function in layer_functions(SAMPLE, name):
+            (folder / function['path']).write_text(function['text'], encoding='utf-8')
 
 def test_datapack(rcon, wd, metas):
     """Zwraca (ok, meta, szczegóły)."""
@@ -245,9 +249,35 @@ def test_layers(rcon):
     a = has(130, high); info.append(('po 2. warstwie', f'góra={a}')); ok = ok and a
     info.append(('cofnij', rcon.cmd('function kilekcraft:test/cofnij')))
     a, c = has(130, high, 'minecraft:air'), has(130, low); info.append(('po cofnij', f'góra pusta={a} dół={c}')); ok = ok and a and c
-    info.append(('animacja', rcon.cmd('execute positioned 0 150 0 run function kilekcraft:test/animacja')))
+    info.append(('animacja test', rcon.cmd('execute positioned 0 150 0 run function kilekcraft:test/animacja')))
+    info.append(('animacja drugi', rcon.cmd('execute positioned 0 160 0 run function kilekcraft:drugi/animacja')))
     time.sleep(3)
-    a = has(150, SAMPLE); info.append(('po animacji', f'całość={a}')); ok = ok and a
+    a, b = has(150, SAMPLE), has(160, SAMPLE)
+    info.append(('dwie animacje', f'test={a} drugi={b}')); ok = ok and a and b
+    info.append(('cofnij po animacji', rcon.cmd('function kilekcraft:test/cofnij')))
+    a, b = has(150, high, 'minecraft:air') and has(150, low), has(160, SAMPLE)
+    info.append(('cofnij izolowane', f'test={a} drugi={b}')); ok = ok and a and b
+
+    def marker_exists(name):
+        return 'passed' in rcon.cmd(f'execute if entity @e[type=minecraft:marker,tag=kc_{name}]').lower()
+
+    a, b = marker_exists('test'), marker_exists('drugi')
+    info.append(('znaczniki po animacji', f'test={a} drugi={b}')); ok = ok and a and b
+    info.append(('koniec test', rcon.cmd('function kilekcraft:test/koniec')))
+    a, b = not marker_exists('test'), marker_exists('drugi')
+    score = rcon.cmd(f'execute unless score #test {OBJ} matches -2147483648..')
+    reset = 'passed' in score.lower()
+    info.append(('sprzątanie test', f'usunięty={a} drugi={b} wynik wyczyszczony={reset}'))
+    ok = ok and a and b and reset and has(160, SAMPLE)
+    info.append(('koniec drugi', rcon.cmd('function kilekcraft:drugi/koniec')))
+    ok = ok and not marker_exists('drugi')
+
+    rcon.cmd('execute positioned 0 170 0 run function kilekcraft:test/animacja')
+    rcon.cmd('function kilekcraft:test/koniec')
+    time.sleep(2)
+    a = has(170, SAMPLE, 'minecraft:air') and not marker_exists('test')
+    info.append(('anulowanie w trakcie', f'bez bloków i znacznika={a}'))
+    ok = ok and a
     return ok, info
 
 
@@ -416,7 +446,7 @@ def main():
         lok, linfo = test_layers(rcon)
         for k, v in linfo: print('WARSTWY', k, '→', v[:160].replace('\n', ' '))
         results['warstwy'] = {'ok': lok, 'wersja': version, 'silnik': label, 'data': date.today().isoformat(),
-                              'przetestowano': 4, 'bledy': [] if lok else [{'komenda': k, 'odpowiedz': v[:300]} for k, v in linfo]}
+                              'przetestowano': 8, 'bledy': [] if lok else [{'komenda': k, 'odpowiedz': v[:300]} for k, v in linfo]}
         failed += not lok
         (ROOT / 'data/datapack.json').write_text(json.dumps({
             '_opis': 'Zawartość pack.mcmeta dla eksportowanych datapacków. Zapisane przez tools/test_commands.py po udanym teście.',
