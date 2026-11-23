@@ -93,6 +93,51 @@
       "data": "2026-11-23",
       "przetestowano": 8,
       "bledy": []
+    },
+    "warstwy": {
+      "ok": false,
+      "wersja": "26.3",
+      "silnik": "vanilla 26.3",
+      "data": "2026-11-23",
+      "przetestowano": 4,
+      "bledy": [
+        {
+          "komenda": "start",
+          "odpowiedz": "Running function kilekcraft:test/start"
+        },
+        {
+          "komenda": "nastepna 1",
+          "odpowiedz": "Running function kilekcraft:test/nastepna"
+        },
+        {
+          "komenda": "po 1. warstwie",
+          "odpowiedz": "dół=False góra pusta=True"
+        },
+        {
+          "komenda": "nastepna 2",
+          "odpowiedz": "Running function kilekcraft:test/nastepna"
+        },
+        {
+          "komenda": "po 2. warstwie",
+          "odpowiedz": "góra=False"
+        },
+        {
+          "komenda": "cofnij",
+          "odpowiedz": "Running function kilekcraft:test/cofnij"
+        },
+        {
+          "komenda": "po cofnij",
+          "odpowiedz": "góra pusta=True dół=False"
+        },
+        {
+          "komenda": "animacja",
+          "odpowiedz": "Running function kilekcraft:test/animacja"
+        },
+        {
+          "komenda": "po animacji",
+          "odpowiedz": "całość=True"
+        }
+      ]
     }
   },
   "szczegoly": [
