@@ -6,6 +6,8 @@
 // (docs/ZADANIA.md, zadanie A4).
 // =========================================================
 
+import { mistrz } from './komnaty-mistrz.js';
+
 export const THEMES = {
   kamien: { name: 'Kamienna twierdza', plat: 'stone_bricks', alt: 'smooth_stone', wall: 'stone_bricks', floor: 'cobble', path: 'smooth_stone', danger: 'water', light: 'lantern', rock: 'stone', cap: 'grass', gplat: ['oak_planks', 'smooth_stone'] },
   nether: { name: 'Nether', plat: 'obsidian', alt: 'red_concrete', wall: 'obsidian', floor: 'black_concrete', path: 'red_concrete', danger: 'lava', light: 'lantern', rock: 'obsidian', cap: 'red_concrete', gplat: ['quartz', 'amethyst'] },
@@ -14,7 +16,7 @@ export const THEMES = {
 };
 
 // Rodzaje komnat: nazwa, litera w kodzie
-export const KINDS = { parkour: { name: 'Parkour', code: 'P' }, gora: { name: 'Góra', code: 'G' }, labirynt: { name: 'Labirynt', code: 'L' } };
+export const KINDS = { parkour: { name: 'Parkour', code: 'P' }, gora: { name: 'Góra', code: 'G' }, labirynt: { name: 'Labirynt', code: 'L' }, mistrz: { name: 'Mistrzowska', code: 'M' } };
 export const kindName = (type) => (KINDS[type] || KINDS.parkour).name;
 // Co jest pod trasą: zależy od motywu. null = pustka (spadasz w dół).
 const DNO = { lava: 'lawa', water: 'woda' };
@@ -188,14 +190,16 @@ function mountain(diff, theme, seed) {
 }
 
 export function generate({ type, diff, theme, seed }) {
+  if (type === 'mistrz') return mistrz(diff, THEMES[theme] || THEMES.kamien);
   return type === 'labirynt' ? maze(diff, theme, seed) : type === 'gora' ? mountain(diff, theme, seed) : parkour(diff, theme, seed);
 }
 
 // Kod komnaty: P7-K-48213 → typ, trudność, motyw, ziarno
 const TCODE = { kamien: 'K', nether: 'N', lod: 'L', neon: 'E' };
-export function encode({ type, diff, theme, seed }) { return `${(KINDS[type] || KINDS.parkour).code}${diff}-${TCODE[theme]}-${seed}`; }
+// Komnaty mistrzowskie mają stały układ, więc ich kod ma zawsze ziarno 1 (jeden rekord na komnatę i motyw).
+export function encode({ type, diff, theme, seed }) { return `${(KINDS[type] || KINDS.parkour).code}${diff}-${TCODE[theme]}-${type === 'mistrz' ? 1 : seed}`; }
 export function decode(code) {
-  const m = /^([PLG])(10|[1-9])-([KNLE])-(\d{1,9})$/i.exec((code || '').trim());
+  const m = /^([PLGM])(10|[1-9])-([KNLE])-(\d{1,9})$/i.exec((code || '').trim());
   if (!m) return null;
   const theme = Object.keys(TCODE).find(k => TCODE[k] === m[3].toUpperCase());
   const type = Object.keys(KINDS).find(k => KINDS[k].code === m[1].toUpperCase());

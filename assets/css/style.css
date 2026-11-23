@@ -923,3 +923,18 @@ body.touch .pk-keys div:not(.touch-only){display:none}
 .sz-code-row input{flex:1 1 180px;min-width:0;width:100%;padding:8px 10px;border:1px solid var(--line-strong);border-radius:6px;background:var(--bg);color:var(--text);font:inherit}
 .sz-comparison{margin-top:8px}
 .sz-comparison button{margin-top:8px}
+
+/* ---------- komnaty mistrzowskie (B4) ---------- */
+.km-mgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.km-m{text-align:left;background:var(--bg-2);border:1px solid var(--line-strong);color:var(--text);border-radius:var(--radius);padding:8px 10px;font:15px var(--font);cursor:pointer;display:flex;flex-direction:column;gap:2px;min-height:44px}
+.km-m b{color:var(--gold);margin-right:4px}
+.km-m span{font-size:13px;color:var(--muted)}
+.km-m[aria-pressed=true]{border-color:var(--redstone);box-shadow:inset 0 0 0 1px var(--redstone)}
+.km-m:hover{border-color:var(--redstone)}
+.km-m:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.km-minfo{margin-top:14px}
+.km-mdl{margin:0;display:grid;gap:10px}
+.km-mdl div{display:grid;grid-template-columns:150px 1fr;gap:10px}
+.km-mdl dt{color:var(--muted);font-size:14px;text-transform:uppercase;letter-spacing:.05em}
+.km-mdl dd{margin:0;line-height:1.45}
+@media (max-width:560px){.km-mdl div{grid-template-columns:1fr;gap:2px}}

@@ -85,6 +85,40 @@ def parkour(page, mobile):
 
 
 
+def mistrz_parkour(page, mobile):
+    # Komnata mistrzowska w grze: opis zasady na starcie i licznik lawy w M8.
+    code = page.locator('#code')
+    code.fill('M8-K-77')
+    code.press('Enter')
+    expect(page.locator('#ovTitle')).to_have_text('M8 · Wznosząca się lawa')
+    expect(page.locator('#ovText')).to_contain_text('lawa zaczyna rosnąć')
+    expect(code).to_have_value('M8-K-1')
+    if mobile:
+        page.locator('#play').tap()
+    else:
+        page.locator('#play').press('Enter')
+    expect(page.locator('#lavaTile')).to_be_visible()
+    page.locator('#gl').press('Escape') if not mobile else page.evaluate("window.dispatchEvent(new Event('blur'))")
+    expect(page.locator('#over')).to_be_visible()
+
+
+def mistrz_komnaty(page):
+    # Generator: typ „Mistrzowska” pokazuje listę 10 komnat, kartę z opisem i chowa losowanie.
+    page.locator('label.chip:has(input[value=mistrz])').click()
+    expect(page.locator('#mList')).to_be_visible()
+    expect(page.locator('.km-m')).to_have_count(10)
+    expect(page.locator('#roll')).to_be_hidden()
+    page.locator('.km-m[data-m="7"]').click()
+    expect(page.locator('#code')).to_have_value('M7-K-1')
+    expect(page.locator('#mInfo')).to_contain_text('Kruszący się most')
+    expect(page.locator('#mInfo')).to_contain_text('do sprawdzenia przez Piotrka')
+    expect(page.locator('.km-m[data-m="7"]')).to_have_attribute('aria-pressed', 'true')
+    expect(page.locator('#playLink')).to_have_attribute('href', 'parkour.html#M7-K-1')
+    page.locator('label.chip:has(input[value=parkour])').click()
+    expect(page.locator('#mList')).to_be_hidden()
+    expect(page.locator('#roll')).to_be_visible()
+
+
 def parkour_input(page, verify_physics=True):
     # Diagnostyka podłączona przez Playwright do prawdziwych funkcji gry.
     def instrument(route):
@@ -782,6 +816,10 @@ def run(browser, width, height):
             progress_backup(page)
         if name == 'parkour':
             parkour(page, mobile)
+            mistrz_parkour(page, mobile)
+            parkour(page, mobile)
+        if name == 'komnaty':
+            mistrz_komnaty(page)
             if not mobile:
                 parkour_input(page)
         if name == 'wyzwanie':

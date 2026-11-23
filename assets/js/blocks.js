@@ -52,4 +52,9 @@ export const BLOCKS = {
   end_stone:    { name: 'Kamień Kresu',      id: 'minecraft:end_stone',     c: '#e4e2a8', pat: 'noise' },
   redstone:     { name: 'Blok czerwienitu',  id: 'minecraft:redstone_block',c: '#c41e14', pat: 'metal', glow: true },
   terracotta:   { name: 'Terakota',          id: 'minecraft:terracotta',    c: '#a4644a', pat: 'noise' },
+  // Bloki komnat mistrzowskich (B4). Zachowanie w grze: docs/ZRODLA.md.
+  honey_block:  { name: 'Blok miodu',        id: 'minecraft:honey_block',   c: '#e9a21d', pat: 'smooth' },
+  slime_block:  { name: 'Blok szlamu',       id: 'minecraft:slime_block',   c: '#74c25a', pat: 'smooth' },
+  magma_block:  { name: 'Blok magmy',        id: 'minecraft:magma_block',   c: '#b5461c', pat: 'cobble', glow: true },
+  cracked_bricks:{ name: 'Popękane kamienne cegły', id: 'minecraft:cracked_stone_bricks', c: '#7d7a74', pat: 'bricks' },
 };

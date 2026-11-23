@@ -3,6 +3,7 @@
 // =========================================================
 import { store, reduced, copyText, toast, award, badge } from './core.js';
 import { generate, encode, decode, THEMES, kindName } from './komnaty-gen.js';
+import { MISTRZ } from './komnaty-mistrz.js';
 import { datapack, download, safeName, packStatusHTML, exportPanelHTML, modesHTML } from './export.js';
 
 const $ = (s) => document.querySelector(s);
@@ -15,6 +16,31 @@ $('#expHelp').innerHTML = exportPanelHTML();
 let state = decode(location.hash.slice(1)) || store.get('komnata') || { type: 'parkour', diff: 5, theme: 'kamien', seed: 4821 };
 let room = null, viewer = null;
 
+// Lista komnat mistrzowskich: suwak trudności wybiera numer komnaty, a przyciski robią to samo szybciej
+const mGrid = document.querySelector('#mList .km-mgrid');
+mGrid.innerHTML = MISTRZ.slice(1).map((m, i) => `<button type="button" class="km-m" data-m="${i + 1}" aria-pressed="false"><b>M${i + 1}</b> ${m.name}<span>${m.mech}</span></button>`).join('');
+mGrid.addEventListener('click', (e) => {
+  const t = e.target.closest('[data-m]'); if (!t) return;
+  form.diff.value = t.dataset.m; fromForm(); showDiff(); build();
+});
+const esc = (t) => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+function mistrzUI() {
+  const on = state.type === 'mistrz';
+  $('#mList').hidden = !on; $('#mInfo').hidden = !on; $('#roll').hidden = on;
+  $('#diffLbl').textContent = on ? 'Numer komnaty' : 'Trudność';
+  mGrid.querySelectorAll('[data-m]').forEach(b => b.setAttribute('aria-pressed', on && +b.dataset.m === state.diff));
+  if (!on) return;
+  const m = MISTRZ[state.diff];
+  $('#mInfo').innerHTML = `<h2 class="section-heading">M${state.diff} · ${esc(m.name)}</h2>
+    <dl class="km-mdl">
+      <div><dt>Cel</dt><dd>${esc(m.cel)}</dd></div>
+      <div><dt>Zasada</dt><dd>${esc(m.zasada)}</dd></div>
+      <div><dt>Pułapka</dt><dd>${esc(m.pulapka)}</dd></div>
+      <div><dt>Tempo (hipoteza)</dt><dd>${esc(m.tempo)}. Nikt jeszcze tego nie zmierzył.</dd></div>
+      <div><dt>W Minecrafcie</dt><dd>${esc(m.gra)} <span class="badge wait">do sprawdzenia przez Piotrka</span></dd></div>
+    </dl>`;
+}
+
 function toForm() {
   form.type.value = state.type; form.diff.value = state.diff; form.theme.value = state.theme;
   $('#code').value = encode(state);
@@ -23,7 +49,8 @@ function fromForm() { state = { type: form.type.value, diff: +form.diff.value, t
 
 function showDiff() {
   const d = +form.diff.value;
-  $('#diffNum').textContent = d; $('#diffName').textContent = NAMES[d];
+  $('#diffNum').textContent = form.type.value === 'mistrz' ? 'M' + d : d;
+  $('#diffName').textContent = form.type.value === 'mistrz' ? MISTRZ[d].name : NAMES[d];
   $('#diffNum').style.color = d >= 9 ? 'var(--redstone)' : d >= 7 ? 'var(--gold)' : 'var(--emerald)';
   $('#skulls').innerHTML = Array.from({ length: 10 }, (_, i) => `<i class="${i < d ? 'on' : ''} ${i >= 8 ? 'red' : ''}" style="--i:${i}"></i>`).join('');
 }
@@ -37,7 +64,10 @@ async function build(animate = true) {
   $('#kTitle').textContent = `${kindName(state.type)} · ${T.name}`;
   $('#kSize').textContent = ` · ${room.size.join('×')} · ${room.blocks.length.toLocaleString('pl-PL')} bloków`;
   const i = room.info;
-  const cells = state.type === 'labirynt'
+  mistrzUI();
+  const cells = state.type === 'mistrz'
+    ? [['Mechanika', i.mechanika], ['Skoki', i.skoki], ['Pod spodem', i.dno], ['Kod', code]]
+    : state.type === 'labirynt'
     ? [['Komórki', i.komorki], ['Wysokość ścian', i.wysokosc], ['Wymiary', `${room.size[0]}×${room.size[2]}`], ['Kod', code]]
     : state.type === 'gora'
       ? [['Skoki', i.skoki], ['Wysokość', i.wysokosc + ' bloków'], ['Pod spodem', i.dno], ['Kod', code]]
