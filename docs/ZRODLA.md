@@ -37,3 +37,7 @@ Każdy fakt na stronie, który może się zmienić, musi tu mieć źródło i da
 | Wymagany dopisek „NOT AN OFFICIAL MINECRAFT …”, zakaz logo, czcionek i brandingu Minecraft, strona nie może działać głównie dla zarobku | https://www.minecraft.net/en-us/usage-guidelines | 2026-11-23 |
 
 Wytyczne mogą się zmienić. Przed publicznym otwarciem strony przeczytaj je ponownie w całości.
+
+## Filmy z budowy
+
+„Miecz w skale” i „Latająca wyspa” to własne animacje KILEKCRAFT przygotowane 2026-11-23 z modeli `miecz` i `wyspa` w [assets/js/builds.js](../assets/js/builds.js). Kadry powstały z tych samych bloków i wzorów tekstur co przeglądarka budowli.

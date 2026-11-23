@@ -29,6 +29,7 @@
     <div class="eyebrow">04 · Wielkie budowle</div>
     <h1 data-anim="drop">Buduj warstwa po warstwie</h1>
     <p class="lead">Obracaj palcem albo myszką. Suwakiem wybierasz warstwę, a mapa i lista bloków pokazują, co postawić. Najlepiej mieć tę stronę na telefonie obok komputera.</p>
+    <p><a href="#filmy">Obejrzyj dwa 30-sekundowe filmy z budowy.</a></p>
   </div>
 
   <div class="picker" id="picker" role="tablist" aria-label="Wybór budowli"></div>
@@ -60,6 +61,39 @@
       </div>
     </aside>
   </div>
+
+  <section id="filmy" class="clips" aria-labelledby="filmy-title">
+    <h2 id="filmy-title">Budowle w 30 sekund</h2>
+    <p class="muted">Dwa krótkie filmy bez dźwięku. Obejrzyj budowę, a potem otwórz jej plan i wybierz warstwę.</p>
+    <div class="clips-grid">
+      <article class="clip panel">
+        <video controls playsinline preload="none" width="576" height="720"
+               poster="assets/filmy/miecz.webp" aria-labelledby="film-miecz">
+          <source src="assets/filmy/miecz.mp4" type="video/mp4">
+          <a href="assets/filmy/miecz.mp4">Pobierz film „Miecz w skale”</a>
+        </video>
+        <div class="clip-info">
+          <h3 id="film-miecz">Miecz w skale</h3>
+          <p>Jak zrobić ostrze, które widać z daleka? Zobacz, gdzie biegnie turkusowy pas i jak złoty jelec oddziela ostrze od rękojeści.</p>
+          <button class="btn sm ghost" type="button" data-model="miecz">Otwórz plan miecza</button>
+          <details><summary>Opis filmu</summary><p>Na początku kamera okrąża gotowy miecz. Od 6. sekundy na skale wyrastają jasne krawędzie ostrza i turkusowy środek. Od 19. sekundy widać z bliska złoty jelec z turkusowymi końcami. Kamera oddala się i pokazuje rękojeść.</p></details>
+        </div>
+      </article>
+      <article class="clip panel">
+        <video controls playsinline preload="none" width="576" height="720"
+               poster="assets/filmy/wyspa.webp" aria-labelledby="film-wyspa">
+          <source src="assets/filmy/wyspa.mp4" type="video/mp4">
+          <a href="assets/filmy/wyspa.mp4">Pobierz film „Latająca wyspa”</a>
+        </video>
+        <div class="clip-info">
+          <h3 id="film-wyspa">Latająca wyspa</h3>
+          <p>Zajrzyj pod trawę, a potem prześledź drewnianą ścieżkę aż do fioletowego portalu.</p>
+          <button class="btn sm ghost" type="button" data-model="wyspa">Otwórz plan wyspy</button>
+          <details><summary>Opis filmu</summary><p>Najpierw widać całą wyspę zawieszoną w powietrzu. Od 6. sekundy kamienne warstwy rozszerzają się ku górze. Na trawie pojawiają się drzewo i portal. Od 19. sekundy kamera pokazuje drewnianą ścieżkę przy portalu, po czym odsłania całą wyspę.</p></details>
+        </div>
+      </article>
+    </div>
+  </section>
 
   <section class="panel pad note-soon" style="margin-top:40px">
     <h3>Wkrótce: twoje budowle z Kilek World</h3>
