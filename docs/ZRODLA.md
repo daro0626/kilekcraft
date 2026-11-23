@@ -82,3 +82,7 @@ Sprawdzone 2026-11-23 w katalogach twórców. Wersje poniżej opisują deklarowa
 | ScoreboardPL | 1.7.5, Paper 26.3 | `/scoreboard <toggle\|reload\|info\|set>`, aliasy `/sb` i `/sboard`. | [Wydanie](https://modrinth.com/plugin/scoreboardpl/version/laCbSkIx) |
 | LifeStealZ | 2.21.1, Paper 26.3 | Manifest wymienia `/lifestealz` (alias `/lsz`), `/eliminate`, `/revive`, `/withdrawheart`, `/hearts`. Dostęp zależy od uprawnień. | [Wydanie](https://modrinth.com/plugin/lifestealz/version/DqixaESV) |
 | WorldGuard | 7.0.21, Paper 26.3 | Dokumentacja serii 7.0 opisuje `/wg version` i polecenia regionów `/rg`. W katalogu wydania brak osobnej listy składni. Polecenie `/rtp` wymaga ustalenia dostawcy na serwerze. | [Wydanie](https://modrinth.com/plugin/worldguard/version/fiHLM6oY), [dokumentacja 7.0](https://worldguard.enginehub.org/en/latest/commands/) |
+
+### Raport serwerowy integracji R0–R8
+
+- 2026-11-23 · `data/testy.json` i `data/datapack.json` pochodzą z artefaktu `wyniki-komend`, ID 14855325690. Macierz uruchomiła vanilla 26.3 i Paper 26.3 build 259 (STABLE). Oba silniki zaliczyły po 159 prób komend, 49 bloków palety i 506 identyfikatorów propozycji cennika. [Przebieg GitHub Actions](https://github.com/daro0626/kilekcraft/actions/runs/45249170608)

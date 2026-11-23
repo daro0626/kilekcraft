@@ -709,8 +709,13 @@ def cennik(page):
     search.fill('netherite_ingot')
     expect(rows).to_have_count(1)
     expect(rows.first).to_contain_text('Netherite Ingot')
+    report = json.loads(Path('data/testy.json').read_text(encoding='utf-8'))
+    expect(rows.first).to_contain_text(f"identyfikator sprawdzony · {report['wyniki']['cennik']['wersja']}")
     if page.viewport_size['width'] == 390:
         assert rows.first.evaluate("r => getComputedStyle(r).display") == 'grid'
+    search.fill('plyta muzyczna')
+    expect(rows).to_have_count(2)
+    expect(rows.get_by_text('czeka na test', exact=True)).to_have_count(2)
 
 
 def sezon_code(page):
