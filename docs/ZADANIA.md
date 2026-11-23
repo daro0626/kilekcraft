@@ -25,6 +25,7 @@ Każde zadanie kończy się dopiero, gdy spełnia kryteria akceptacji **oraz** b
 
 ### A6 [Piotrek] Wyścig parkour: czy da się przejść?
 - Przejdź w przeglądarce P3, P6, P8 i L4. Zapisz czas i miejsca, gdzie fizyka różni się od gry.
+- Przejdź tę samą komnatę drugi raz i sprawdź ducha (najlepszy przejazd biegnie obok): czy jest widoczny, czy nie przeszkadza, czy tempo wygląda tak samo jak twój zapamiętany przejazd.
 
 ### C2 [Codex] Testy przeglądarkowe
 - Playwright: każda z 5 stron otwiera się bez błędów konsoli (desktop i mobile), kreator generuje oczekiwane komendy (porównanie z `commands()` z Pythona), doradca zwraca 3 wyniki dla każdej kombinacji odpowiedzi.
