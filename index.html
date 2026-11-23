@@ -176,8 +176,8 @@ const host = document.getElementById('hero3d');
 const io = new IntersectionObserver(async ([e]) => {
   if (!e.isIntersecting) return; io.disconnect();
   const { createViewer } = await import('./assets/js/voxel.js');
-  const { getBuild } = await import('./assets/js/builds.js');
-  const v = await createViewer(host, getBuild('wyspa'), { autoRotate: !reduced, ghost: false, layerPlane: false, motes: !reduced, noZoom: true, zoom: .9 });
+  const { island } = await import('./assets/js/island.js');
+  const v = await createViewer(host, island(), { autoRotate: !reduced, ghost: false, layerPlane: false, motes: !reduced, noZoom: true, zoom: .9 });
   if (!v) { host.querySelector('.poster').textContent = 'Twoja przeglądarka nie pokazuje 3D. Budowle nadal zobaczysz jako mapę warstw.'; return; }
   host.querySelector('.poster').remove();
   if (!reduced) v.animateBuild(3200);

@@ -4,7 +4,7 @@
 // =========================================================
 import * as THREE from 'three';
 import { store, reduced, award, badge, sfx, xpBurst, toast } from './core.js';
-import { BLOCKS } from './builds.js';
+import { BLOCKS } from './blocks.js';
 import { materialFor } from './voxel-scene.js';
 import { generate, encode } from './komnaty-gen.js';
 

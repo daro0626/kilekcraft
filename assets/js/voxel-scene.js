@@ -1,7 +1,7 @@
 // Ta sama scena dla wątku renderującego i przeglądarek bez OffscreenCanvas.
 // Worker modułowy wymaga ścieżki względnej do lokalnego Three.js.
 import * as THREE from '../../vendor/three.module.js';
-import { BLOCKS } from './builds.js';
+import { BLOCKS } from './blocks.js';
 
 function makeCanvas(size) {
   if (typeof OffscreenCanvas !== 'undefined') return new OffscreenCanvas(size, size);
