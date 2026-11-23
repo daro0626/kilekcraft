@@ -22,6 +22,9 @@
       <a href="hosting.html">Hosting</a>
       <a href="komendy.html">Komendy</a>
       <a href="budowle.html">Budowle</a>
+      <a href="edytor.html">Edytor</a>
+      <a href="komnaty.html">Komnaty</a>
+      <a href="symulator.html">Symulator</a>
     </nav>
   </div>
 </header>
@@ -57,7 +60,7 @@
 
   <section class="block">
     <div class="wrap">
-      <div class="eyebrow">Cztery narzędzia</div>
+      <div class="eyebrow">Siedem narzędzi</div>
       <h2 data-anim>Wybierz, co budujesz dziś</h2>
       <p class="lead reveal">Nie ma tu żadnych przycisków-atrap. Każda karta prowadzi do czegoś, co już działa.</p>
       <div class="grid-4" style="margin-top:34px">
@@ -88,6 +91,31 @@
           <h3>Wielkie budowle</h3>
           <p>Miecz w skale, latająca wyspa, wieża i arena. Oglądasz je warstwa po warstwie i masz gotową listę bloków.</p>
           <span class="go">Buduj <i>→</i></span>
+        </a>
+      </div>
+      <div class="eyebrow" style="margin-top:64px">Twórz i testuj</div>
+      <h2 data-anim="slide">Zbuduj coś swojego</h2>
+      <div class="grid-3" style="margin-top:28px">
+        <a class="panel tool-card reveal" href="edytor.html">
+          <div class="ico" aria-hidden="true"><i class="pix" style="--c:#ffc94a;--i:0;height:50%"></i><i class="pix" style="--c:#2ee59d;--i:1;height:85%"></i><i class="pix" style="--c:#5cc8ff;--i:2;height:65%"></i><i class="pix" style="--c:#ff3d3d;--i:3;height:100%"></i></div>
+          <span class="num">05 · EDYTOR 3D</span>
+          <h3>Zbuduj i wyślij na serwer</h3>
+          <p>Stawiasz bloki w 3D, a lustro buduje drugą połowę za ciebie. Potem pobierasz datapack i stawiasz budowlę w świecie jedną komendą.</p>
+          <span class="go">Buduj <i>→</i></span>
+        </a>
+        <a class="panel tool-card reveal" href="komnaty.html">
+          <div class="ico" aria-hidden="true"><i class="pix" style="--c:#ff6a1a;--i:0;height:30%"></i><i class="pix" style="--c:#7e8189;--i:1;height:60%"></i><i class="pix" style="--c:#7e8189;--i:2;height:80%"></i><i class="pix" style="--c:#5fe3e0;--i:3;height:100%"></i></div>
+          <span class="num">06 · GENERATOR</span>
+          <h3>Komnaty-wyzwania</h3>
+          <p>Parkour nad lawą albo labirynt, z trudnością od 1 do 10. Każda komnata ma swój kod do podania koledze.</p>
+          <span class="go">Generuj <i>→</i></span>
+        </a>
+        <a class="panel tool-card reveal" href="symulator.html">
+          <div class="ico" aria-hidden="true"><i class="pix" style="--c:#ff3d3d;--i:0;height:100%"></i><i class="pix" style="--c:#ff3d3d;--i:1;height:70%"></i><i class="pix" style="--c:#ff3d3d;--i:2;height:45%"></i><i class="pix" style="--c:#555f7a;--i:3;height:20%"></i></div>
+          <span class="num">07 · SYMULATOR</span>
+          <h3>Symulator LifeSteal</h3>
+          <p>Sprawdź zasady, zanim wpuścisz kolegów. Kto zbierze serca, kto odpadnie i czy serwer przetrwa dwa tygodnie?</p>
+          <span class="go">Testuj <i>→</i></span>
         </a>
       </div>
       <p class="clips-link"><a href="budowle.html#filmy">Obejrzyj budowę miecza i latającej wyspy w 30-sekundowych filmach →</a></p>
@@ -129,6 +157,8 @@ flapBoard(document.getElementById('flap'), [
   'GAMERULE: NOWE NAZWY',
   'WHITELIST DOMYŚLNIE ON',
   '4 WIELKIE BUDOWLE',
+  'KOMNATY 1–10',
+  'ZDOBYWAJ POZIOMY',
 ]);
 
 // scena 3D ładowana dopiero, gdy jest widoczna

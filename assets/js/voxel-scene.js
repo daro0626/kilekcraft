@@ -55,7 +55,7 @@ function patternTex(type, face = 'side') {
 }
 
 const matCache = {};
-function materialFor(type) {
+export function materialFor(type) {
   if (matCache[type]) return matCache[type];
   const b = BLOCKS[type];
   const mk = (face) => {

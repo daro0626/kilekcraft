@@ -2,7 +2,7 @@
 // KILEKCRAFT — przepis „Pierwszy serwer” w formie szortów.
 // Treść kroków jest tutaj, a źródła faktów w docs/ZRODLA.md.
 // =========================================================
-import { split, store, copyText, xpBurst, reduced, toast } from './core.js';
+import { split, store, copyText, xpBurst, reduced, toast, award, badge } from './core.js';
 
 const STEPS = [
   {
@@ -89,6 +89,8 @@ root.addEventListener('change', (e) => {
   dots.children[i].classList.toggle('done', e.target.checked);
   if (e.target.checked) {
     const r = e.target.closest('.chip').getBoundingClientRect(); xpBurst(r.left + r.width / 2, r.top, 16);
+    award('szort:' + i, 15, { from: { x: r.left + r.width / 2, y: r.top } }); badge('start');
+    if (Object.values(done).filter(Boolean).length === STEPS.length) badge('serwerowiec');
     if (count() === STEPS.length) toast('Wszystkie 9 kroków zrobione. Brawo, serwerowcu!');
   } else count();
 });

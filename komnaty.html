@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Generator komnat-wyzwań — KILEKCRAFT</title>
+<meta name="description" content="Wygeneruj parkour albo labirynt o trudności 1–10, obejrzyj w 3D i wgraj na swój serwer Minecraft Java jako datapack.">
+<link rel="icon" href="data:,">
+<meta name="theme-color" content="#0b1020">
+<link rel="preload" href="assets/fonts/jersey-10-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/css/style.css">
+<script type="importmap">{"imports":{"three":"./vendor/three.module.js","three/addons/":"./vendor/addons/"}}</script>
+</head>
+<body>
+<a class="skip" href="#main">Przejdź do treści</a>
+<header class="top">
+  <div class="wrap">
+    <a class="logo" href="index.html" aria-label="KILEKCRAFT — strona główna"><span class="cube"></span><span>KILEK<b>CRAFT</b></span></a>
+    <button class="menu-btn" aria-expanded="false" aria-controls="nav">Menu</button>
+    <nav class="nav" id="nav" aria-label="Główne">
+      <a href="serwer.html">Serwer</a>
+      <a href="hosting.html">Hosting</a>
+      <a href="komendy.html">Komendy</a>
+      <a href="budowle.html">Budowle</a>
+      <a href="edytor.html">Edytor</a>
+      <a href="komnaty.html" aria-current="page">Komnaty</a>
+      <a href="symulator.html">Symulator</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+  <div class="page-head">
+    <div class="eyebrow">06 · Generator komnat</div>
+    <h1 data-anim="drop">Komnaty, które nie padną w 20 sekund</h1>
+    <p class="lead">Wybierz parkour albo labirynt i ustaw trudność. Każda komnata ma swój kod. Podaj go koledze, a dostanie dokładnie taką samą.</p>
+  </div>
+
+  <div class="km">
+    <form class="panel pad corner km-ctrl" id="form" onsubmit="return false" aria-label="Ustawienia komnaty">
+      <div class="field"><span class="lbl">Rodzaj</span>
+        <div class="chips">
+          <label class="chip"><input type="radio" name="type" value="parkour" checked><span>Parkour</span></label>
+          <label class="chip"><input type="radio" name="type" value="labirynt"><span>Labirynt</span></label>
+        </div>
+      </div>
+      <div class="field">
+        <label for="diff" class="lbl">Trudność</label>
+        <div class="diff-show"><b id="diffNum">5</b><span id="diffName">Wyzwanie</span></div>
+        <input type="range" id="diff" name="diff" min="1" max="10" value="5">
+        <div class="diff-skulls" id="skulls" aria-hidden="true"></div>
+      </div>
+      <div class="field"><span class="lbl">Motyw</span>
+        <div class="chips" id="themes"></div>
+      </div>
+      <div class="field">
+        <label for="code" class="lbl">Kod komnaty</label>
+        <div class="code-row"><input type="text" id="code" autocomplete="off" spellcheck="false" aria-describedby="codeHelp"><button type="button" class="btn sm ghost" id="load">Wczytaj</button></div>
+        <p class="muted small" id="codeHelp">Np. P8-N-4821: parkour, trudność 8, Nether, numer 4821.</p>
+      </div>
+      <button type="button" class="btn" id="roll" style="width:100%;justify-content:center">Losuj nową komnatę</button>
+    </form>
+
+    <div>
+      <div class="viewer panel corner km-view" id="viewer">
+        <div class="v-info"><b id="kTitle"></b><span id="kSize" class="muted"></span></div>
+        <div class="v-poster" id="poster">Ładowanie 3D…</div>
+        <div class="v-ctrl"><button class="btn sm" type="button" id="replay">▶ Zbuduj jeszcze raz</button></div>
+      </div>
+      <div class="km-stats" id="stats"></div>
+    </div>
+  </div>
+
+  <section class="ed-bottom">
+    <div class="panel pad corner">
+      <h2 class="section-heading">Wgraj na serwer</h2>
+      <div class="console" id="fnCmd"></div>
+      <div class="copy-row">
+        <button class="btn em" type="button" id="dl">⬇ Pobierz datapack</button>
+        <button class="btn ghost sm" type="button" id="copyFn">Kopiuj komendę</button>
+        <span id="packStatus"></span>
+      </div>
+      <div id="expHelp"></div>
+    </div>
+    <div class="panel pad">
+      <h2 class="section-heading">Zanim wpuścisz kolegów</h2>
+      <ul class="tips">
+        <li><b>Przejdź ją sam.</b> Odległości skoków są ostrożne, ale nie zostały jeszcze sprawdzone w grze. Jeśli skok jest niemożliwy, zgłoś kod komnaty.</li>
+        <li><b>Szmaragdowe bloki</b> to punkty kontrolne co 8 skoków, a <b>diamentowe</b> to meta.</li>
+        <li><b>Od trudności 5</b> pod parkourem jest lawa. Graj w trybie przygody albo na osobnym świecie.</li>
+        <li>Komnaty z Kilek World padały w 20 sekund? Spróbuj <b>P8</b> albo <b>L9</b>.</li>
+      </ul>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="disc">NOT AN OFFICIAL MINECRAFT SERVICE. NOT APPROVED BY OR ASSOCIATED WITH MOJANG OR MICROSOFT.</div>
+    <p>KILEKCRAFT to fanowski projekt edukacyjny. © <span data-year></span></p>
+  </div>
+</footer>
+<script type="module" src="assets/js/komnaty.js"></script>
+</body>
+</html>

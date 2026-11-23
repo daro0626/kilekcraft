@@ -3,7 +3,7 @@
 Dotyczy Codexa, Claude i każdego innego agenta. Przeczytaj w całości przed pierwszą zmianą.
 
 ## Czym jest projekt
-KILEKCRAFT to polska, fanowska strona o Minecraft Java z czterema narzędziami: przepis „Pierwszy serwer” w szortach, doradca hostingu, kreator komend z podglądem i przeglądarka budowli 3D. Głównym odbiorcą jest Piotrek (gra na Javie, głównie na komputerze, lubi shorty i wielkie budowle) oraz jego koledzy. Treść jest pisana publicznie.
+KILEKCRAFT to polska, fanowska strona o Minecraft Java z siedmioma narzędziami: przepis „Pierwszy serwer” w szortach, doradca hostingu, kreator komend z podglądem, przeglądarka budowli 3D, edytor budowli z eksportem do datapacka, generator komnat-wyzwań i symulator LifeSteal. Na każdej stronie jest poziom gracza (XP i odznaki, tylko w `localStorage`). Głównym odbiorcą jest Piotrek (gra na Javie, głównie na komputerze, lubi shorty i wielkie budowle) oraz jego koledzy. Treść jest pisana publicznie.
 
 Szczegóły: `docs/WIZJA.md`, styl: `docs/STYL.md`, dane: `docs/DANE.md`, zadania: `docs/ZADANIA.md`.
 
@@ -11,7 +11,7 @@ Szczegóły: `docs/WIZJA.md`, styl: `docs/STYL.md`, dane: `docs/DANE.md`, zadani
 
 1. **Żadnych faktów z pamięci modelu.** Wersje gry, nazwy komend, nazwy gamerule, ceny, limity hostingów: tylko z testu na serwerze albo ze źródła z datą, wpisanego do `docs/ZRODLA.md`. Jeśli nie masz źródła, oznacz rzecz jako niepewną (`"pewnosc": "niska"` albo badge „do sprawdzenia”).
 2. **Komenda nie jest „sprawdzona”, dopóki nie przejdzie `tools/test_commands.py`.** Status „sprawdzone” pochodzi wyłącznie z `data/testy.json` zapisanego przez CI. Nigdy nie wpisuj go ręcznie.
-3. **Logika komend istnieje w dwóch miejscach:** `assets/js/komendy.js` (funkcja `build`) i `tools/test_commands.py` (funkcja `commands`). Zmiana w jednym = zmiana w drugim w tym samym commicie.
+3. **Logika istnieje w dwóch miejscach:** komendy w `assets/js/komendy.js` (`build`) i `tools/test_commands.py` (`commands`), a eksport budowli w `assets/js/export.js` (`exportLines`) i `tools/test_commands.py` (`export_lines`). Zmiana w jednym = zmiana w drugim w tym samym commicie. `tools/test_strony.py` sprawdza zgodność.
 4. **Marka Mojang/Microsoft:** żadnych logo, czcionki Minecraft, tekstur ani grafik z gry. Tekstury bloków rysujemy sami (`assets/js/voxel.js`). Nazwa „Minecraft” tylko opisowo. W stopce każdej strony musi być: `NOT AN OFFICIAL MINECRAFT SERVICE. NOT APPROVED BY OR ASSOCIATED WITH MOJANG OR MICROSOFT.`
 5. **Prywatność dziecka:** bez kont, logowania, formularzy wysyłających dane, komentarzy, czatu, analityki śledzącej, zdjęć, prawdziwych nazwisk i adresów serwerów Piotrka. Żadne pole nie może prosić o hasło, token, adres IP ani klucz RCON. Postęp tylko w `localStorage` (przez `store` z `core.js`).
 6. **Nether i End na serwerze LifeSteal Piotrka zostają włączone.** Nie proponuj ich blokowania.
@@ -21,13 +21,14 @@ Szczegóły: `docs/WIZJA.md`, styl: `docs/STYL.md`, dane: `docs/DANE.md`, zadani
 - Czysty HTML/CSS/JS (moduły ES), bez bundlera i bez frameworka. Strona ma działać z `python3 -m http.server`.
 - Three.js leży lokalnie w `vendor/` (wersja 0.187.0) i jest ładowany przez `importmap`. Bez CDN.
 - Czcionki lokalnie w `assets/fonts/` (Jersey 10 na nagłówki, Atkinson Hyperlegible na tekst; licencje OFL obok plików).
-- 3D tylko w dwóch miejscach: scena na stronie głównej (ładowana po pojawieniu się na ekranie) i przeglądarka budowli. Zawsze jest wariant bez WebGL.
+- 3D w czterech miejscach: scena na stronie głównej (ładowana po pojawieniu się na ekranie), przeglądarka budowli, edytor i podgląd komnat. Wszędzie poza edytorem jest wariant bez WebGL.
+- Datapack: `data/datapack.json` zapisuje tylko test na serwerze. Do tego czasu strona pokazuje „datapack czeka na test”.
 - Każda animacja respektuje `prefers-reduced-motion` (zmienna `reduced` w `core.js` i blok `@media` w CSS).
 - Teksty po polsku, na „ty”, krótkie zdania. Bez infantylizowania.
 
 ## Budżety jakości (kryteria akceptacji każdej zmiany)
 - Lighthouse mobile (Moto G Power, throttling domyślny): Performance ≥ 85, Accessibility ≥ 95 na każdej stronie.
-- Brak błędów w konsoli na wszystkich 5 stronach (desktop 1366×820 i mobile 390×844).
+- Brak błędów w konsoli na wszystkich 8 stronach (desktop 1366×820 i mobile 390×844).
 - JS pierwszego widoku strony głównej (bez Three.js) < 60 KB nieskompresowany.
 - Kontrast tekstu ≥ 4.5:1.
 - Wszystkie interakcje działają klawiaturą i dotykiem.

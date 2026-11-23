@@ -4,7 +4,7 @@ import os
 
 from playwright.sync_api import expect, sync_playwright
 
-from test_commands import DATA, commands
+from test_commands import DATA, commands, export_lines, SAMPLE
 
 
 BASE = 'http://127.0.0.1:8000'
@@ -14,7 +14,19 @@ READY = {
     'hosting': '#results article',
     'komendy': '#out > div',
     'budowle': '#viewer canvas, #poster:text("Użyj mapy")',
+    'edytor': '#stage canvas',
+    'komnaty': '#stats .panel',
+    'symulator': '#kpis .kpi',
 }
+
+# Nazwy typów z assets/js/builds.js dla próbki z test_commands.SAMPLE
+SAMPLE_TYPES = {'minecraft:stone': 'stone', 'minecraft:gold_block': 'gold', 'minecraft:sea_lantern': 'lantern', 'minecraft:oak_planks': 'oak_planks'}
+
+
+def export_parity(page):
+    blocks = [[x, y, z, SAMPLE_TYPES[b]] for x, y, z, b in SAMPLE]
+    actual = page.evaluate('async b => (await import("./assets/js/export.js")).exportLines(b)', blocks)
+    assert actual == export_lines(SAMPLE), (actual, export_lines(SAMPLE))
 
 
 def smoke(page, name):
@@ -142,6 +154,8 @@ def run(browser, width, height):
         smoke(page, name)
         if name == 'hosting':
             hosting(page)
+        if name == 'edytor':
+            export_parity(page)
         if name == 'komendy':
             # Przeładuj moduł z wyłączonym efektem maszynopisania.
             page.emulate_media(reduced_motion='reduce')

@@ -3,6 +3,7 @@
 // Animacje liter, ujawnianie przy przewijaniu, kopiowanie, XP.
 // =========================================================
 document.documentElement.classList.add('js');
+export { award, badge, bump } from './xp.js';
 export const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 // bezpieczny localStorage (w niektórych widokach rzuca wyjątek)

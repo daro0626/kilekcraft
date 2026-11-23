@@ -105,6 +105,82 @@ BAD = ('Unknown or incomplete command', 'Incorrect argument', '<--[HERE]', 'Unkn
        'Unknown game rule', 'Invalid', 'Expected', 'Malformed', 'Unknown color')
 OK_ANYWAY = ('No player was found', 'No entity was found')  # składnia dobra, tylko brak graczy
 
+
+# ---------------------------------------------------------------- datapack (lustro assets/js/export.js)
+OFFSET_X = 2
+# Mała próbka: rząd do połączenia w fill, pojedyncze bloki i różne typy.
+SAMPLE = [[0, 0, 0, 'minecraft:stone'], [1, 0, 0, 'minecraft:stone'], [2, 0, 0, 'minecraft:stone'],
+          [0, 1, 0, 'minecraft:gold_block'], [2, 1, 0, 'minecraft:gold_block'], [1, 1, 1, 'minecraft:sea_lantern'],
+          [0, 0, 2, 'minecraft:oak_planks'], [1, 0, 2, 'minecraft:oak_planks']]
+
+def export_lines(blocks):
+    rows = {}
+    for x, y, z, bid in blocks:
+        rows.setdefault((y, z, bid), []).append(x)
+    out = []
+    for (y, z, bid) in sorted(rows, key=lambda k: (k[0], k[1], f'{k[0]},{k[1]},{k[2]}')):
+        xs = sorted(rows[(y, z, bid)])
+        s = p = xs[0]
+        def flush(s, p):
+            out.append(f'setblock ~{s + OFFSET_X} ~{y} ~{z} {bid}' if s == p
+                       else f'fill ~{s + OFFSET_X} ~{y} ~{z} ~{p + OFFSET_X} ~{y} ~{z} {bid}')
+        for x in xs[1:]:
+            if x == p + 1: p = x
+            else: flush(s, p); s = p = x
+        flush(s, p)
+    return out
+
+def pack_version(jar):
+    """Czyta numer formatu datapacka z version.json w pliku serwera."""
+    import zipfile, io
+    def from_zip(z):
+        if 'version.json' in z.namelist():
+            return json.loads(z.read('version.json'))
+        for n in z.namelist():
+            if n.startswith('META-INF/versions/') and n.endswith('.jar'):
+                r = from_zip(zipfile.ZipFile(io.BytesIO(z.read(n))))
+                if r: return r
+        return None
+    try:
+        v = from_zip(zipfile.ZipFile(jar))
+    except Exception as e:
+        print('Nie udało się odczytać version.json:', e); return None
+    pv = (v or {}).get('pack_version')
+    if isinstance(pv, dict):
+        return pv.get('data_major', pv.get('data'))
+    return pv
+
+def mcmeta_candidates(fmt):
+    if fmt is None:
+        fmt = json.loads((ROOT / 'data/datapack.json').read_text(encoding='utf-8'))['pack'].get('pack_format', 95)
+    return [{'pack_format': fmt, 'min_format': fmt, 'max_format': fmt}, {'pack_format': fmt}]
+
+def write_pack(wd, meta):
+    d = wd / 'world' / 'datapacks' / 'kilekcraft_test'
+    (d / 'data' / 'kilekcraft' / 'function').mkdir(parents=True, exist_ok=True)
+    (d / 'pack.mcmeta').write_text(json.dumps({'pack': {'description': 'KILEKCRAFT test', **meta}}), encoding='utf-8')
+    (d / 'data' / 'kilekcraft' / 'function' / 'test.mcfunction').write_text('\n'.join(export_lines(SAMPLE)) + '\n', encoding='utf-8')
+
+def test_datapack(rcon, wd, metas):
+    """Zwraca (ok, meta, szczegóły)."""
+    info = []
+    for i, meta in enumerate(metas):
+        if i:
+            write_pack(wd, meta); info.append(('reload', rcon.cmd('reload')))
+        info.append(('enable', rcon.cmd('datapack enable "file/kilekcraft_test"')))
+        lst = rcon.cmd('datapack list enabled'); info.append(('list', lst))
+        if 'kilekcraft_test' not in lst:
+            continue
+        info.append(('forceload', rcon.cmd('forceload add 0 0')))
+        info.append(('run', rcon.cmd('execute positioned 0 100 0 run function kilekcraft:test')))
+        checks = []
+        for x, y, z, bid in SAMPLE:
+            r = rcon.cmd(f'execute if block {x + OFFSET_X} {100 + y} {z} {bid}')
+            checks.append('passed' in r.lower()); info.append((f'{bid} @ {x},{y},{z}', r))
+        if all(checks):
+            return True, meta, info
+    return False, None, info
+
 # ---------------------------------------------------------------- główny przebieg
 def main():
     ap = argparse.ArgumentParser()
@@ -119,12 +195,17 @@ def main():
     version, label = (fetch_vanilla if a.engine == 'vanilla' else fetch_paper)(a.version, jar)
     print('Serwer:', label)
 
+    fmt = pack_version(jar); print('Format datapacka z version.json:', fmt)
+    metas = mcmeta_candidates(fmt)
+    write_pack(wd, metas[0])
+
     pw = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(24))
     (wd / 'eula.txt').write_text('eula=true\n')
     (wd / 'server.properties').write_text('\n'.join([
         'enable-rcon=true', f'rcon.password={pw}', 'rcon.port=25575', 'server-port=25566',
         'online-mode=false', 'level-type=minecraft\\:flat', 'generate-structures=false',
         'spawn-protection=0', 'max-players=2', 'view-distance=3', 'simulation-distance=3',
+        'initial-enabled-packs=vanilla,file/kilekcraft_test',
     ]) + '\n')
 
     proc = subprocess.Popen([a.java, '-Xms1G', '-Xmx2G', '-jar', 'server.jar', 'nogui'], cwd=wd,
@@ -161,6 +242,17 @@ def main():
         failed += len(errs)
         results[tpl] = {'ok': not errs, 'wersja': version, 'silnik': label, 'data': date.today().isoformat(),
                         'przetestowano': len(cmds), 'bledy': errs}
+    ok, meta, info = test_datapack(rcon, wd, metas)
+    for k, v in info: print('DATAPACK', k, '→', v[:160].replace('\n', ' '))
+    results['datapack'] = {'ok': ok, 'wersja': version, 'silnik': label, 'data': date.today().isoformat(),
+                           'przetestowano': len(SAMPLE), 'bledy': [] if ok else [{'komenda': k, 'odpowiedz': v[:300]} for k, v in info[-6:]]}
+    if ok:
+        (ROOT / 'data/datapack.json').write_text(json.dumps({
+            '_opis': 'Zawartość pack.mcmeta dla eksportowanych datapacków. Zapisane przez tools/test_commands.py po udanym teście.',
+            'pack': meta, 'sprawdzone': True, 'wersja': version, 'silnik': label, 'data': date.today().isoformat()},
+            ensure_ascii=False, indent=2), encoding='utf-8')
+    else:
+        failed += 1
     try: rcon.cmd('stop')
     except Exception: pass
     proc.wait(timeout=120)

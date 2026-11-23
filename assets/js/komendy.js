@@ -3,7 +3,7 @@
 // Logika budowania komend jest powtórzona w tools/test_commands.py,
 // więc przy zmianie jednej trzeba zmienić drugą (patrz AGENTS.md).
 // =========================================================
-import { copyText, toast, reduced, store, split } from './core.js';
+import { copyText, toast, reduced, store, split, award, badge, bump } from './core.js';
 
 const D = await (await fetch('data/komendy.json')).json();
 let TESTS = {};
@@ -232,7 +232,11 @@ function update() {
 function buildForm() { form.innerHTML = FORMS[tpl](); update(); }
 form.addEventListener('input', update); form.addEventListener('change', update);
 
-$('#copy').addEventListener('click', (e) => copyText(current.cmds.filter(c => !c.startsWith('#')).join('\n'), e.currentTarget));
+$('#copy').addEventListener('click', (e) => {
+  copyText(current.cmds.filter(c => !c.startsWith('#')).join('\n'), e.currentTarget);
+  const r = e.currentTarget.getBoundingClientRect();
+  if (award('kopiuj:' + tpl, 10, { from: { x: r.left + r.width / 2, y: r.top } }) && bump('kopiuj-zakladki') >= 5) badge('komendant');
+});
 $('#ai').addEventListener('click', async (e) => {
   const v = D.wersje.find(x => x.id === ver).nazwa;
   const q = `Gram w Minecraft: Java Edition (${v}) na serwerze Paper. Mam komendę:\n${current.cmds.join('\n')}\nCzy jest poprawna dla tej wersji? Jeśli nie, popraw ją i krótko wyjaśnij po polsku. Pamiętaj, że od 1.21.11 nazwy gamerule są pisane jak keep_inventory.`;

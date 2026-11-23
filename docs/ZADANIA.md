@@ -13,6 +13,11 @@ Każde zadanie kończy się dopiero, gdy spełnia kryteria akceptacji **oraz** b
 - Skrypt był pisany bez dostępu do sieci Mojang i PaperMC. Sprawdź pobieranie (szczególnie strukturę API `fill.papermc.io/v3`) i popraw je, jeśli trzeba.
 - **Akceptacja:** `data/testy.json` zawiera wyniki dla 6 szablonów, a kreator pokazuje „sprawdzone · 26.3” (albo konkretną listę błędów do poprawy).
 
+### C4 [Codex] Test datapacka na serwerze
+- `tools/test_commands.py` odczytuje format datapacka z `version.json` w pliku serwera, wgrywa próbny datapack, uruchamia funkcję i sprawdza każdy blok przez `execute if block`.
+- Napisane bez dostępu do serwera. Pierwsze uruchomienie trzeba obejrzeć: ścieżka `version.json` w Paperze, pole `pack_version`, `initial-enabled-packs`, format `pack.mcmeta` w 26.3.
+- **Akceptacja:** `data/datapack.json` ma `"sprawdzone": true`, a edytor i komnaty pokazują „sprawdzone · 26.3”.
+
 ### C2 [Codex] Testy przeglądarkowe
 - Playwright: każda z 5 stron otwiera się bez błędów konsoli (desktop i mobile), kreator generuje oczekiwane komendy (porównanie z `commands()` z Pythona), doradca zwraca 3 wyniki dla każdej kombinacji odpowiedzi.
 - **Akceptacja:** workflow `test-strony.yml` zielony.
@@ -29,6 +34,14 @@ Każde zadanie kończy się dopiero, gdy spełnia kryteria akceptacji **oraz** b
 ### A2 [Claude] Odświeżenie cen hostingów
 - Sprawdź każdą pozycję w `data/hostingi.json` na stronie hosta (z VAT, w koszyku). Uzupełnij mniejsze plany (2–4 GB), bo dziś są tylko plany 8 GB. Wyjaśnij limity Minehut.
 - **Akceptacja:** każda cena ma datę z ostatnich 30 dni i link do strony hosta.
+
+### A4 [Piotrek] Przejście komnat w grze
+- Wygeneruj P3, P6, P8, P10 i L5, wgraj na świat testowy i przejdź je.
+- Zapisz kody komnat, w których któryś skok jest niemożliwy albo za łatwy. Poprawimy wtedy zasady skoków w `assets/js/komnaty-gen.js`.
+- **Akceptacja:** każdy poziom trudności ma co najmniej jedną komnatę przejdzioną przez Piotrka.
+
+### A5 [Piotrek] Symulator a prawdziwy serwer
+- Porównaj wynik symulatora z tym, co działo się na serwerze LifeSteal (kto odpadł i kiedy). Jeśli model się myli, opisz jak.
 
 ### A3 [Claude] Przepis „LifeSteal z ekonomią” w szortach
 - Najpierw wybór konkretnych pluginów (LifeSteal, ekonomia, `/sell` z GUI, aukcje) z wersjami pod Paper 26.x. Każdy plugin z linkiem do Hangar/Modrinth i datą.
