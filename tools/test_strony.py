@@ -1,6 +1,8 @@
 """Testy lokalnej strony uruchomionej przez python3 -m http.server 8000."""
 from itertools import product
 import os
+import json
+from pathlib import Path
 
 from playwright.sync_api import expect, sync_playwright
 
@@ -116,6 +118,45 @@ def hosting(page):
             return [...document.querySelectorAll('#results article h3')].map(h => h.textContent.trim());
         }""", choices)
         assert len(names) == len(set(names)) == 3 and all(names), (choices, names)
+
+
+def progress_backup(page):
+    profile = {'xp': 120, 'badges': {'start': '2026-11-23'}, 'count': {}, 'got': {'badge:start': 1}}
+    page.evaluate("""profile => {
+        localStorage.setItem('kc:xp', JSON.stringify(profile));
+        localStorage.setItem('kc:pk:best:P3-K-1', '22');
+        localStorage.setItem('kc:bledy:rekord', '80');
+        localStorage.setItem('kc:motd', '"prywatny opis"');
+    }""", profile)
+    page.reload()
+    page.locator('.xp-btn').click()
+    with page.expect_download() as item:
+        page.get_by_role('button', name='Eksportuj postęp').click()
+    exported = json.loads(Path(item.value.path()).read_text(encoding='utf-8'))
+    assert exported['profil']['xp'] == 120
+    assert exported['profil']['badges'] == profile['badges']
+    assert exported['rekordy']['pk:best:P3-K-1'] == 22
+    assert 'prywatny opis' not in json.dumps(exported)
+    exported['profil']['xp'] = 125
+    exported['rekordy']['pk:best:P3-K-1'] = 18
+    exported['rekordy']['bledy:rekord'] = 75
+    page.evaluate("localStorage.setItem('kc:pk:ghost:P3-K-1', '[]')")
+    uploader = page.locator('.xp-panel input[type=file]')
+
+    def upload(item):
+        uploader.set_input_files(dict(name='kopia.json', mimeType='application/json',
+                                     buffer=json.dumps(item).encode()))
+    upload({**exported, 'rekordy': {'motd': 'nie importuj'}})
+    expect(page.locator('[data-backup-status]')).to_contain_text('Nie udało się')
+    assert page.evaluate("JSON.parse(localStorage.getItem('kc:xp')).xp") == 120
+    upload(exported)
+    expect(page.locator('[data-backup-status]')).to_contain_text('Wczytano kopię')
+    assert page.evaluate("JSON.parse(localStorage.getItem('kc:xp')).xp") == 125
+    assert page.evaluate("JSON.parse(localStorage.getItem('kc:pk:best:P3-K-1'))") == 18
+    assert page.evaluate("localStorage.getItem('kc:pk:ghost:P3-K-1')") is None
+    assert page.evaluate("JSON.parse(localStorage.getItem('kc:bledy:rekord'))") == 80
+    assert page.evaluate("JSON.parse(localStorage.getItem('kc:motd'))") == 'prywatny opis'
+
 
 
 def browser_commands(page, modern):
@@ -297,6 +338,8 @@ def run(browser, width, height):
         page.on('console', lambda msg: errors.append(msg.text) if msg.type == 'error' else None)
         page.on('response', lambda r: errors.append(f'{r.status} {r.url}') if r.status >= 400 else None)
         smoke(page, name)
+        if name == 'kolo':
+            progress_backup(page)
         if name == 'parkour':
             parkour(page, mobile)
         if name == 'wyzwanie':
