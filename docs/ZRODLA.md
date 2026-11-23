@@ -19,9 +19,9 @@ Każdy fakt na stronie, który może się zmienić, musi tu mieć źródło i da
 | `spawn_mobs` (dawne doMobSpawning), `fire_spread_radius_around_player` (zastępuje doFireTick; 0 = brak rozprzestrzeniania) | https://game8.jp/minecraft/789577 | 2026-11-23 |
 | `players_sleeping_percentage`, `allow_entering_nether_using_portals` | https://help.lilypad.gg/en/article/1rjepml/ | 2026-11-23 |
 | `natural_health_regeneration` (dawne naturalRegeneration) | https://wisehosting.com/help/how-to-enable-disable-different-gamerules | 2026-11-23 |
-| Składnia /give, /effect, /title, /tp, /whitelist | minecraft.wiki (linki w `data/komendy.json`) | czeka na test CI |
+| Składnia komend sześciu szablonów na vanilla 26.3 i Paper 26.3 build 258 | [Test vanilla](https://github.com/daro0626/kilekcraft/actions/runs/45136900087) · [Test Paper](https://github.com/daro0626/kilekcraft/actions/runs/45136991692) | 2026-11-23 |
 
-**Wszystkie powyższe czekają na potwierdzenie przez `tools/test_commands.py`.**
+Każdy z dwóch serwerów przeszedł 82 próby składni przez RCON. Efekt w grze czeka na test Piotrka. Historyczne nazwy zasad i daty ich wprowadzenia pochodzą z podanych wyżej źródeł.
 
 ## Hostingi
 | Fakt | Źródło | Sprawdzono |
