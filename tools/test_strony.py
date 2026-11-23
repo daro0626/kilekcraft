@@ -130,6 +130,35 @@ def hosting(page):
     assert large['need'] == 12 and all(ram >= 12 for _, ram in large['plans']), large
 
 
+def bug_quiz(page, size, correct, expect_record):
+    report = page.request.get(f'{BASE}/data/testy.json').json()
+    data = page.request.get(f'{BASE}/data/bledy.json').json()
+    verified = report['wyniki']['bledy']['zweryfikowane']
+    pool = [q for q in data['pytania'] if q['id'] in verified][:size]
+    assert len(pool) == size
+    report['wyniki']['bledy']['zweryfikowane'] = [q['id'] for q in pool]
+    page.route('**/data/testy.json', lambda route: route.fulfill(json=report))
+    page.evaluate("""ids => {
+        localStorage.removeItem('kc:bledy:czas');
+        localStorage.setItem('kc:bledy:widziane', JSON.stringify(ids));
+    }""", [q['id'] for q in pool] * 30 + ['stare-pytanie'])
+    page.reload()
+    start = page.locator('#start')
+    for _ in range(2):
+        start.click()
+        for _ in range(min(5, size)):
+            tokens = page.locator('#cmd .tok')
+            question = next(q for q in pool if q['tokeny'] == tokens.all_text_contents())
+            wrong = (question['zly'] + 1) % len(question['tokeny'])
+            tokens.nth(question['zly'] if correct else wrong).click()
+            page.locator('#next').click()
+        expect(start).to_be_visible()
+        history = page.evaluate("JSON.parse(localStorage.getItem('kc:bledy:widziane'))")
+        assert len(history) == len(set(history)) <= size, history
+        assert page.evaluate("localStorage.getItem('kc:bledy:czas') !== null") == expect_record
+    page.unroute('**/data/testy.json')
+
+
 def browser_commands(page, modern):
     # Zbieramy całe wiersze z konsoli kreatora, także kolejność komend wielowierszowych.
     page.locator('#ver').select_option('nowa' if modern else 'stara')
@@ -309,6 +338,10 @@ def run(browser, width, height):
         page.on('console', lambda msg: errors.append(msg.text) if msg.type == 'error' else None)
         page.on('response', lambda r: errors.append(f'{r.status} {r.url}') if r.status >= 400 else None)
         smoke(page, name)
+        if name == 'bledy' and not mobile:
+            bug_quiz(page, 4, True, False)
+            bug_quiz(page, 5, False, False)
+            bug_quiz(page, 5, True, True)
         if name == 'parkour':
             parkour(page, mobile)
         if name == 'wyzwanie':
