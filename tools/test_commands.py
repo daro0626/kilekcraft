@@ -219,6 +219,7 @@ def test_layers(rcon):
         return all('passed' in r.lower() for r in res)
     low = [b for b in SAMPLE if b[1] == 0]; high = [b for b in SAMPLE if b[1] == 1]
     info.append(('start', rcon.cmd('execute positioned 0 130 0 run function kilekcraft:test/start')))
+    time.sleep(1)  # znacznik z summon jest widoczny dla @e dopiero po ticku; gracz i tak wpisuje komendy po kolei
     info.append(('nastepna 1', rcon.cmd('function kilekcraft:test/nastepna')))
     a, b = has(130, low), has(130, high, 'minecraft:air'); info.append(('po 1. warstwie', f'dół={a} góra pusta={b}')); ok = ok and a and b
     info.append(('nastepna 2', rcon.cmd('function kilekcraft:test/nastepna')))
