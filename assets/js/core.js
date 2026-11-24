@@ -13,7 +13,18 @@ export { store };
 
 // menu na telefonie
 const mb = document.querySelector('.menu-btn'), nav = document.querySelector('.nav');
-if (mb && nav) mb.addEventListener('click', () => { const o = nav.classList.toggle('open'); mb.setAttribute('aria-expanded', o); });
+if (mb && nav) {
+  function menu(open) {
+    nav.classList.toggle('open', open);
+    mb.setAttribute('aria-expanded', open);
+  }
+  mb.addEventListener('click', () => menu(!nav.classList.contains('open')));
+  mb.closest('header').addEventListener('keydown', e => {
+    if (e.key !== 'Escape' || !nav.classList.contains('open')) return;
+    menu(false);
+    mb.focus();
+  });
+}
 
 // ---------- rozbijanie tekstu na litery ----------
 export function split(el) {

@@ -1387,6 +1387,20 @@ def run(browser, width, height):
         page.on('console', lambda msg: errors.append(msg.text) if msg.type == 'error' else None)
         page.on('response', lambda r: errors.append(f'{r.status} {r.url}') if r.status >= 400 else None)
         smoke(page, name)
+        if name == 'index':
+            expect(page.get_by_role('heading', level=1, name='KILEKCRAFT')).to_be_visible()
+        if mobile:
+            mobile_menu = page.locator('.menu-btn')
+            expected_in_view = mobile_menu.evaluate("""button => {
+                const b = button.getBoundingClientRect();
+                return b.x >= 0 && b.right <= document.documentElement.clientWidth;
+            }""")
+            assert expected_in_view, (name, 'ucięte menu')
+            mobile_menu.tap()
+            expect(mobile_menu).to_have_attribute('aria-expanded', 'true')
+            mobile_menu.press('Escape')
+            expect(mobile_menu).to_have_attribute('aria-expanded', 'false')
+            expect(mobile_menu).to_be_focused()
         if name == 'bledy' and not mobile:
             bug_quiz(page, 4, True, False)
             bug_quiz(page, 5, False, False)
