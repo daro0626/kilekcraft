@@ -18,6 +18,8 @@ jobs:
         run: node tools/test_mistrz.mjs
       - name: Sprawdź import budowli Schematic
         run: node tools/test_schem.mjs
+      - name: Sprawdź kombinacje koła wyzwań
+        run: node tools/test_kolo.mjs
   playwright:
     runs-on: ubuntu-latest
     timeout-minutes: 10

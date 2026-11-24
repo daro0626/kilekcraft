@@ -2,19 +2,27 @@
 // KILEKCRAFT — koło wyzwań: cztery bębny jak w automacie + stoper.
 // =========================================================
 import { store, reduced, award, badge, sfx, xpBurst } from './core.js';
+import { LISTS, compatible, planFor } from './kolo-projekt.js';
 
 const $ = (s) => document.querySelector(s);
-const LISTS = [
-  ['Wieża', 'Most', 'Statek', 'Domek na drzewie', 'Fontanna', 'Latarnia morska', 'Portal', 'Statua zwierzęcia', 'Pociąg', 'Rakieta', 'Wiatrak', 'Arena', 'Ogród', 'Sklep na spawnie', 'Brama do miasta', 'Podwodna baza', 'Kryjówka w górze', 'Piramida', 'Grzyb-gigant', 'Zamek'],
-  ['tylko drewno', 'tylko kamień', 'tylko 3 kolory', 'bez kamienia', 'szkło i metal', 'bloki z Netheru', 'tylko naturalne', 'dowolne bloki', 'tylko wełna', 'piasek i kwarc'],
-  ['5 minut', '10 minut', '15 minut', '20 minut', '30 minut'],
-  ['symetrycznie', 'bez schodów', 'min. 20 bloków w górę', 'ma świecić w nocy', 'max. 150 bloków', 'coś ma się ruszać', 'wisi w powietrzu', 'pod ziemią', 'z ukrytym pokojem', 'bez zasady'],
-];
 const ITEM_H = 64, LOOPS = 6;
 const strips = [0, 1, 2, 3].map(i => $('#r' + i));
 const drawResult = $('#drawResult');
-const announce = (values) => { drawResult.textContent = values.join(' · '); };
-let cur = store.get('kolo:ostatnie', null);
+const isDraw = draw => Array.isArray(draw) && draw.length === LISTS.length && LISTS.every((list, i) => list.includes(draw[i]));
+function announce(values) {
+  drawResult.textContent = values.join(' · ');
+  const indexes = values.map((value, i) => LISTS[i].indexOf(value));
+  const fit = compatible(indexes);
+  $('#challengeProject').hidden = !fit;
+  if (!fit) return;
+  const project = planFor(indexes);
+  $('#projectName').textContent = project.name;
+  $('#projectPlan').textContent = project.plan + ' Materiały to ' + project.materials + '.';
+  $('#projectTip').textContent = [project.pace, project.tip].filter(Boolean).join(' ');
+  $('#projectEditor').href = 'edytor.html?wyzwanie=' + indexes.join('-');
+}
+const last = store.get('kolo:ostatnie', null);
+let cur = isDraw(last) ? last : null;
 strips.forEach((s, i) => {
   const arr = Array.from({ length: LOOPS }, () => LISTS[i]).flat();
   s.innerHTML = arr.map(t => `<div>${t}</div>`).join('');
@@ -26,6 +34,10 @@ let spinning = false;
 function spin() {
   if (spinning) return; spinning = true; $('#spin').setAttribute('aria-disabled', 'true');
   const pick = LISTS.map(l => Math.floor(Math.random() * l.length));
+  if (!compatible(pick)) {
+    const rules = LISTS[3].map((_, i) => i).filter(i => compatible([...pick.slice(0, 3), i]));
+    pick[3] = rules[Math.floor(Math.random() * rules.length)];
+  }
   let doneN = 0;
   strips.forEach((s, i) => {
     const target = (LOOPS - 1) * LISTS[i].length + pick[i];
@@ -44,13 +56,17 @@ function finish(res) {
   spinning = false; $('#spin').removeAttribute('aria-disabled'); $('#timerBtn').disabled = false; cur = res;
   announce(res);
   store.set('kolo:ostatnie', res);
-  const hist = store.get('kolo:historia', []); hist.unshift(res); store.set('kolo:historia', hist.slice(0, 6)); renderHist();
+  store.set('kolo:historia', [res, ...drawHistory()].slice(0, 6)); renderHist();
   const r = $('#reels').getBoundingClientRect(); xpBurst(r.left + r.width / 2, r.top + r.height / 2, 20); sfx('win');
   award('kolo:' + new Date().toDateString(), 15); badge('kolo');
   setClock(parseInt(res[2], 10) * 60, parseInt(res[2], 10) * 60);
 }
+function drawHistory() {
+  const saved = store.get('kolo:historia', []);
+  return Array.isArray(saved) ? saved.filter(isDraw).slice(0, 6) : [];
+}
 function renderHist() {
-  const h = store.get('kolo:historia', []);
+  const h = drawHistory();
   $('#hist').innerHTML = h.length ? h.map(x => `<li><b>${x[0]}</b> · ${x[1]} · ${x[2]} · <i>${x[3]}</i></li>`).join('') : '<li class="muted">Jeszcze nic. Zakręć kołem!</li>';
 }
 

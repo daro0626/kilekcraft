@@ -635,6 +635,9 @@ body[data-przepis="lifesteal"] .s-vis{height:150px}
 @keyframes badgeIn{from{transform:translateX(120%)}}
 
 /* =========== EDYTOR =========== */
+#edChallenge{margin-bottom:18px}
+#challengeProject{margin-top:18px}
+#challengeProject p,#edChallenge p{margin-bottom:8px}
 .ed{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:18px;align-items:start}
 @media (max-width:960px){.ed{grid-template-columns:1fr}}
 .ed-work{min-width:0;display:grid;gap:12px}

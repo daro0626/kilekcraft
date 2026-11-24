@@ -437,7 +437,10 @@ $('#clear').addEventListener('click', () => {
 });
 tplSel.addEventListener('change', () => {
   const id = tplSel.value; tplSel.value = ''; if (!id) return;
-  const b = getBuild(id), ox = Math.floor((N - b.size[0]) / 2), oz = Math.floor((N - b.size[2]) / 2);
+  loadTemplate(getBuild(id));
+});
+function loadTemplate(b) {
+  const ox = Math.floor((N - b.size[0]) / 2), oz = Math.floor((N - b.size[2]) / 2);
   const next = new Map();
   for (const [x, y, z, t] of b.blocks) {
     if (BLOCKS[t].id && inside(x + ox, y, z + oz)) next.set(key(x + ox, y, z + oz), t);
@@ -449,6 +452,29 @@ tplSel.addEventListener('change', () => {
   apply(changes, false);
   fit();
   toast(`Wczytano: ${b.name}. Możesz ją przerabiać.`);
+}
+const challenge = new URLSearchParams(location.search).get('wyzwanie');
+if (challenge) import('./kolo-projekt.js').then(({ decodeProject, starterFor }) => {
+  const indexes = decodeProject(challenge);
+  if (!indexes) return;
+  const draft = starterFor(indexes);
+  const panel = $('#edChallenge');
+  $('#edChallengeName').textContent = draft.name;
+  $('#edChallengeNote').hidden = world.size === 0;
+  panel.hidden = false;
+  function closeChallenge() {
+    panel.hidden = true;
+    const url = new URL(location.href);
+    url.searchParams.delete('wyzwanie');
+    window.history.replaceState(null, '', url);
+    $('#edBuildTab').focus();
+  }
+  $('#edChallengeCancel').addEventListener('click', closeChallenge);
+  $('#edChallengeLoad').addEventListener('click', () => {
+    setMode('build');
+    loadTemplate(draft);
+    closeChallenge();
+  });
 });
 addEventListener('keydown', (e) => {
   if (workMode === 'animation' || e.target.closest('input,select,textarea')) return;

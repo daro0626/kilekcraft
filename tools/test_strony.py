@@ -392,6 +392,38 @@ def progress_backup(page):
 
 
 
+def kolo_project(page):
+    page.emulate_media(reduced_motion='reduce')
+    page.goto(f'{BASE}/kolo.html')
+    page.evaluate("""() => {
+        const values = [.99, .35, .95, .55];
+        const previous = Math.random;
+        Math.random = () => values.length ? values.shift() : previous();
+        localStorage.setItem('kc:ed:swiat', JSON.stringify({name:'Moja wieża', b:[['24,0,24','stone']]}));
+    }""")
+    page.locator('#spin').click()
+    expect(page.locator('#projectName')).to_have_text('Zamek z mostem nad fosą')
+    expect(page.locator('#projectPlan')).to_contain_text('bez kamienia')
+    expect(page.locator('#projectTip')).to_contain_text('podnoszony most nad fosą')
+    page.locator('#projectEditor').click()
+    expect(page.locator('#edChallengeName')).to_have_text('Zamek z mostem nad fosą')
+    expect(page.locator('#name')).to_have_value('Moja wieża')
+    expect(page.locator('#hudCount')).to_have_text('1 bloków')
+    page.locator('#edChallengeCancel').click()
+    expect(page.locator('#edChallenge')).to_be_hidden()
+    expect(page.locator('#name')).to_have_value('Moja wieża')
+    page.go_back()
+    expect(page.locator('#projectName')).to_have_text('Zamek z mostem nad fosą')
+    page.locator('#projectEditor').click()
+    page.locator('#edChallengeLoad').click()
+    expect(page.locator('#edChallenge')).to_be_hidden()
+    expect(page.locator('#name')).to_have_value('Zamek z mostem nad fosą')
+    assert page.locator('#hudCount').inner_text() != '1 bloków'
+    assert int(page.locator('#lineCount').inner_text()) > 1
+    page.reload()
+    expect(page.locator('#name')).to_have_value('Zamek z mostem nad fosą')
+
+
 def engine_badges(page):
     report = page.request.get(f'{BASE}/data/testy.json').json()
     engines = report.get('silniki')
@@ -1290,6 +1322,7 @@ def run(browser, width, height):
             bug_quiz(page, 5, True, True)
         if name == 'kolo':
             progress_backup(page)
+            kolo_project(page)
         if name == 'parkour':
             parkour(page, mobile)
             mistrz_parkour(page, mobile)
