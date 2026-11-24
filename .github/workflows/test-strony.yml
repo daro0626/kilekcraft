@@ -20,6 +20,8 @@ jobs:
         run: node tools/test_schem.mjs
       - name: Sprawdź kombinacje koła wyzwań
         run: node tools/test_kolo.mjs
+      - name: Odczytaj plik prototypu Latającej Twierdzy
+        run: node tools/test_twierdza.mjs
   playwright:
     runs-on: ubuntu-latest
     timeout-minutes: 10

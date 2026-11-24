@@ -7,6 +7,7 @@
 
 import { Grid, rng } from './build-grid.js';
 import { island } from './island.js';
+import { flyingKeep } from './twierdza.js';
 export { BLOCKS } from './blocks.js';
 
 // ---------- 2. Gigantyczny miecz w skale ----------
@@ -571,6 +572,7 @@ export const KATEGORIE = [
 
 export const BUILDS = [
   { id: 'wyspa', kat: 'fantasy', name: 'Latająca wyspa z portalem', short: 'Wyspa', desc: 'Wyspa wisi w powietrzu, ma portal i drzewo. Od spodu zwisają latarnie. Najlepiej ją postawić nad oceanem albo na spawnie.', make: island },
+  { id: 'twierdza', kat: 'fantasy', name: 'Latająca Twierdza Kilek', short: 'Twierdza', desc: 'Prototyp. Błękitne dachy osłaniają salę kompasu. Dwa mosty prowadzą do ogrodu i na balkon nad wodospadem.', galleryOnly: true, make: flyingKeep },
   { id: 'miecz', kat: 'fantasy', name: 'Gigantyczny miecz w skale', short: 'Miecz', desc: 'Miecz ma prawie 50 bloków wysokości i diamentowy środek ostrza. Widać go z daleka.', make: sword },
   { id: 'wieza', kat: 'sredniowiecze', name: 'Wieża Smoka', short: 'Wieża', desc: 'Okrągła wieża ze spiralnym balkonem, koroną z blankami i fioletowym dachem.', make: tower },
   { id: 'smok', kat: 'fantasy', name: 'Smok oplatający górę', short: 'Smok', desc: 'Zielony smok owija się dwa razy wokół ośnieżonej góry. Na szczycie ma głowę z rogami, skrzydłami i ogniem.', make: dragon },

@@ -49,7 +49,7 @@ seg('brush', (v) => { brush = v; press('brush', v); updateGhost(); });
 seg('sym', (v) => { sym = v; press('sym', v); $('#hudSym').hidden = v === 'none'; $('#hudSym').textContent = v === 'x' ? 'Lustro ↔' : 'Lustro ×4'; symPlanes(); });
 
 const tplSel = $('#tpl');
-tplSel.innerHTML += BUILDS.map(b => `<option value="${b.id}">${b.name}</option>`).join('');
+tplSel.innerHTML += BUILDS.filter(b => !b.galleryOnly).map(b => `<option value="${b.id}">${b.name}</option>`).join('');
 
 // ---------- scena ----------
 const stage = $('#stage');

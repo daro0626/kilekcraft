@@ -688,7 +688,8 @@ def budowle(page):
     }""")
     pal = set(palette_ids())
     for b in info:
-        assert 0 < b['count'] < 15000 and b['minimum'] == 0, b
+        limit = 60_000 if b['id'] == 'twierdza' else 15_000
+        assert 0 < b['count'] < limit and b['minimum'] == 0, b
         assert b['exportCount'] == b['exportLevels'], b
         assert b['levels'] + len(b['gaps']) == b['height'], b
         if b['gaps']:
