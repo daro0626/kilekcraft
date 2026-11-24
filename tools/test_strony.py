@@ -921,6 +921,8 @@ def parkour_recovery(page, mobile):
     page.add_init_script("""HTMLCanvasElement.prototype.requestPointerLock = function() {
         return Promise.reject(new DOMException('Blokada niedostępna', 'NotAllowedError'));
     };""")
+    # Przy emulowaniu chwytu współrzędne palca są stałe w trakcie gestu.
+    page.emulate_media(reduced_motion='reduce')
     page.goto(f'{BASE}/parkour.html?regresja=respawn#P4-N-40606')
     expect(page.locator('#ovText')).to_contain_text('P4-N-40606')
     click = lambda locator: locator.tap() if mobile else locator.click()
@@ -932,10 +934,13 @@ def parkour_recovery(page, mobile):
     mobile_touch = None
     if mobile:
         mobile_touch = page.context.new_cdp_session(page)
-        rect = canvas.bounding_box()
-        x, y = rect['x'] + rect['width'] * .2, rect['y'] + rect['height'] * .65
+        x, y = 0, 0
 
         def touch(kind, dy=0):
+            nonlocal x, y
+            if kind == 'touchStart':
+                rect = canvas.bounding_box()
+                x, y = rect['x'] + rect['width'] * .2, rect['y'] + rect['height'] * .65
             points = [] if kind == 'touchEnd' else [dict(x=x, y=y + dy, id=1)]
             mobile_touch.send('Input.dispatchTouchEvent', dict(type=kind, touchPoints=points))
 
@@ -1011,6 +1016,7 @@ def parkour_recovery(page, mobile):
     expect(page.locator('#deaths')).to_have_text('0')
     expect(page.locator('#best')).to_have_text(record)
     page.unroute('**/assets/js/parkour-game.js')
+    page.emulate_media(reduced_motion=None)
 
 
 def parkour_routes(page, mobile):
