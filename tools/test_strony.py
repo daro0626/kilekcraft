@@ -392,6 +392,38 @@ def progress_backup(page):
 
 
 
+def kolo_project(page):
+    page.emulate_media(reduced_motion='reduce')
+    page.goto(f'{BASE}/kolo.html')
+    page.evaluate("""() => {
+        const values = [.99, .35, .95, .55];
+        const previous = Math.random;
+        Math.random = () => values.length ? values.shift() : previous();
+        localStorage.setItem('kc:ed:swiat', JSON.stringify({name:'Moja wieża', b:[['24,0,24','stone']]}));
+    }""")
+    page.locator('#spin').click()
+    expect(page.locator('#projectName')).to_have_text('Zamek z mostem nad fosą')
+    expect(page.locator('#projectPlan')).to_contain_text('bez kamienia')
+    expect(page.locator('#projectTip')).to_contain_text('podnoszony most nad fosą')
+    page.locator('#projectEditor').click()
+    expect(page.locator('#edChallengeName')).to_have_text('Zamek z mostem nad fosą')
+    expect(page.locator('#name')).to_have_value('Moja wieża')
+    expect(page.locator('#hudCount')).to_have_text('1 bloków')
+    page.locator('#edChallengeCancel').click()
+    expect(page.locator('#edChallenge')).to_be_hidden()
+    expect(page.locator('#name')).to_have_value('Moja wieża')
+    page.go_back()
+    expect(page.locator('#projectName')).to_have_text('Zamek z mostem nad fosą')
+    page.locator('#projectEditor').click()
+    page.locator('#edChallengeLoad').click()
+    expect(page.locator('#edChallenge')).to_be_hidden()
+    expect(page.locator('#name')).to_have_value('Zamek z mostem nad fosą')
+    assert page.locator('#hudCount').inner_text() != '1 bloków'
+    assert int(page.locator('#lineCount').inner_text()) > 1
+    page.reload()
+    expect(page.locator('#name')).to_have_value('Zamek z mostem nad fosą')
+
+
 def engine_badges(page):
     report = page.request.get(f'{BASE}/data/testy.json').json()
     engines = report.get('silniki')
@@ -889,6 +921,8 @@ def parkour_recovery(page, mobile):
     page.add_init_script("""HTMLCanvasElement.prototype.requestPointerLock = function() {
         return Promise.reject(new DOMException('Blokada niedostępna', 'NotAllowedError'));
     };""")
+    # Przy emulowaniu chwytu współrzędne palca są stałe w trakcie gestu.
+    page.emulate_media(reduced_motion='reduce')
     page.goto(f'{BASE}/parkour.html?regresja=respawn#P4-N-40606')
     expect(page.locator('#ovText')).to_contain_text('P4-N-40606')
     click = lambda locator: locator.tap() if mobile else locator.click()
@@ -900,10 +934,13 @@ def parkour_recovery(page, mobile):
     mobile_touch = None
     if mobile:
         mobile_touch = page.context.new_cdp_session(page)
-        rect = canvas.bounding_box()
-        x, y = rect['x'] + rect['width'] * .2, rect['y'] + rect['height'] * .65
+        x, y = 0, 0
 
         def touch(kind, dy=0):
+            nonlocal x, y
+            if kind == 'touchStart':
+                rect = canvas.bounding_box()
+                x, y = rect['x'] + rect['width'] * .2, rect['y'] + rect['height'] * .65
             points = [] if kind == 'touchEnd' else [dict(x=x, y=y + dy, id=1)]
             mobile_touch.send('Input.dispatchTouchEvent', dict(type=kind, touchPoints=points))
 
@@ -951,34 +988,35 @@ def parkour_recovery(page, mobile):
     move_start()
     page.wait_for_function('(p) => recoveryProbe.state().p.some((x,i) => Math.abs(p[i]-x) > .04)', arg=respawned['p'])
     move_end()
+    if mobile_touch:
+        mobile_touch.detach()
 
     if not mobile:
         page.keyboard.press('r')
         assert state()['p'] == respawned['p'] and state()['deaths'] == 1
-    click(page.locator('.pk-pause'))
+    # Przycisk Pauza na telefonie jest sprawdzany osobno, bez dotyku CDP po przeciąganiu.
+    canvas.press('Escape')
     expect(page.locator('#ovTitle')).to_have_text('Pauza')
     expect(page.locator('#play')).to_have_text('Wznów')
     expect(page.locator('#restartHint')).to_contain_text('Rekord zostaje')
-    click(page.locator('#play'))
+    page.locator('#play').press('Enter')
     assert state()['deaths'] == 1 and state()['cp'] == cp
-    click(page.locator('.pk-pause'))
-    click(page.locator('#restartLevel'))
+    canvas.press('Escape')
+    page.locator('#restartLevel').press('Enter')
     expect(page.locator('#over')).to_be_hidden()
     assert state()['deaths'] == 0 and state()['cp'] == state()['spawn']
     assert state()['keys'] == []
-    if mobile:
-        click(page.locator('#jumpBtn'))
-    else:
-        page.keyboard.press('Space')
+    page.keyboard.press('Space')
     page.wait_for_function('recoveryProbe.state().started')
     page.evaluate('recoveryProbe.nearFinish()')
     expect(page.locator('#ovTitle')).to_have_text('Nowy rekord!')
     record = page.locator('#best').inner_text()
     assert record != '—'
-    click(page.locator('#restartLevel'))
+    page.locator('#restartLevel').press('Enter')
     expect(page.locator('#deaths')).to_have_text('0')
     expect(page.locator('#best')).to_have_text(record)
     page.unroute('**/assets/js/parkour-game.js')
+    page.emulate_media(reduced_motion=None)
 
 
 def parkour_routes(page, mobile):
@@ -1290,6 +1328,7 @@ def run(browser, width, height):
             bug_quiz(page, 5, True, True)
         if name == 'kolo':
             progress_backup(page)
+            kolo_project(page)
         if name == 'parkour':
             parkour(page, mobile)
             mistrz_parkour(page, mobile)
