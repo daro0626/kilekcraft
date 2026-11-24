@@ -741,6 +741,7 @@ def schem_import(page):
         expect(status).to_contain_text('nierozpoznane bloki (1)')
         expect(page.locator('#bName')).to_have_text(path.name)
         expect(page.locator('#bSize')).to_contain_text('7×5×5')
+        page.locator('#viewer').scroll_into_view_if_needed()
         expect(page.locator('#viewer canvas')).to_be_visible()
         expect(page.locator('#bdExport')).to_be_hidden()
         page.locator('#schemSubstitutions summary').click()
