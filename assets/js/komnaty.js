@@ -5,6 +5,7 @@ import { store, reduced, copyText, toast, award, badge } from './core.js';
 import { generate, encode, decode, THEMES, kindName } from './komnaty-gen.js';
 import { MISTRZ } from './komnaty-mistrz.js';
 import { datapack, download, safeName, packStatusHTML, exportPanelHTML, modesHTML } from './export.js';
+import { mechanicRoom, roomFiles } from './komnaty-datapack.js';
 
 const $ = (s) => document.querySelector(s);
 const form = $('#form');
@@ -15,6 +16,7 @@ $('#expHelp').innerHTML = exportPanelHTML();
 
 let state = decode(location.hash.slice(1)) || store.get('komnata') || { type: 'parkour', diff: 5, theme: 'kamien', seed: 4821 };
 let room = null, viewer = null;
+let mechanicChecks = null;
 
 // Lista komnat mistrzowskich: suwak trudności wybiera numer komnaty, a przyciski robią to samo szybciej
 const mGrid = document.querySelector('#mList .km-mgrid');
@@ -73,29 +75,52 @@ async function build(animate = true) {
       ? [['Skoki', i.skoki], ['Wysokość', i.wysokosc + ' bloków'], ['Pod spodem', i.dno], ['Kod', code]]
       : [['Skoki', i.skoki], ['Punkty kontrolne', i.punkty], ['Pod spodem', i.dno], ['Kod', code]];
   $('#stats').innerHTML = cells.map(([k, v]) => `<div class="panel"><span>${k}</span><b>${v}</b></div>`).join('');
-  $('#fnCmd').innerHTML = `<span class="pr">›</span> <span class="hk">/function</span> kilekcraft:${fnName()}`;
+  $('#fnCmd').innerHTML = `<span class="pr">›</span> <span class="hk">/function</span> kilekcraft:${startFn()}`;
   $('#fnModes').innerHTML = modesHTML(fnName());
+  const mechanics = $('#kmMechanics');
+  mechanics.hidden = !mechanicRoom(state);
+  if (!mechanics.hidden) {
+    $('#kmMechanicActions').textContent = ['/runda', '/reset', '/stop', '/sprzataj'].map(action => '/function kilekcraft:' + fnName() + action).join('\n');
+    mechanicStatus();
+  }
   if (viewer) { viewer.setBuild(room); if (animate && !reduced) viewer.animateBuild(Math.min(3500, 1200 + room.size[1] * 120)); }
   award('komnata:' + code, 10); badge('komnata');
   if (state.diff >= 9) badge('hardcore');
 }
 const fnName = () => safeName('komnata_' + encode(state).replace(/-/g, '_'));
+const startFn = () => fnName() + (mechanicRoom(state) ? '/przygotuj' : '');
+function mechanicStatus() {
+  const code = encode(state);
+  const labels = ['vanilla', 'paper'].map(engine => {
+    const entry = mechanicChecks?.[engine]?.wyniki?.komnaty_mechanika;
+    return entry?.ok && entry.zweryfikowane?.includes(code) ? engine + ' ' + esc(entry.wersja) : '';
+  });
+  $('#kmMechanicStatus').innerHTML = labels.every(Boolean)
+    ? `<span class="badge ok">mechaniki sprawdzone w CI · ${labels.join(' · ')}</span>`
+    : '<span class="badge wait">mechaniki czekają na test</span>';
+}
 
 form.addEventListener('input', (e) => { if (e.target.id === 'code') return; fromForm(); showDiff(); build(); });
 $('#roll').addEventListener('click', () => { state.seed = Math.floor(Math.random() * 99999) + 1; build(); });
 $('#load').addEventListener('click', () => { const d = decode($('#code').value); if (!d) { toast('Ten kod wygląda źle. Wzór: P8-N-4821'); return; } state = d; toForm(); showDiff(); build(); });
 $('#code').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); $('#load').click(); } });
 $('#replay').addEventListener('click', () => viewer && viewer.animateBuild(Math.min(3500, 1200 + room.size[1] * 120)));
-$('#copyFn').addEventListener('click', (e) => copyText('/function kilekcraft:' + fnName(), e.currentTarget));
+$('#copyFn').addEventListener('click', (e) => copyText('/function kilekcraft:' + startFn(), e.currentTarget));
 $('#dl').addEventListener('click', async (e) => {
   const title = 'komnata ' + encode(state).replace(/-/g, ' ');
-  const { blob } = await datapack(room.blocks, title);
-  download(blob, `kilekcraft_${fnName()}.zip`);
+  const name = fnName();
+  const extra = mechanicRoom(state) ? roomFiles(room, title) : [];
+  const { blob } = await datapack(room.blocks, title, { extra });
+  download(blob, `kilekcraft_${name}.zip`);
   const r = e.currentTarget.getBoundingClientRect();
   award('km:eksport', 30, { from: { x: r.left + r.width / 2, y: r.top } });
   toast('Datapack gotowy. Jeśli plik się nie pobrał, otwórz stronę w zwykłej przeglądarce.');
 });
 packStatusHTML().then(h => { $('#packStatus').innerHTML = h; });
+fetch('data/testy.json', { cache: 'no-store' }).then(r => r.ok ? r.json() : {}).then(report => {
+  mechanicChecks = report.silniki;
+  if (mechanicRoom(state)) mechanicStatus();
+}).catch(() => {});
 
 toForm(); showDiff(); await build(false);
 const { createViewer } = await import('./voxel.js');

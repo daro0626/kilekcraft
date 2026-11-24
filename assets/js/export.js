@@ -160,14 +160,15 @@ export async function packStatusHTML(blockIds = null) {
   return all + ' ' + lay + (pal ? ' ' + pal : '');
 }
 
-export async function datapack(blocks, title) {
-  const info = await packInfo();
+export async function datapack(blocks, title, { extra = [], info = null } = {}) {
+  info ??= await packInfo();
   const name = safeName(title);
   const meta = { pack: { description: `KILEKCRAFT: ${title}`, ...info.pack } };
   return { name, blob: zip([
     { name: 'pack.mcmeta', data: JSON.stringify(meta, null, 2) },
     { name: `data/kilekcraft/function/${name}.mcfunction`, data: mcfunction(blocks, title) },
     ...layerFunctions(blocks, title).map(f => ({ name: `data/kilekcraft/function/${f.path}`, data: f.text })),
+    ...extra,
   ]) };
 }
 

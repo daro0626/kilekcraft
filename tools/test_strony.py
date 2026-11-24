@@ -116,9 +116,20 @@ def mistrz_komnaty(page):
     expect(page.locator('#mInfo')).to_contain_text('do sprawdzenia przez Piotrka')
     expect(page.locator('.km-m[data-m="7"]')).to_have_attribute('aria-pressed', 'true')
     expect(page.locator('#playLink')).to_have_attribute('href', 'parkour.html#M7-K-1')
+    expect(page.locator('#fnCmd')).to_contain_text('kilekcraft:komnata_m7_k_1/przygotuj')
+    expect(page.locator('#kmMechanics')).to_be_visible()
+    expect(page.locator('#kmMechanicActions')).to_contain_text('kilekcraft:komnata_m7_k_1/sprzataj')
+    from zipfile import ZipFile
+    with page.expect_download() as downloaded:
+        page.locator('#dl').click()
+    with ZipFile(downloaded.value.path()) as pack:
+        expected = 'data/kilekcraft/function/komnata_m7_k_1/'
+        assert {'data/minecraft/tags/function/tick.json', *(expected + f + '.mcfunction'
+                for f in ('przygotuj', 'runda', 'reset', 'stop', 'sprzataj'))} <= set(pack.namelist())
     page.locator('label.chip:has(input[value=parkour])').click()
     expect(page.locator('#mList')).to_be_hidden()
     expect(page.locator('#roll')).to_be_visible()
+    expect(page.locator('#kmMechanics')).to_be_hidden()
 
 
 def parkour_input(page, verify_physics=True):

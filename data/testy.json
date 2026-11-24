@@ -826,6 +826,21 @@
         "minecraft:yellow_wool"
       ],
       "bledy": []
+    },
+    "komnaty_mechanika": {
+      "ok": true,
+      "wersja": "26.3",
+      "silnik": "vanilla 26.3",
+      "data": "2026-11-24",
+      "przetestowano": 4,
+      "zweryfikowane": [
+        "M6-K-1",
+        "M7-K-1",
+        "M8-K-1",
+        "M10-K-1"
+      ],
+      "bledy": [],
+      "zrodlo": "https://github.com/daro0626/kilekcraft/actions/runs/45339253000"
     }
   },
   "szczegoly": [
@@ -2613,6 +2628,21 @@
             "minecraft:yellow_wool"
           ],
           "bledy": []
+        },
+        "komnaty_mechanika": {
+          "ok": true,
+          "wersja": "26.3",
+          "silnik": "vanilla 26.3",
+          "data": "2026-11-24",
+          "przetestowano": 4,
+          "zweryfikowane": [
+            "M6-K-1",
+            "M7-K-1",
+            "M8-K-1",
+            "M10-K-1"
+          ],
+          "bledy": [],
+          "zrodlo": "https://github.com/daro0626/kilekcraft/actions/runs/45339253000"
         }
       },
       "szczegoly": [
@@ -4400,6 +4430,21 @@
             "minecraft:yellow_wool"
           ],
           "bledy": []
+        },
+        "komnaty_mechanika": {
+          "ok": true,
+          "wersja": "26.3",
+          "silnik": "Paper 26.3 build 259 (STABLE)",
+          "data": "2026-11-24",
+          "przetestowano": 4,
+          "zweryfikowane": [
+            "M6-K-1",
+            "M7-K-1",
+            "M8-K-1",
+            "M10-K-1"
+          ],
+          "bledy": [],
+          "zrodlo": "https://github.com/daro0626/kilekcraft/actions/runs/45339253000"
         }
       },
       "szczegoly": [

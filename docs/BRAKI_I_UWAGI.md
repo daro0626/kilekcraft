@@ -49,11 +49,12 @@ Statusy: **OTWARTE** — niezaimplementowane; **CZĘŚCIOWO** — istnieje czę�
 **Akceptacja:** przywracanie po wielu edycjach, zapis/odczyt, eksport PNG, mobile/klawiatura.
 **Etap C3, [PR #44](https://github.com/daro0626/kilekcraft/pull/44):** galeria 20 autorskich wzorów 16×16 z podglądem, przywróceniem serca i edycją. Zapisana ikona i szkic są oddzielne. Zastąpienie zmienionego szkicu lub zapisanej ikony wymaga potwierdzenia. Test desktop/mobile obejmuje edycję, odmowę, przywrócenie szkicu po odświeżeniu oraz eksport `server-icon.png` 64×64. Próbę wgrania własnej ikony na serwer pozostawiono użytkownikowi.
 
-### KC-007 · P1 · CZĘŚCIOWO — Pełne mechaniki komnat w Minecrafcie
+### KC-007 · P1 · DO TESTU — Pełne mechaniki komnat w Minecrafcie
 **Zgłoszenie:** zawartość powinna działać również na rzeczywistym serwerze, nie tylko w grze przeglądarkowej.
 **Stan kodu:** `docs/ZADANIA.md`: M1–M5 i M9 mają mapy możliwe do sprawdzenia w Minecrafcie; M6, M7, M8 i M10 zawierają dodatkowe mechaniki (ciemność, znikające bloki, rosnąca lawa), które **na razie działają tylko w przeglądarce**.
 **Wymagania:** dokończyć brakujące mechaniki datapacków i zweryfikować konkretną wersję gry (Vanilla/Paper). Unikać oznakowania «sprawdzone» dla mechaniki, której CI nie uruchomił.
 **Akceptacja:** test serwerowy każdej mechaniki, porównanie z opisem na stronie i ewentualny test manualny przed ogłoszeniem gotowości do grania.
+**Etap C4, [PR #45](https://github.com/daro0626/kilekcraft/pull/45):** eksport M6, M7, M8 i M10 zawiera rundę, stop, reset i sprzątanie. Pole musi być puste i wczytane. Bariera zatrzymuje lawę w obszarze gry. Playwright na obu ekranach pobiera plik i sprawdza funkcje, a test serwera używa tego samego eksportu. Vanilla i Paper 26.3 zaliczyły po cztery próby kamiennego motywu, z aktorem testowym, bez klienta gracza. Odznaka odczytuje raport CI dla konkretnego kodu. Pozostałe motywy, przejście trasy i wygląd efektu w kliencie pozostają do sprawdzenia. [CI z 24.11.2026](https://github.com/daro0626/kilekcraft/actions/runs/45339253000)
 
 ### KC-008 · P1 · DO TESTU — Datapacki: testy CI ≠ ręczne sprawdzenie budowli
 **Zgłoszenie:** czy datapack smoka i innych budowli naprawdę da się pobrać i wykonać na serwerze?
