@@ -2,6 +2,7 @@
 // Worker modułowy wymaga ścieżki względnej do lokalnego Three.js.
 import * as THREE from '../../vendor/three.module.js';
 import { BLOCKS } from './blocks.js';
+import { surfaceMeshes } from './voxel-surface.js';
 
 function makeCanvas(size) {
   if (typeof OffscreenCanvas !== 'undefined') return new OffscreenCanvas(size, size);
@@ -105,18 +106,24 @@ export function createScene(canvas, o, ratio) {
 
   const group = new THREE.Group(); scene.add(group);
   const box = new THREE.BoxGeometry(1, 1, 1);
-  let meshes = [], ghost = null, plane = null, motes = null, maxY = 0;
+  let meshes = [], surfaces = [], ghost = null, plane = null, motes = null, maxY = 0;
 
   function clear() {
     meshes.forEach(m => { group.remove(m.mesh); m.mesh.dispose(); });
+    surfaces.forEach(mesh => { group.remove(mesh); mesh.geometry.dispose(); });
     if (ghost) { group.remove(ghost); ghost.dispose(); ghost = null; }
-    if (plane) { group.remove(plane); plane.geometry.dispose(); plane.material.dispose(); plane = null; }
+    if (plane) { group.remove(plane); plane.geometry.dispose(); plane.material.map.dispose(); plane.material.dispose(); plane = null; }
     meshes = [];
+    surfaces = [];
   }
 
   function load(b) {
     clear();
     const [sx, sy, sz] = b.size; maxY = sy - 1;
+    if (b.blocks.length > 12_000) {
+      surfaces = surfaceMeshes(b, box, materialFor);
+      group.add(...surfaces);
+    }
     const ox = -sx / 2 + .5, oz = -sz / 2 + .5;
     const byType = {};
     for (const bl of b.blocks) (byType[bl[3]] ||= []).push(bl);
@@ -147,9 +154,12 @@ export function createScene(canvas, o, ratio) {
   }
 
   function setLayer(L) {
+    const fullSurface = L === Infinity && surfaces.length > 0;
+    for (const mesh of surfaces) mesh.visible = fullSurface;
     for (const m of meshes) {
       let n = m.ys.length; if (L !== Infinity) { n = 0; while (n < m.ys.length && m.ys[n] <= L) n++; }
       m.mesh.count = n;
+      m.mesh.visible = !fullSurface;
     }
     if (ghost) { let n = 0; const ys = ghost.userData.ys; if (L !== Infinity) while (n < ys.length && ys[n] > L) n++; ghost.count = n; }
     if (plane) { plane.visible = L !== Infinity && L < maxY; plane.position.y = L + 1.02; }
