@@ -40,6 +40,18 @@
   <div class="tabs kat-bar" id="kategorie" role="group" aria-label="Kategorie budowli"></div>
   <div class="picker" id="picker" role="tablist" aria-label="Wybór budowli"></div>
 
+  <details class="panel pad" id="schemPanel">
+    <summary>Otwórz własny plik .schem</summary>
+    <p class="muted small">Podgląd Sponge Schematic v2 lub v3. Plik zostaje w twojej przeglądarce.</p>
+    <div class="copy-row">
+      <input class="sr" type="file" id="schemFile" accept=".schem">
+      <label class="btn sm" for="schemFile">Wybierz plik .schem</label>
+      <button class="btn sm ghost" id="closeSchem" type="button" hidden>Wróć do budowli z galerii</button>
+    </div>
+    <p id="schemStatus" role="status"></p>
+    <details id="schemSubstitutions" hidden><summary>Bloki zastąpione w podglądzie</summary><ul id="schemUnknown"></ul></details>
+  </details>
+
   <div class="bld">
     <div class="viewer panel corner" id="viewer">
       <div class="v-info"><b id="bName"></b><span id="bSize" class="muted"></span></div>
@@ -68,7 +80,7 @@
     </aside>
   </div>
 
-  <section class="panel pad corner bd-exp" aria-labelledby="bdExpTitle">
+  <section class="panel pad corner bd-exp" id="bdExport" aria-labelledby="bdExpTitle">
     <h2 class="section-heading" id="bdExpTitle">Postaw <span id="bdExpName">tę budowlę</span> na serwerze</h2>
     <p class="muted">Pobierz datapack i wpisz jedną komendę. Możesz postawić całość od razu, oglądać, jak rośnie warstwa po warstwie, albo stawiać sam: następna warstwa, cofnij.</p>
     <div class="console" id="fnCmd"></div>
@@ -115,10 +127,6 @@
     </div>
   </section>
 
-  <section class="panel pad note-soon" style="margin-top:40px">
-    <h2 class="section-heading">Wkrótce: twoje budowle z Kilek World</h2>
-    <p class="muted">Zapiszesz budowlę w grze do pliku <code>.schem</code> (np. WorldEdit), a ona pojawi się tutaj razem z komnatami i spawnem. Ta funkcja jest w planie, jeszcze nie działa.</p>
-  </section>
 </main>
 
 <footer>

@@ -94,3 +94,7 @@ Sprawdzone 2026-11-23 w katalogach twórców. Wersje poniżej opisują deklarowa
 ### Raport serwerowy integracji R0–R8
 
 - 2026-11-23 · `data/testy.json` i `data/datapack.json` pochodzą z artefaktu `wyniki-komend`, ID 14855325690. Macierz uruchomiła vanilla 26.3 i Paper 26.3 build 259 (STABLE). Oba silniki zaliczyły po 159 prób komend, 49 bloków palety i 506 identyfikatorów propozycji cennika. [Przebieg GitHub Actions](https://github.com/daro0626/kilekcraft/actions/runs/45249170608)
+
+## Import budowli Sponge Schematic
+
+- SpongePowered, specyfikacje [v2](https://github.com/SpongePowered/Schematic-Specification/blob/master/versions/schematic-2.md) i [v3](https://github.com/SpongePowered/Schematic-Specification/blob/master/versions/schematic-3.md), odczyt 23.11.2026. Źródło układu gzip/NBT, nazw pól, palety i kolejności danych VarInt `x + z × szerokość + y × szerokość × długość`. Testy korzystają z wygenerowanego pawilonu w obu formatach, z lokalną paletą i jednym nierozpoznanym identyfikatorem.

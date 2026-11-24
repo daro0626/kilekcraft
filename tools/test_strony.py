@@ -629,6 +629,38 @@ def budowle(page):
     expect(page.locator('.toast')).to_contain_text('Datapack gotowy')
 
 
+def schem_import(page):
+    page.goto(f'{BASE}/budowle.html#rakieta')
+    page.locator('#schemPanel > summary').click()
+    assert page.get_by_text('Wkrótce: twoje budowle').count() == 0
+    choose_file = page.locator('#schemFile')
+    status = page.locator('#schemStatus')
+    network = []
+    page.on('request', lambda request: network.append(request.method))
+    for version in (2, 3):
+        path = Path(__file__).parent / f'fixtures/pawilon-v{version}.schem'
+        choose_file.set_input_files(path)
+        expect(status).to_contain_text(f'Wczytano plik v{version}')
+        expect(status).to_contain_text('nierozpoznane bloki (1)')
+        expect(page.locator('#bName')).to_have_text(path.name)
+        expect(page.locator('#bSize')).to_contain_text('7×5×5')
+        expect(page.locator('#viewer canvas')).to_be_visible()
+        expect(page.locator('#bdExport')).to_be_hidden()
+        page.locator('#schemSubstitutions summary').click()
+        expect(page.locator('#schemUnknown li')).to_have_text('fixture:rubin · 1')
+        page.locator('[data-m=layer]').click()
+        page.locator('#layer').evaluate("(slider) => { slider.value = 0; slider.dispatchEvent(new Event('input')); }")
+        expect(page.locator('#lNum')).to_have_text('1')
+        expect(page.locator('#mats li')).to_have_text('Kamienne cegły35')
+    choose_file.set_input_files({'name': 'zepsuty.schem', 'mimeType': 'application/octet-stream', 'buffer': b'uszkodzony'})
+    expect(status).to_contain_text('gzip')
+    expect(page.locator('#bName')).to_have_text('pawilon-v3.schem')
+    page.locator('#closeSchem').click()
+    expect(page.locator('#bName')).to_contain_text('Rakieta')
+    expect(page.locator('#bdExport')).to_be_visible()
+    assert all(method == 'GET' for method in network)
+
+
 def sezon(page):
     # Model: 300 sezonów z losowymi decyzjami kończy się zawsze i serca zostają w zakresie.
     bad = page.evaluate("""async () => {
@@ -1274,6 +1306,7 @@ def run(browser, width, height):
             hosting(page)
         if name == 'budowle':
             budowle(page)
+            schem_import(page)
         if name == 'symulator':
             sezon(page)
             symulator_admin(page)

@@ -9,6 +9,7 @@ const $ = (s) => document.querySelector(s);
 const modelFromHash = () => BUILDS.find(build => build.id === location.hash.slice(1));
 const startModel = modelFromHash();
 let b = getBuild(startModel?.id || store.get('build', 'miecz')), id = b.id, L = Infinity, viewer = null, matMode = 'all';
+let importRequest = 0;
 
 // ---------- kategorie i wybór budowli ----------
 const picker = $('#picker'), katBar = $('#kategorie');
@@ -22,7 +23,7 @@ katBar.innerHTML = [{ id: 'all', name: 'Wszystkie' }, ...KATEGORIE].map(k => {
 }).join('');
 function renderPicker() {
   const list = BUILDS.filter(x => kat === 'all' || x.kat === kat);
-  picker.innerHTML = list.map(x => `<button role="tab" class="pick" data-id="${x.id}" aria-selected="${x.id === id}"><span class="pn">${String(BUILDS.indexOf(x) + 1).padStart(2, '0')} · ${katName(x.kat)}</span><b>${x.name}</b><span class="pd">${x.desc}</span></button>`).join('');
+  picker.innerHTML = list.map(x => `<button role="tab" class="pick" data-id="${x.id}" aria-selected="${!b.imported && x.id === id}"><span class="pn">${String(BUILDS.indexOf(x) + 1).padStart(2, '0')} · ${katName(x.kat)}</span><b>${x.name}</b><span class="pd">${x.desc}</span></button>`).join('');
 }
 function showCategory(category) {
   kat = category;
@@ -42,6 +43,8 @@ addEventListener('hashchange', () => {
   }
 });
 function choose(newId) {
+  importRequest++;
+  clearSchem();
   id = newId; store.set('build', id); history.replaceState(null, '', '#' + id);
   picker.querySelectorAll('.pick').forEach(p => p.setAttribute('aria-selected', p.dataset.id === id));
   b = getBuild(id); load(true);
@@ -51,7 +54,55 @@ katBar.addEventListener('click', (e) => {
   const t = e.target.closest('[data-k]'); if (!t) return;
   showCategory(t.dataset.k);
   const first = picker.querySelector('.pick');
-  if (first && !picker.querySelector(`[data-id="${id}"]`)) choose(first.dataset.id);
+  const current = picker.querySelector(`[data-id="${id}"]`);
+  if (first && (b.imported || !current)) choose((current || first).dataset.id);
+});
+
+const schemInput = $('#schemFile'), schemStatus = $('#schemStatus'), schemClose = $('#closeSchem');
+const schemSubstitutions = $('#schemSubstitutions'), schemUnknown = $('#schemUnknown');
+function clearSchem() {
+  schemStatus.textContent = '';
+  schemClose.hidden = schemSubstitutions.hidden = true;
+  schemUnknown.replaceChildren();
+}
+schemClose.addEventListener('click', () => {
+  showModel(getBuild(id));
+  schemInput.focus();
+});
+schemInput.addEventListener('change', async () => {
+  const file = schemInput.files[0];
+  if (!file) return;
+  schemInput.value = '';
+  const request = ++importRequest;
+  schemStatus.textContent = 'Otwieram budowlę…';
+  try {
+    const { readSchematic } = await import('./schem.js');
+    const model = await readSchematic(file);
+    if (request !== importRequest) return;
+    b = { imported: true, name: file.name, ...model };
+    const replaced = [...model.unknown.values()].reduce((a, n) => a + n, 0);
+    clearSchem();
+    schemClose.hidden = false;
+    schemStatus.textContent = `Wczytano plik v${model.version}. Podgląd pomija stany bloków, zawartość skrzyń i istoty.${replaced ? ` Czerwony beton zastępuje nierozpoznane bloki (${replaced.toLocaleString('pl-PL')}).` : ''}`;
+    if (replaced) {
+      schemSubstitutions.hidden = false;
+      schemSubstitutions.open = false;
+      for (const [id, count] of [...model.unknown.entries()].slice(0, 50)) {
+        const row = document.createElement('li');
+        row.textContent = `${id} · ${count.toLocaleString('pl-PL')}`;
+        schemUnknown.append(row);
+      }
+      if (model.unknown.size > 50) {
+        const row = document.createElement('li');
+        row.textContent = `Dalsze rodzaje bloków: ${model.unknown.size - 50}.`;
+        schemUnknown.append(row);
+      }
+    }
+    picker.querySelectorAll('.pick').forEach(tab => tab.setAttribute('aria-selected', 'false'));
+    load(false);
+  } catch (error) {
+    if (request === importRequest) schemStatus.textContent = error.message;
+  }
 });
 picker.addEventListener('click', (e) => {
   const t = e.target.closest('.pick'); if (!t) return;
@@ -99,7 +150,7 @@ function drawMap(y) {
   const box = map.parentElement;
   const style = getComputedStyle(box);
   const available = box.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
-  const cell = Math.max(2, Math.floor((available - 2) / Math.max(sx, sz)));
+  const cell = Math.max(1, Math.floor((available - 2) / Math.max(sx, sz)));
   map.width = sx * cell * dpr; map.height = sz * cell * dpr; map.style.height = (sz * cell) + 'px'; map.style.width = (sx * cell) + 'px';
   mx.setTransform(dpr, 0, 0, dpr, 0, 0);
   mx.fillStyle = '#070b16'; mx.fillRect(0, 0, sx * cell, sz * cell);
@@ -127,6 +178,20 @@ document.querySelectorAll('.mat-tabs .tab').forEach(t => t.addEventListener('cli
 }));
 function mats(y) {
   const list = matMode === 'layer' ? layerOf(y) : b.blocks;
+  if (b.imported) {
+    const count = new Map();
+    let replaced = 0;
+    for (const [, , , type, originalId] of list) {
+      if (originalId) replaced++;
+      else count.set(type, (count.get(type) || 0) + 1);
+    }
+    const rows = [...count].sort((a, c) => c[1] - a[1]);
+    const items = rows.map(([type, n]) => `<li class="schem-material"><span class="mn">${BLOCKS[type].name}</span><span class="mc">${n}</span></li>`);
+    if (replaced) items.push(`<li class="schem-material"><span class="mn">Bloki zastąpione w podglądzie</span><span class="mc">${replaced}</span></li>`);
+    $('#mats').innerHTML = items.join('') || '<li class="muted">Ta warstwa jest pusta.</li>';
+    $('#mats').onchange = null;
+    return;
+  }
   const cnt = {}; for (const bl of list) cnt[bl[3]] = (cnt[bl[3]] || 0) + 1;
   const done = store.get('mats:' + b.id + ':' + (matMode === 'layer' ? y : 'all'), {});
   const rows = Object.entries(cnt).sort((a, c) => c[1] - a[1]);
@@ -148,7 +213,8 @@ async function load(animate) {
   $('#bName').textContent = b.name;
   $('#bSize').textContent = ` · ${b.size[0]}×${b.size[1]}×${b.size[2]} · ${b.blocks.filter(x => !BLOCKS[x[3]].noCount).length.toLocaleString('pl-PL')} bloków`;
   slider.max = b.size[1] - 1;
-  expUpdate();
+  $('#bdExport').hidden = !!b.imported;
+  if (!b.imported) expUpdate();
   if (viewer) viewer.setBuild(b);
   setL(Infinity);
   if (animate && viewer && !reduced) build3d();

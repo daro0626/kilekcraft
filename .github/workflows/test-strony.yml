@@ -16,6 +16,8 @@ jobs:
         run: node tools/test_checkpointy.mjs
       - name: Bot przechodzi komnaty mistrzowskie M1–M10
         run: node tools/test_mistrz.mjs
+      - name: Sprawdź import budowli Schematic
+        run: node tools/test_schem.mjs
   playwright:
     runs-on: ubuntu-latest
     timeout-minutes: 10

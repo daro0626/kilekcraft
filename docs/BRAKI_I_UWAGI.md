@@ -28,11 +28,12 @@ Statusy: **OTWARTE** — niezaimplementowane; **CZĘŚCIOWO** — istnieje czę�
 **Wymagania:** główne, łatwe do odczytania działania **Budowanie**, **Animacja** (obejrzyj, jak model powstaje; sterowanie start/pauza/przewiń) i **Warstwy** (wybór warstwy, plan z góry, edycja). Opcje «tylko wybrana / do wybranej» wyłącznie jako ustawienie dodatkowe w trybie Warstwy. Rozdzielić akcję budowania od oglądania animacji; nie wprowadzać w błąd, że animacja buduje na serwerze.
 **Akceptacja:** dziecko rozpoznaje trzy główne funkcje bez czytania instrukcji; zbudowane bloki, cofanie/ponawianie, ukryte warstwy, zapis i pełny datapack pozostają nienaruszone. Test desktop/mobile.
 
-### KC-004 · P1 · OTWARTE — Działający import budowli .schem, zamiast zapowiedzi «Wkrótce»
+### KC-004 · P1 · DO TESTU — Działający import budowli .schem, zamiast zapowiedzi «Wkrótce»
 **Zgłoszenie:** na `budowle.html` widać «Wkrótce: twoje budowle z Kilek World». Właściciel nie chce publikować atrap i obietnic funkcji, których nie można użyć.
 **Stan kodu:** HTML zawiera dosłowną zapowiedź, a `docs/ZADANIA.md` (B3) opisuje plan importu Sponge Schematic v2/v3 — implementacji brak.
 **Wymagania:** umożliwić wczytanie własnego pliku `.schem` (gdy technicznie możliwe: Sponge v2/v3), podgląd 3D oraz warstw i materiałów, komunikaty błędów, limity rozmiaru/ochrona przed uszkodzonym plikiem, testy autentycznych lub wygenerowanych zgodnych plików. Nie dopisywać fikcyjnych budowli z prywatnego serwera. Gdy funkcja nie jest gotowa, **usunąć widoczną zapowiedź z publicznego interfejsu** i pozostawić ją jako zadanie w tym rejestrze; nie oznaczać jako ukończone, dopóki import nie działa.
 **Akceptacja:** prawdziwy plik `.schem` daje poprawne wymiary, materiały i warstwy; błędny plik nie wysypuje strony. Brak napisu «Wkrótce» na opublikowanej stronie.
+**Etap C1, [PR #42](https://github.com/daro0626/kilekcraft/pull/42):** galeria otwiera lokalny plik Sponge v2/v3 z paletą. Podgląd 3D, plan warstw i lista materiałów korzystają ze wspólnego modelu. Czerwony beton zaznacza bloki spoza palety portalu, z podaną nazwą i liczbą. Podgląd pomija stany bloków, dane skrzyń i istoty oraz nie udostępnia eksportu wczytanego modelu. Usunięto publiczną zapowiedź. Testy Node i Playwright (oba rozmiary) objęły dwa wygenerowane pliki pawilonu, widok warstw i materiałów, odrzucenie uszkodzonego pliku i powrót do galerii. Nie używano materiałów z serwera Piotrka. Pozostaje sprawdzenie własnego pliku użytkownika.
 
 ### KC-005 · P1 · OTWARTE — Koło wyzwań ma generować przykład budowli
 **Zgłoszenie:** losowanie samego tematu, materiału, czasu i zasady nie wystarcza. Użytkownik chce konkretny przykład tego, co zbudować, najlepiej z przeniesieniem do edytora.
