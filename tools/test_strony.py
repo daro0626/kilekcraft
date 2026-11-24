@@ -741,6 +741,7 @@ def schem_import(page):
         expect(status).to_contain_text('nierozpoznane bloki (1)')
         expect(page.locator('#bName')).to_have_text(path.name)
         expect(page.locator('#bSize')).to_contain_text('7×5×5')
+        page.locator('#viewer').scroll_into_view_if_needed()
         expect(page.locator('#viewer canvas')).to_be_visible()
         expect(page.locator('#bdExport')).to_be_hidden()
         page.locator('#schemSubstitutions summary').click()
@@ -1387,6 +1388,28 @@ def run(browser, width, height):
         page.on('console', lambda msg: errors.append(msg.text) if msg.type == 'error' else None)
         page.on('response', lambda r: errors.append(f'{r.status} {r.url}') if r.status >= 400 else None)
         smoke(page, name)
+        if name == 'index':
+            expect(page.get_by_role('heading', level=1, name='KILEKCRAFT')).to_be_visible()
+            if not mobile:
+                page.set_viewport_size({'width': 1120, 'height': height})
+                expect(page.locator('.menu-btn')).to_be_visible()
+                page.set_viewport_size({'width': width, 'height': height})
+        if mobile:
+            mobile_menu = page.locator('.menu-btn')
+            in_view = """button => {
+                const b = button.getBoundingClientRect();
+                return b.x >= 0 && b.right <= document.documentElement.clientWidth;
+            }"""
+            assert mobile_menu.evaluate(in_view), (name, 'ucięte menu')
+            if name == 'index':
+                page.set_viewport_size({'width': 320, 'height': height})
+                assert mobile_menu.evaluate(in_view), (name, 'ucięte menu przy szerokości 320 px')
+                page.set_viewport_size({'width': width, 'height': height})
+            mobile_menu.tap()
+            expect(mobile_menu).to_have_attribute('aria-expanded', 'true')
+            mobile_menu.press('Escape')
+            expect(mobile_menu).to_have_attribute('aria-expanded', 'false')
+            expect(mobile_menu).to_be_focused()
         if name == 'bledy' and not mobile:
             bug_quiz(page, 4, True, False)
             bug_quiz(page, 5, False, False)

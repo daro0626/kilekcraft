@@ -5,9 +5,12 @@ name: Strona na GitHub Pages
 on:
   push:
     branches: [main]
+  pull_request:
+    paths: ['.github/workflows/pages.yml']
   workflow_dispatch:
 
 permissions:
+  actions: read
   contents: read
   pages: write
   id-token: write
@@ -17,16 +20,42 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  package:
+    runs-on: ubuntu-latest
+    outputs:
+      name: ${{ steps.artifact.outputs.name }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - id: artifact
+        run: echo "name=github-pages-${GITHUB_RUN_ATTEMPT}" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          name: ${{ steps.artifact.outputs.name }}
+          path: .
+      - name: Poczekaj na widoczność paczki
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ARTIFACT_NAME: ${{ steps.artifact.outputs.name }}
+        run: |
+          for attempt in {1..10}; do
+            if count=$(gh api --method GET "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/artifacts" \
+                 -f name="$ARTIFACT_NAME" --jq '.total_count') && [ "$count" = 1 ]; then
+              exit 0
+            fi
+            sleep 4
+          done
+          echo "Nie znaleziono jednej paczki dla bieżącej próby wdrożenia." >&2
+          exit 1
   deploy:
+    if: github.ref == 'refs/heads/main'
+    needs: package
     runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: .
       - id: deployment
         uses: actions/deploy-pages@v4
+        with:
+          artifact_name: ${{ needs.package.outputs.name }}

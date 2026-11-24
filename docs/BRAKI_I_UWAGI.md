@@ -61,12 +61,13 @@ Statusy: **OTWARTE** — niezaimplementowane; **CZĘŚCIOWO** — istnieje czę�
 **Potwierdzone:** `data/datapack.json` na `main`: `sprawdzone: true`, wersja 26.3; `data/testy.json`: `wyniki.datapack.ok = true`, 8 prób, wynik CI. Raport użytkownika po PR #38: zielone testy Vanilla i Paper. To potwierdza testowaną technikę datapacka, **nie** ręczne ustawienie każdej z 23 budowli na serwerze Piotrka.
 **Wymagania:** przygotować bezpieczną listę prób (kopię świata, płaski obszar, komendy, oczekiwane skutki) dla smoka, areny i kilku dużych budowli; w razie błędów rejestrować kod i wersję. Wskaźniki «sprawdzone» opisać precyzyjnie: test CI danej rzeczy vs test użytkownika.
 **Akceptacja:** wyniki manualnego uruchomienia lub uczciwy status «do sprawdzenia w świecie gry»; nigdy nie wymyślać wyników.
-**Etap C5, gałąź `poprawka/zlecenie-39-proby`:** odznaki w galerii wskazują próbny datapack, próbkę warstw i pojedyncze materiały. [Lista prób](PROBY_BUDOWLI.md) prowadzi przez kopię świata, ręczne warstwy, animację i sprzątanie dla smoka, areny, wieżowca i latającej wyspy. Playwright odczytuje opisy z prawdziwego raportu i nadal pobiera ZIP. Cztery ręczne próby pozostają do wykonania.
+**Etap C5, [PR #46](https://github.com/daro0626/kilekcraft/pull/46):** odznaki w galerii wskazują próbny datapack, próbkę warstw i pojedyncze materiały. [Lista prób](PROBY_BUDOWLI.md) prowadzi przez kopię świata, ręczne warstwy, animację i sprzątanie dla smoka, areny, wieżowca i latającej wyspy. Playwright odczytuje opisy z prawdziwego raportu i nadal pobiera ZIP. Cztery ręczne próby pozostają do wykonania.
 
-### KC-009 · P2 · OTWARTE — Audyt interfejsu wszystkich stron przed szerokim udostępnianiem
+### KC-009 · P2 · DO TESTU — Audyt interfejsu wszystkich stron przed szerokim udostępnianiem
 **Zgłoszenie:** za dużo małego tekstu, niejasne linki, ukryte przyciski, strony z sekcją «wkrótce» i funkcje oznaczone jako gotowe mimo braków.
 **Wymagania:** przejrzeć wszystkie strony na komputerze i telefonie z perspektywy 11-letniego gracza: jednoznaczne przyciski, czytelność, brak zastępczych kontrolek, brak obietnic «wkrótce» w publicznym UI, realne powroty i zachowanie postępu. Zgłaszać każdą nowo wykrytą niespójność jako osobny numer KC. Nie usuwać wymaganych ostrzeżeń o bezpieczeństwie i rzeczywistych ograniczeniach technicznych; zwięźle przenieść je w odpowiednie miejsce.
 **Akceptacja:** lista zbadanych stron, ręczne scenariusze, Playwright desktop/mobile, Lighthouse; po testach dostępnych na stronie brak fałszywych deklaracji funkcjonalności.
+**Etap E, [PR #48](https://github.com/daro0626/kilekcraft/pull/48):** 15 stron w dwóch rozmiarach, 30 sprawdzonych przepływów i zrzutów w [dzienniku #39](AUDYT_39.md). Zgłoszenia KC-015–KC-020 opisują znaleziska i poprawki. Ocenę przez użytkownika i testy na fizycznym urządzeniu pozostawiono otwarte.
 
 ### KC-010 · P2 · DO TESTU — Checkpointy parkouru: regresje w nowych komnatach
 **Zgłoszenie:** na `P4-N-40606` kontakt narożnikiem ze szmaragdem zapisywał odrodzenie poza platformą, powodując niekończący się spadek.
@@ -88,17 +89,36 @@ Statusy: **OTWARTE** — niezaimplementowane; **CZĘŚCIOWO** — istnieje czę�
 **Akceptacja:** film/screenshoty dla warstw 1 → ostatnia i ostatnia → 1, widok pełny, animacja i edycja; dziecko rozumie, co rośnie, co jest ukryte, a co usunięte. Brak zmian w rzeczywistych danych budowli podczas samego podglądu.
 **Etap B, [PR #41](https://github.com/daro0626/kilekcraft/pull/41):** animacja ujawnia warstwy od dołu, bez przesuwania kamery, z uruchamianiem, pauzą, resetem i krokami w obie strony. Playwright dla obu widoków przeszedł dziewięć warstw w przód i wstecz, porównał współrzędne kamery, historię zmian i eksport. Zrzuty dziewięciu kroków są w `docs/zrzuty/zlecenie-39-b/`. Dziewięć wcześniejszych zrzutów użytkownika nie było dostępne w załącznikach tej sesji. Do potwierdzenia pozostaje wrażenie podczas własnej pracy użytkownika.
 
-### KC-013 · P1 · OTWARTE — Wyjątkowe, szczegółowe budowle pokazowe wysokiej jakości (bez płatnej blokady)
+### KC-013 · P1 · DO TESTU — Wyjątkowe, szczegółowe budowle pokazowe wysokiej jakości (bez płatnej blokady)
 **Zgłoszenie:** obecne 23 budowle są poprawne jako proste projekty, ale właściciel oczekuje dodatkowych spektakularnych projektów *premium pod względem jakości*: inspiracje przesłane w rozmowie 23.11.2026 — wielki budynek ze strzelistą architekturą na latającej wyspie, monumentalna świątynia z kolumnami, kolorowe archipelagi parkour. Oryginalne projekty, bez kopiowania cudzej mapy 1:1. Chodzi o efekt zachwytu i chęć powrotu, **nie** o wymóg płatnego dostępu.
 **Stan:** __BT__assets/js/builds.js__BT__ generuje kształty proceduralnie; to ogranicza detale artystyczne. __BT__assets/js/edytor.js__BT__ ma limit 8000 bloków dla ręcznej edycji, ale nie jest to globalny limit wszystkich modeli ani samego Minecrafta. __BT__assets/js/voxel-scene.js__BT__ wykorzystuje instancing i proste światło. Import własnych __BT__.schem__BT__ z KC-004 pozostaje niedokończony.
 **Wymagania:** najpierw **jeden pilotażowy projekt wzorcowy**, a nie kolejnych 20 prostych brył. Propozycje: latający zamek fantasy z monumentalnymi wieżami, łukami, roślinnością i wielopoziomowym terenem; alternatywnie świątynia w stylu monumentalnym albo parkourowy archipelag. Wysoka jakość modelu: zróżnicowana paleta, gzymsy, schody/łuki, otoczenie, elementy oświetlenia, spójna sylwetka i interesujące detale z bliska. Zaprojektować własną koncepcję i blueprint blokowy, nie tylko powiększyć pętlę proceduralną. Ocenić koszt wydajności, import __BT__.schem__BT__, optymalizację siatki/culling/chunking dla dużych modeli, podgląd 3D, warstwy, listę materiałów, datapack oraz testy na urządzeniach mobilnych. Wygląd na screenie może być ulepszany przez shaders, ale model musi dobrze wyglądać **bez shaderów**.
 **Akceptacja:** najpierw pokazać właścicielowi render/prototyp jednego modelu, porównać wizualnie ze wskazanymi referencjami; bez zatwierdzenia jakości nie tworzyć serii. Model ma być samodzielną rzeczywistą budowlą z bloków, dającą się wyeksportować i zweryfikować w Minecrafcie, nie tylko obrazkiem 3D w przeglądarce. Zmierzyć rozmiar danych, FPS mobile, koszty exportu, zachować sprawność obecnego portalu i nie oznaczać testów manualnych jako ukończonych bez wykonania.
+**Etap D, [PR #47](https://github.com/daro0626/kilekcraft/pull/47):** prototyp ma 15 310 bloków, pięć wież, trzy wyspy, ogród i wodospad. W szkicu zapisano plik `.schem`, zgodność wszystkich bloków po imporcie, ujęcia z trzech stron i pomiar wydajności. Prototyp czeka w PR na ocenę wizualną. Wgranie całej budowli w kliencie Minecraft i pomiar na fizycznym urządzeniu pozostają do wykonania.
 
 ### KC-014 · P1 · DO TESTU — Przycisk «Kamera» i trzeci widok z rękami
 **Zgłoszenie:** zamiast przycisku «1. osoba / 3. osoba» ma być jasny wybór **Kamera**. Użytkownik chce dodatkowo trzeci widok, w którym na ekranie widać ręce postaci podczas parkouru.
 **Etap A, [PR #40](https://github.com/daro0626/kilekcraft/pull/40):** menu Kamera i klawisz V przełączają trzy perspektywy. Widok FPS rysuje własne kanciaste ramiona przy dolnych rogach. Wybór zostaje po odświeżeniu. Są testy przełączenia i zapisu oraz zrzuty obu rozmiarów. Ocenę kadru podczas dłuższej gry na fizycznym telefonie pozostawiono do wykonania.
 **Wymagania:** wyraźny przycisk **Kamera**, a po kliknięciu prosty wybór **Zza pleców**, **Z oczu** oraz **Z rękami (FPS)**. Widok z rękami ma pokazywać autorskie, kanciaste ręce awatara, z delikatną animacją ruchu/skoku. Nie kopiować modeli/tekstur z Minecrafta. Zapamiętać wybór i zachować obsługę klawisza V (przełącza kolejne tryby), myszy, telefonu, sterowania postacią oraz kursora/pauzy. Żaden widok nie może zasłaniać przeszkód ani wpływać na fizykę/kolizje.
 **Akceptacja:** 3 tryby działają na desktopie i telefonie; widać ręce w FPS, nie ma przenikania ręki przez przeszkody, perspektywa nie pogarsza czytelności parkouru, sterowanie i kamera działają płynnie, ustawienie przetrwa odświeżenie. Testy screenshotowe i funkcjonalne. Jeśli wydajność jest zbyt niska, zoptymalizować model, a nie zmieniać silnik bez analizy.
+
+### KC-015 · P2 · DO TESTU — Menu ucięte na małych i średnich ekranach
+**Etap E:** prawy brzeg Menu był przy 395 px w widoku 390 px. Nagłówek mieści teraz dźwięk, poziom i Menu. Na tablecie menu rozwija się przy tej samej szerokości. Playwright na 15 stronach sprawdza kontur przycisku, otwarcie dotykiem oraz zamknięcie klawiszem Escape z powrotem fokusu. Pozostaje odbiór na urządzeniu.
+
+### KC-016 · P2 · DO TESTU — Opis dna i checkpointów generatora uogólniał zasady
+**Etap E:** generator kieruje do informacji o dnie konkretnej trasy i opisuje punkty kontrolne w komnatach, które je mają. W audycie otwarto M10 oraz sprawdzono właściwy kod gry i wynik serwerowy. Trasy czekają na próby graczy.
+
+### KC-017 · P2 · DO TESTU — GitHub Pages nie widziało właściwego pliku po próbie wdrożenia
+**Etap E:** każda próba pakuje artefakt o własnej nazwie. Publikacja startuje po potwierdzeniu widoczności paczki. Pull request sprawdza pakowanie, a publikacja następuje na `main`. Stan końcowy podaje [dziennik #39](AUDYT_39.md).
+
+### KC-018 · P2 · DO TESTU — Tytuł strony głównej pomijany w liście nagłówków
+**Etap E:** tytuł KILEKCRAFT ma nagłówek poziomu 1 i tę samą grafikę. Test Playwright odczytuje nazwę przez rolę nagłówka. Próba na fizycznym czytniku ekranu pozostaje do wykonania.
+
+### KC-019 · P2 · DO TESTU — Opis strony głównej obiecywał datę i wersję przy każdej treści
+**Etap E:** opis kieruje do zakresu próby i widocznych oznaczeń. Zgodność napisów sprawdzono w audycie komend, galerii, komnat oraz obu przepisów.
+
+### KC-020 · P2 · DO TESTU — Tablica startowa podawała nieaktualną liczbę budowli
+**Etap E:** tablica pokazuje 23 budowle i wersję badanych serwerów. Usunięto uogólnienie o domyślnej liście gości. Liczbę zweryfikowano w definicji galerii, a wersję w raporcie CI. Odbiór opisu pozostaje do wykonania.
 
 ## Zasady pracy Codexa i Claude
 
