@@ -66,13 +66,27 @@
 
     <div class="panel pad">
       <h2 class="section-heading">Ikonka 64×64</h2>
+      <details id="iconGallery">
+        <summary>Wybierz gotowy wzór</summary>
+        <div id="iconChoices" class="icon-choices" role="group" aria-label="Wzory ikon"></div>
+      </details>
+      <div class="copy-row">
+        <button type="button" class="btn ghost sm" id="restoreHeart">Przywróć serce</button>
+        <button type="button" class="btn ghost sm" id="editPattern" hidden>Edytuj wzór</button>
+        <button type="button" class="btn ghost sm" id="returnDraft" hidden>Wróć do szkicu</button>
+        <button type="button" class="btn ghost sm" id="savedIcon" hidden>Moja ikona</button>
+      </div>
+      <p class="small muted" id="iconStatus" role="status"></p>
       <div class="pix-ed">
         <canvas id="pix" width="320" height="320" tabindex="0" aria-label="Rysowanie ikony" aria-describedby="pixHelp pixCell"></canvas>
         <div>
-          <p id="pixHelp" class="small muted">Strzałki przesuwają kursor po kratkach. Spacja lub Enter malują.</p>
-          <span id="pixCell" class="sr" role="status"></span>
-          <div class="pal small-pal" id="ipal" role="radiogroup" aria-label="Kolor"></div>
-          <div class="copy-row"><button type="button" class="btn ghost sm" id="clearIcon">Wyczyść</button><button type="button" class="btn ghost sm" id="fillIcon">Wypełnij tło</button></div>
+          <div id="paintControls">
+            <p id="pixHelp" class="small muted">Strzałki przesuwają kursor po kratkach. Spacja lub Enter malują.</p>
+            <span id="pixCell" class="sr" role="status"></span>
+            <div class="pal small-pal" id="ipal" role="radiogroup" aria-label="Kolor"></div>
+            <div class="copy-row"><button type="button" class="btn ghost sm" id="clearIcon">Wyczyść</button><button type="button" class="btn ghost sm" id="fillIcon">Wypełnij tło</button></div>
+            <div class="copy-row"><button type="button" class="btn ghost sm" id="saveIcon">Zapisz moją ikonę</button></div>
+          </div>
           <div class="copy-row"><button type="button" class="btn em sm" id="dlIcon">⬇ Pobierz server-icon.png</button></div>
           <p class="muted small">Plik <code>server-icon.png</code> wgraj do głównego folderu serwera i zrestartuj go.</p>
         </div>
