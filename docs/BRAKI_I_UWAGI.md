@@ -67,7 +67,7 @@ Statusy: **OTWARTE** — niezaimplementowane; **CZĘŚCIOWO** — istnieje czę�
 **Zgłoszenie:** za dużo małego tekstu, niejasne linki, ukryte przyciski, strony z sekcją «wkrótce» i funkcje oznaczone jako gotowe mimo braków.
 **Wymagania:** przejrzeć wszystkie strony na komputerze i telefonie z perspektywy 11-letniego gracza: jednoznaczne przyciski, czytelność, brak zastępczych kontrolek, brak obietnic «wkrótce» w publicznym UI, realne powroty i zachowanie postępu. Zgłaszać każdą nowo wykrytą niespójność jako osobny numer KC. Nie usuwać wymaganych ostrzeżeń o bezpieczeństwie i rzeczywistych ograniczeniach technicznych; zwięźle przenieść je w odpowiednie miejsce.
 **Akceptacja:** lista zbadanych stron, ręczne scenariusze, Playwright desktop/mobile, Lighthouse; po testach dostępnych na stronie brak fałszywych deklaracji funkcjonalności.
-**Etap E, gałąź `poprawka/zlecenie-39-audyt`:** 15 stron w dwóch rozmiarach, 30 sprawdzonych przepływów i zrzutów w [dzienniku #39](AUDYT_39.md). Zgłoszenia KC-015–KC-019 opisują znaleziska i poprawki. Ocenę przez użytkownika i testy na fizycznym urządzeniu pozostawiono otwarte.
+**Etap E, [PR #48](https://github.com/daro0626/kilekcraft/pull/48):** 15 stron w dwóch rozmiarach, 30 sprawdzonych przepływów i zrzutów w [dzienniku #39](AUDYT_39.md). Zgłoszenia KC-015–KC-019 opisują znaleziska i poprawki. Ocenę przez użytkownika i testy na fizycznym urządzeniu pozostawiono otwarte.
 
 ### KC-010 · P2 · DO TESTU — Checkpointy parkouru: regresje w nowych komnatach
 **Zgłoszenie:** na `P4-N-40606` kontakt narożnikiem ze szmaragdem zapisywał odrodzenie poza platformą, powodując niekończący się spadek.

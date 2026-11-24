@@ -1391,11 +1391,15 @@ def run(browser, width, height):
             expect(page.get_by_role('heading', level=1, name='KILEKCRAFT')).to_be_visible()
         if mobile:
             mobile_menu = page.locator('.menu-btn')
-            expected_in_view = mobile_menu.evaluate("""button => {
+            in_view = """button => {
                 const b = button.getBoundingClientRect();
                 return b.x >= 0 && b.right <= document.documentElement.clientWidth;
-            }""")
-            assert expected_in_view, (name, 'ucięte menu')
+            }"""
+            assert mobile_menu.evaluate(in_view), (name, 'ucięte menu')
+            if name == 'index':
+                page.set_viewport_size({'width': 320, 'height': height})
+                assert mobile_menu.evaluate(in_view), (name, 'ucięte menu przy szerokości 320 px')
+                page.set_viewport_size({'width': width, 'height': height})
             mobile_menu.tap()
             expect(mobile_menu).to_have_attribute('aria-expanded', 'true')
             mobile_menu.press('Escape')

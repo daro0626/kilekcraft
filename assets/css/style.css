@@ -780,7 +780,7 @@ details summary{cursor:pointer;color:var(--sky);margin:8px 0}
 .bq-end dl{display:flex;flex-wrap:wrap;gap:6px 22px;justify-content:center;margin-top:10px}.bq-end dt{color:var(--muted);font-size:13px;text-transform:uppercase;letter-spacing:.08em}.bq-end dd{margin:0;font-weight:700;font-size:20px}.bq-end dl div{text-align:center}
 @keyframes tokShake{30%,70%{transform:translateX(-6px)}50%,90%{transform:translateX(6px)}}
 @media (max-width:420px){.xp-bar{display:none}.logo{font-size:18px}}
-@media (max-width:350px){.logo{font-size:16px}.logo .cube{width:22px;height:22px}}
+@media (max-width:350px){.top .wrap{gap:6px;padding-inline:8px}.logo{font-size:16px;letter-spacing:.08em}.logo .cube{width:22px;height:22px}}
 
 [hidden]{display:none!important}
 
