@@ -121,7 +121,7 @@ Każde zadanie kończy się dopiero, gdy spełnia kryteria akceptacji **oraz** b
   - M5 Rozżarzona ścieżka: ile serc zabiera bieg bez skradania (w grze magma rani, nie zabija od razu).
   - M9 Żywioły: cała komnata na czas.
   - Zapisz czasy przejścia każdej komnaty. Na ich podstawie poprawimy opisane tempo.
-- **Tylko w przeglądarce:** M6 (ciemność), M7 (kruszenie), M8 (lawa), M10 (wszystko naraz). W grze potrzebne są komendy (efekt ciemności, znikające bloki, rosnąca lawa). Bez nich datapack stawia samą mapę.
+- **Datapacki z rundą:** M6 (ciemność), M7 (kruszenie), M8 (lawa) i M10 (połączenie mechanik). W kamiennym motywie funkcje przeszły automatyczne próby na Vanilla i Paper 26.3. Sprawdzenie skoków i odbiór rozgrywki przez użytkownika pozostają do wykonania. [CI z 24.11.2026](https://github.com/daro0626/kilekcraft/actions/runs/45339253000)
 
 ## D: oprawa
 
