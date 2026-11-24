@@ -61,6 +61,7 @@ Statusy: **OTWARTE** — niezaimplementowane; **CZĘŚCIOWO** — istnieje czę�
 **Potwierdzone:** `data/datapack.json` na `main`: `sprawdzone: true`, wersja 26.3; `data/testy.json`: `wyniki.datapack.ok = true`, 8 prób, wynik CI. Raport użytkownika po PR #38: zielone testy Vanilla i Paper. To potwierdza testowaną technikę datapacka, **nie** ręczne ustawienie każdej z 23 budowli na serwerze Piotrka.
 **Wymagania:** przygotować bezpieczną listę prób (kopię świata, płaski obszar, komendy, oczekiwane skutki) dla smoka, areny i kilku dużych budowli; w razie błędów rejestrować kod i wersję. Wskaźniki «sprawdzone» opisać precyzyjnie: test CI danej rzeczy vs test użytkownika.
 **Akceptacja:** wyniki manualnego uruchomienia lub uczciwy status «do sprawdzenia w świecie gry»; nigdy nie wymyślać wyników.
+**Etap C5, gałąź `poprawka/zlecenie-39-proby`:** odznaki w galerii wskazują próbny datapack, próbkę warstw i pojedyncze materiały. [Lista prób](PROBY_BUDOWLI.md) prowadzi przez kopię świata, ręczne warstwy, animację i sprzątanie dla smoka, areny, wieżowca i latającej wyspy. Playwright odczytuje opisy z prawdziwego raportu i nadal pobiera ZIP. Cztery ręczne próby pozostają do wykonania.
 
 ### KC-009 · P2 · OTWARTE — Audyt interfejsu wszystkich stron przed szerokim udostępnianiem
 **Zgłoszenie:** za dużo małego tekstu, niejasne linki, ukryte przyciski, strony z sekcją «wkrótce» i funkcje oznaczone jako gotowe mimo braków.
