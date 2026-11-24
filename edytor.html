@@ -39,21 +39,39 @@
 
   <div class="ed">
     <div class="ed-work">
-      <section class="panel pad ed-layer" aria-labelledby="edLayerTitle">
-        <h2 class="section-heading" id="edLayerTitle">Warstwy</h2>
-        <div class="seg" role="group" aria-label="Widoczność warstw">
-          <button type="button" class="tab" data-layer-mode="all" aria-pressed="true">Całość</button>
-          <button type="button" class="tab" data-layer-mode="below" aria-pressed="false">Do tej warstwy</button>
-          <button type="button" class="tab" data-layer-mode="single" aria-pressed="false">Tylko ta warstwa</button>
+      <div class="panel pad ed-layer">
+        <div class="seg" id="edTabs" role="tablist" aria-label="Tryb edytora">
+          <button type="button" class="tab" id="edBuildTab" role="tab" data-ed-mode="build" aria-selected="true" aria-controls="edBuildPanel">Budowanie</button>
+          <button type="button" class="tab" id="edAnimationTab" role="tab" data-ed-mode="animation" aria-selected="false" aria-controls="edAnimationPanel" tabindex="-1">Animacja</button>
+          <button type="button" class="tab" id="edLayerTab" role="tab" data-ed-mode="layers" aria-selected="false" aria-controls="edLayerPanel" tabindex="-1">Warstwy</button>
         </div>
-        <div class="ed-layer-step">
-          <label for="edLayer" id="edLayerLabel">Warstwa 1 z 1</label>
-          <button type="button" class="btn sm ghost" id="edLayerDown" aria-label="Poprzednia warstwa">−</button>
-          <input type="range" id="edLayer" min="1" max="1" value="1">
-          <button type="button" class="btn sm ghost" id="edLayerUp" aria-label="Następna warstwa">+</button>
-        </div>
-        <p class="muted small" id="edLayerHint" hidden>Edytujesz zaznaczoną warstwę. Słup ×5 jest dostępny w trybie Całość.</p>
-      </section>
+        <section id="edBuildPanel" class="ed-mode-panel" role="tabpanel" aria-labelledby="edBuildTab">
+          <p class="small muted">Lewy stawia, prawy usuwa. Dotykiem wybierz Stawiaj lub Usuń.</p>
+        </section>
+        <section id="edAnimationPanel" class="ed-mode-panel" role="tabpanel" aria-labelledby="edAnimationTab" hidden>
+          <p class="small muted">Podgląd od fundamentu do dachu. Możesz nadal obracać i przybliżać widok.</p>
+          <p id="edAnimationStatus" aria-live="polite"></p>
+          <div class="seg" role="group" aria-label="Sterowanie animacją">
+            <button type="button" class="btn sm ghost" id="edAnimationPlay" aria-label="Start animacji">Start</button>
+            <button type="button" class="btn sm ghost" id="edAnimationReset">Od początku</button>
+            <button type="button" class="btn sm ghost" id="edAnimationPrev" aria-label="Krok wstecz">−</button>
+            <button type="button" class="btn sm ghost" id="edAnimationNext" aria-label="Krok do przodu">+</button>
+          </div>
+        </section>
+        <section id="edLayerPanel" class="ed-mode-panel" role="tabpanel" aria-labelledby="edLayerTab" hidden>
+          <div class="seg" role="group" aria-label="Widoczność warstw">
+            <button type="button" class="tab" data-layer-mode="below" aria-pressed="true">Do tej</button>
+            <button type="button" class="tab" data-layer-mode="single" aria-pressed="false">Tylko ta</button>
+          </div>
+          <div class="ed-layer-step">
+            <label for="edLayer" id="edLayerLabel">Warstwa 1 z 1</label>
+            <button type="button" class="btn sm ghost" id="edLayerDown" aria-label="Poprzednia warstwa">−</button>
+            <input type="range" id="edLayer" min="1" max="1" value="1">
+            <button type="button" class="btn sm ghost" id="edLayerUp" aria-label="Następna warstwa">+</button>
+          </div>
+          <p class="muted small">Edytujesz zaznaczoną warstwę. Słup ×5 jest dostępny w trybie Budowanie.</p>
+        </section>
+      </div>
       <div class="ed-stage panel corner" id="stage">
         <div class="ed-hud">
           <span class="badge info" id="hudTool">Stawianie</span>
@@ -62,9 +80,9 @@
           <span class="badge wait" id="hudSym" hidden>Symetria</span>
         </div>
         <div class="v-poster" id="poster">Ładowanie edytora 3D…</div>
-        <div class="ed-help muted">Klik: akcja · Przeciągnij: obrót · Kółko lub dwa palce: przybliżenie · Klawisze: B stawianie, E usuwanie, I pipeta, Ctrl+Z cofnij</div>
+        <div class="ed-help muted">Przeciągnij, żeby obrócić · Kółko lub dwa palce przybliżają</div>
       </div>
-      <section class="panel pad ed-layer-info" aria-labelledby="edLayerMaterialsTitle">
+      <section class="panel pad ed-layer-info" id="edLayerInfo" aria-labelledby="edLayerMaterialsTitle" hidden>
         <h2 class="section-heading" id="edLayerMaterialsTitle">Materiały warstwy</h2>
         <p class="muted small" id="edLayerCount">0 bloków</p>
         <ul class="mats" id="edLayerMats"></ul>
@@ -75,7 +93,7 @@
       </section>
     </div>
 
-    <aside class="ed-side">
+    <aside class="ed-side" id="edTools">
       <div class="panel pad">
         <div class="ed-row">
           <div class="seg" role="group" aria-label="Narzędzie">

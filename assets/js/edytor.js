@@ -20,12 +20,14 @@ let tool = 'build', brush = '1', sym = 'none';
 const savedBlock = store.get('ed:blok');
 let cur = Object.hasOwn(BLOCKS, savedBlock) ? savedBlock : 'stone_bricks';
 const savedView = store.get('ed:warstwy');
-let layerMode = ['all', 'below', 'single'].includes(savedView?.mode) ? savedView.mode : 'all';
+let layerMode = savedView?.mode === 'single' ? 'single' : 'below';
+let workMode = ['below', 'single'].includes(savedView?.mode) ? 'layers' : 'build';
 let layerY = Number.isInteger(savedView?.y) ? savedView.y : 0;
+let animationY = -1, animationTimer = 0;
 let wholeTargetY = 4, wholeDistance;
 const layerMeshes = Array.from({ length: H }, () => new Map());
-const inView = y => layerMode === 'all' || (layerMode === 'single' ? y === layerY : y <= layerY);
-const active = () => layerMode !== 'all';
+const inView = y => workMode === 'animation' ? y <= animationY : !active() || (layerMode === 'single' ? y === layerY : y <= layerY);
+const active = () => workMode === 'layers';
 const world = new Map(); // "x,y,z" -> typ
 const key = (x, y, z) => x + ',' + y + ',' + z;
 const undo = [], redo = [];
@@ -134,10 +136,10 @@ function apply(changes, anim = true) {
   changed(); return done;
 }
 const inside = (x, y, z) => x >= 0 && z >= 0 && x < N && z < N && y >= 0 && y < H;
-function expand([x, y, z]) {
+function expand([x, y, z], action = tool) {
   let cells = [[x, y, z]];
-  if (tool === 'build' && brush === '3') cells = [-1, 0, 1].flatMap(a => [-1, 0, 1].map(b => [x + a, y, z + b]));
-  if (tool === 'build' && brush === 'col' && !active()) cells = [0, 1, 2, 3, 4].map(d => [x, y + d, z]);
+  if (action === 'build' && brush === '3') cells = [-1, 0, 1].flatMap(a => [-1, 0, 1].map(b => [x + a, y, z + b]));
+  if (action === 'build' && brush === 'col' && !active()) cells = [0, 1, 2, 3, 4].map(d => [x, y + d, z]);
   const out = [];
   for (const [a, b, c] of cells) {
     out.push([a, b, c]);
@@ -152,7 +154,7 @@ function expand([x, y, z]) {
 const ray = new THREE.Raycaster(), mouse = new THREE.Vector2();
 const workPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0));
 const workPoint = new THREE.Vector3();
-function target(ev) {
+function target(ev, action = tool) {
   const r = renderer.domElement.getBoundingClientRect();
   mouse.set(((ev.clientX - r.left) / r.width) * 2 - 1, -((ev.clientY - r.top) / r.height) * 2 + 1);
   ray.setFromCamera(mouse, camera);
@@ -160,12 +162,12 @@ function target(ev) {
     const hit = ray.intersectObjects([...layerMeshes[layerY].values()], false)[0];
     if (hit) {
       const [x, y, z] = hit.object.userData.k.split(',').map(Number);
-      if (tool !== 'build') return [x, y, z];
+      if (action !== 'build') return [x, y, z];
       const n = hit.face.normal;
       return n.y === 0 && inside(x + n.x, y, z + n.z) ? [x + n.x, y, z + n.z] : null;
     }
     workPlane.constant = -layerY;
-    if (tool !== 'build' || !ray.ray.intersectPlane(workPlane, workPoint)) return null;
+    if (action !== 'build' || !ray.ray.intersectPlane(workPlane, workPoint)) return null;
     const x = Math.floor(workPoint.x + N / 2), z = Math.floor(workPoint.z + N / 2);
     return inside(x, layerY, z) ? [x, layerY, z] : null;
   }
@@ -173,10 +175,10 @@ function target(ev) {
   if (!hit) return null;
   if (hit.object === ground) {
     const x = Math.floor(hit.point.x + N / 2), z = Math.floor(hit.point.z + N / 2);
-    return tool === 'build' && inside(x, 0, z) ? [x, 0, z] : null;
+    return action === 'build' && inside(x, 0, z) ? [x, 0, z] : null;
   }
   const [x, y, z] = hit.object.userData.k.split(',').map(Number);
-  if (tool !== 'build') return [x, y, z];
+  if (action !== 'build') return [x, y, z];
   const n = hit.face.normal; return [x + Math.round(n.x), y + Math.round(n.y), z + Math.round(n.z)];
 }
 function showGhost(t) {
@@ -186,24 +188,35 @@ function showGhost(t) {
 }
 const el = renderer.domElement;
 let down = null;
-el.addEventListener('pointermove', (e) => { if (e.pointerType === 'mouse') showGhost(target(e)); });
+el.addEventListener('contextmenu', e => e.preventDefault());
+el.addEventListener('pointermove', (e) => {
+  if (down?.id === e.pointerId && Math.hypot(e.clientX - down.x, e.clientY - down.y) > 6) down.moved = true;
+  if (workMode !== 'animation' && e.pointerType === 'mouse' && !e.buttons) showGhost(target(e));
+});
 el.addEventListener('pointerleave', () => showGhost(null));
 el.addEventListener('pointerdown', (e) => {
-  if (!e.isPrimary || e.button !== 0) { down = null; return; }
-  down = { id: e.pointerId, x: e.clientX, y: e.clientY };
+  if (workMode === 'animation' || !e.isPrimary || (e.button !== 0 && !(e.pointerType === 'mouse' && e.button === 2))) {
+    down = null;
+    return;
+  }
+  down = { id: e.pointerId, x: e.clientX, y: e.clientY, button: e.button, moved: false };
+  showGhost(null);
 });
 el.addEventListener('pointercancel', () => { down = null; });
 el.addEventListener('lostpointercapture', () => { down = null; });
 el.addEventListener('pointerup', (e) => {
-  if (!down || down.id !== e.pointerId) return; const moved = Math.hypot(e.clientX - down.x, e.clientY - down.y); down = null;
-  if (moved > 6 || e.button > 0) return;
-  const t = target(e); if (!t) return;
-  if (tool === 'pick') { const ty = world.get(key(...t)); if (ty && BLOCKS[ty]) { setBlock(ty); setTool('build'); toast('Wybrano: ' + BLOCKS[ty].name); } return; }
-  const cells = expand(t);
-  const ch = cells.map(p => ({ k: key(...p), to: tool === 'erase' ? null : cur }));
+  const click = down;
+  down = null;
+  if (workMode === 'animation' || !click || click.id !== e.pointerId || click.button !== e.button ||
+      click.moved || Math.hypot(e.clientX - click.x, e.clientY - click.y) > 6) return;
+  const action = e.button === 2 ? 'erase' : tool;
+  const t = target(e, action); if (!t) return;
+  if (action === 'pick') { const ty = world.get(key(...t)); if (ty && BLOCKS[ty]) { setBlock(ty); setTool('build'); toast('Wybrano: ' + BLOCKS[ty].name); } return; }
+  const cells = expand(t, action);
+  const ch = cells.map(p => ({ k: key(...p), to: action === 'erase' ? null : cur }));
   const done = apply(ch);
-  if (done.length) sfx(tool === 'erase' ? 'remove' : 'place');
-  if (tool === 'build' && done.length) {
+  if (done.length) sfx(action === 'erase' ? 'remove' : 'place');
+  if (action === 'build' && done.length) {
     award('ed:start', 10);
     let n = 0; for (let i = 0; i < done.length; i++) n = bump('ed:bloki');
     if (n >= 100) badge('budowniczy');
@@ -277,7 +290,6 @@ function refreshLayer(align = false) {
   layerUp.disabled = layerY === maxY;
   $('#hudLayer').hidden = !active();
   $('#hudLayer').textContent = `Warstwa ${layerY + 1}`;
-  $('#edLayerHint').hidden = !active();
   const column = document.querySelector('[data-brush="col"]');
   column.disabled = active();
   if (column.disabled && brush === 'col') { brush = '1'; press('brush', brush); }
@@ -294,7 +306,7 @@ function refreshLayer(align = false) {
   $('#edLayerCount').textContent = `Liczba bloków: ${cells.size.toLocaleString('pl-PL')}`;
   listMaterials($('#edLayerMats'), [...cells.keys()].map(k => world.get(k)), 'Ta warstwa jest pusta.');
   drawPlan();
-  store.set('ed:warstwy', { mode: layerMode, y: layerY });
+  if (workMode !== 'animation') store.set('ed:warstwy', { mode: active() ? layerMode : 'all', y: layerY });
 }
 function pickLayer(y) {
   const moveCamera = active() && y !== layerY;
@@ -306,15 +318,96 @@ layerDown.addEventListener('click', () => pickLayer(layerY - 1));
 layerUp.addEventListener('click', () => pickLayer(layerY + 1));
 seg('layer-mode', (mode) => {
   if (mode === layerMode) return;
+  layerMode = mode;
+  press('layer-mode', mode);
+  refreshLayer();
+});
+
+// Animacja zmienia wyłącznie widoczność siatek. Eksport i historia czytają world.
+const tabs = [...document.querySelectorAll('[data-ed-mode]')];
+const animationPlay = $('#edAnimationPlay'), animationPrev = $('#edAnimationPrev'), animationNext = $('#edAnimationNext');
+const firstAnimationLayer = () => layerMeshes.findIndex(layer => layer.size > 0);
+const nextAnimationLayer = () => animationY < 0 ? firstAnimationLayer() : animationY + 1;
+function showAnimationFrame(y) {
+  const top = highest();
+  animationY = y < firstAnimationLayer() ? -1 : Math.min(y, top);
+  for (const m of meshes.values()) m.visible = inView(m.userData.y);
+  $('#edAnimationStatus').textContent = top < 0 ? 'Najpierw zbuduj coś w trybie Budowanie.'
+    : animationY < 0 ? 'Gotowe do podglądu.' : `Warstwa ${animationY + 1} z ${top + 1}`;
+  animationPlay.disabled = top < 0;
+  $('#edAnimationReset').disabled = animationPrev.disabled = animationY < 0;
+  animationNext.disabled = animationY >= top;
+  dirty = true;
+}
+function stopAnimation() {
+  clearInterval(animationTimer);
+  animationTimer = 0;
+  animationPlay.textContent = 'Start';
+  animationPlay.setAttribute('aria-label', 'Start animacji');
+}
+function stepAnimation(y) {
+  stopAnimation();
+  showAnimationFrame(y);
+}
+animationPrev.addEventListener('click', () => stepAnimation(animationY - 1));
+animationNext.addEventListener('click', () => stepAnimation(nextAnimationLayer()));
+$('#edAnimationReset').addEventListener('click', () => stepAnimation(-1));
+animationPlay.addEventListener('click', () => {
+  if (animationTimer) { stopAnimation(); return; }
+  const top = highest();
+  if (top < 0) return;
+  if (animationY >= top) showAnimationFrame(-1);
+  showAnimationFrame(nextAnimationLayer());
+  if (animationY >= top) return;
+  animationPlay.textContent = 'Pauza';
+  animationPlay.setAttribute('aria-label', 'Pauza animacji');
+  animationTimer = setInterval(() => {
+    showAnimationFrame(animationY + 1);
+    if (animationY >= top) stopAnimation();
+  }, 550);
+});
+document.addEventListener('visibilitychange', () => { if (document.hidden) stopAnimation(); });
+
+function updateMode() {
+  for (const tab of tabs) {
+    const selected = tab.dataset.edMode === workMode;
+    tab.setAttribute('aria-selected', selected);
+    tab.tabIndex = selected ? 0 : -1;
+    document.getElementById(tab.getAttribute('aria-controls')).hidden = !selected;
+  }
+  const watching = workMode === 'animation';
+  $('#edTools').hidden = watching;
+  $('#hudTool').hidden = watching;
+  $('#edLayerInfo').hidden = !active();
+  $('#name').readOnly = watching;
+  stage.classList.toggle('ed-previewing', watching);
+}
+function setMode(mode) {
+  if (mode === workMode) return;
   const wasActive = active();
-  if (!wasActive) {
+  if (!wasActive && workMode !== 'animation') {
     wholeTargetY = controls.target.y;
     wholeDistance = camera.position.distanceTo(controls.target);
   }
-  layerMode = mode;
-  press('layer-mode', mode);
+  stopAnimation();
+  workMode = mode;
+  animationY = -1;
+  down = null;
+  updateMode();
   refreshLayer(wasActive !== active());
   if (wasActive !== active()) setDistance(active() ? Math.min(wholeDistance, 38) : wholeDistance);
+  if (mode === 'animation') showAnimationFrame(-1);
+}
+seg('ed-mode', setMode);
+$('#edTabs').addEventListener('keydown', (e) => {
+  const index = tabs.indexOf(e.target);
+  if (index < 0) return;
+  const n = tabs.length;
+  const next = { ArrowLeft: (index + n - 1) % n, ArrowRight: (index + 1) % n, Home: 0, End: n - 1 }[e.key];
+  if (next === undefined) return;
+  e.preventDefault();
+  setMode(tabs[next].dataset.edMode);
+  tabs[next].focus();
 });
 
 // ---------- cofnij / ponów / wyczyść / szablony ----------
@@ -358,7 +451,7 @@ tplSel.addEventListener('change', () => {
   toast(`Wczytano: ${b.name}. Możesz ją przerabiać.`);
 });
 addEventListener('keydown', (e) => {
-  if (e.target.closest('input,select,textarea')) return;
+  if (workMode === 'animation' || e.target.closest('input,select,textarea')) return;
   if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') { e.preventDefault(); e.shiftKey ? doRedo() : doUndo(); }
   else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y') { e.preventDefault(); doRedo(); }
   else if (e.key === 'b') setTool('build'); else if (e.key === 'e') setTool('erase'); else if (e.key === 'i') setTool('pick');
@@ -430,6 +523,7 @@ else { // mały start, żeby plac nie był pusty
   for (let x = 20; x < 28; x++) for (let z = 20; z < 28; z++) setCell(x, 0, z, (x + z) % 2 ? 'stone_bricks' : 'smooth_stone', false);
 }
 press('layer-mode', layerMode);
+updateMode();
 changed(); fit();
 
 // ---------- pętla ----------

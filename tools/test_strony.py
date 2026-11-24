@@ -1018,14 +1018,17 @@ def editor_layers(page, mobile):
         window.editorProbe = {
           world: () => Object.fromEntries(world),
           visible: () => [...meshes.values()].filter(m => m.visible).map(m => m.userData.k),
-          aim(x, z) {
+          camera: () => [camera.position.toArray(), controls.target.toArray()],
+          history: () => [undo.length, redo.length],
+          save,
+          aim(x, z, action = tool) {
             const y = layerY;
             camera.position.set(0, y + 49, 1);
             controls.target.set(0, y, 0);
             controls.update();
             camera.updateMatrixWorld();
             const point = pos(x, y, z);
-            point.y = tool === 'build' ? y : y + .95;
+            point.y = action === 'build' ? y : y + .95;
             point.project(camera);
             const rect = el.getBoundingClientRect();
             return [rect.left + (1 + point.x) * rect.width / 2, rect.top + (1 - point.y) * rect.height / 2];
@@ -1039,6 +1042,7 @@ def editor_layers(page, mobile):
     page.wait_for_function('typeof editorProbe !== "undefined"')
     slider = page.locator('#edLayer')
     mode = lambda name: page.locator(f'[data-layer-mode="{name}"]')
+    tab = lambda name: page.locator(f'[data-ed-mode="{name}"]')
     label = page.locator('#edLayerLabel')
     template = page.locator('#tpl')
     canvas = page.locator('#stage canvas')
@@ -1055,24 +1059,26 @@ def editor_layers(page, mobile):
         with ZipFile(download.value.path()) as archive:
             return {name: archive.read(name) for name in archive.namelist()}
 
-    def point(x, z):
+    def point(x, z, button='left'):
         canvas.scroll_into_view_if_needed()
-        px, py = page.evaluate('([x,z]) => editorProbe.aim(x,z)', [x, z])
+        px, py = page.evaluate('([x,z,button]) => editorProbe.aim(x,z,button === "right" ? "erase" : undefined)', [x, z, button])
         if mobile:
             page.touchscreen.tap(px, py)
         else:
-            page.mouse.click(px, py)
+            page.mouse.click(px, py, button=button)
 
     template.select_option('wiezowiec')
     original = get_world()
     top = max(map(layer_of, original))
     assert top > 15
-    expect(label).to_have_text(f'Warstwa 1 z {top + 2}')
-    expect(mode('all')).to_have_attribute('aria-pressed', 'true')
+    expect(tab('build')).to_have_attribute('aria-selected', 'true')
+    expect(slider).to_be_hidden()
     assert get_visible() == set(original)
     initial = page.locator('#lines').text_content()
     pack = download_pack()
 
+    click(tab('layers'))
+    expect(label).to_have_text(f'Warstwa 1 z {top + 2}')
     click(mode('single'))
     assert get_visible() == {k for k in original if layer_of(k) == 0}
     if mobile:
@@ -1084,11 +1090,12 @@ def editor_layers(page, mobile):
     assert get_visible() == {k for k in original if layer_of(k) == 1}
     click(mode('below'))
     assert get_visible() == {k for k in original if layer_of(k) <= 1}
-    click(mode('all'))
+    click(tab('build'))
     assert get_visible() == set(original)
     assert get_world() == original
     expect(page.locator('#lines')).to_have_text(initial)
 
+    click(tab('layers'))
     click(mode('single'))
     assert download_pack() == pack
     slider.press('End')
@@ -1111,7 +1118,7 @@ def editor_layers(page, mobile):
     expect(page.locator('#edLayerCount')).to_have_text('Liczba bloków: 18')
     expect(page.locator('#edLayerMats .mc')).to_have_text('18')
     expect(page.locator('#edPlan')).to_have_attribute('aria-label', f'Plan warstwy {top + 2} z góry. 18 bloków.')
-    page.locator('#edLayerTitle').click()
+    tab('layers').focus()
     page.keyboard.press('Control+z')
     assert get_world() == original
     page.keyboard.press('Control+y')
@@ -1121,8 +1128,14 @@ def editor_layers(page, mobile):
     click(page.locator('[data-tool="pick"]'))
     point(19, 21)
     expect(page.locator('[data-t="red_concrete"]')).to_have_attribute('aria-checked', 'true')
-    click(page.locator('[data-tool="erase"]'))
-    point(19, 21)
+    if mobile:
+        click(page.locator('[data-tool="erase"]'))
+        point(19, 21)
+    else:
+        expect(page.locator('[data-tool="build"]')).to_have_attribute('aria-pressed', 'true')
+        assert canvas.evaluate("e => !e.dispatchEvent(new MouseEvent('contextmenu',{bubbles:true,cancelable:true}))")
+        assert page.locator('#name').evaluate("e => e.dispatchEvent(new MouseEvent('contextmenu',{bubbles:true,cancelable:true}))")
+        point(19, 21, button='right')
     after_erase = changed.copy()
     del after_erase[f'19,{top + 1},21']
     assert get_world() == after_erase
@@ -1148,13 +1161,14 @@ def editor_layers(page, mobile):
     shop_top = max(map(layer_of, shop))
     assert shop_top < top
     expect(label).to_have_text(f'Warstwa {shop_top + 2} z {shop_top + 2}')
-    click(mode('all'))
+    click(tab('build'))
     assert get_visible() == set(shop)
     click(page.locator('#undo'))
     assert get_world() == after_erase
     click(page.locator('#redo'))
     assert get_world() == shop
     click(page.locator('#clear'))
+    click(tab('layers'))
     expect(label).to_have_text('Warstwa 1 z 1')
     assert not get_world() and not get_visible()
     page.wait_for_function("JSON.parse(localStorage.getItem('kc:ed:swiat')).b.length === 0")
@@ -1169,6 +1183,61 @@ def editor_layers(page, mobile):
     assert get_visible() == {'19,63,21'}
     click(page.locator('#edLayerDown'))
     assert not get_visible() and get_world() == {'19,63,21': 'stone'}
+
+    page.evaluate("""() => {
+        editorProbe.save();
+        const b = [];
+        for (let y = 0; y < 9; y++) {
+          const half = y < 2 ? 4 : y < 7 ? 3 : 8 - y;
+          for (let x = 24-half; x <= 24+half; x++) for (let z = 24-half; z <= 24+half; z++) {
+            if (y < 2 || x === 24-half || x === 24+half || z === 24-half || z === 24+half)
+              b.push([[x,y,z].join(','), y < 2 ? 'stone_bricks' : y < 7 ? 'oak_planks' : 'bricks']);
+          }
+        }
+        localStorage.setItem('kc:ed:swiat', JSON.stringify({name:'Wieża do podglądu', b}));
+        localStorage.setItem('kc:ed:warstwy', JSON.stringify({mode:'all',y:0}));
+    }""")
+    page.reload()
+    page.wait_for_function('typeof editorProbe !== "undefined"')
+    original = get_world()
+    assert max(map(layer_of, original)) == 8
+    view = page.evaluate('editorProbe.camera()')
+    history = page.evaluate('editorProbe.history()')
+    pack = download_pack()
+    if mobile:
+        click(tab('animation'))
+    else:
+        tab('build').press('ArrowRight')
+        expect(tab('animation')).to_be_focused()
+    expect(tab('animation')).to_have_attribute('aria-selected', 'true')
+    status = page.locator('#edAnimationStatus')
+    assert not get_visible()
+    for step in range(9):
+        click(page.locator('#edAnimationNext'))
+        expect(status).to_have_text(f'Warstwa {step + 1} z 9')
+        assert get_visible() == {k for k in original if layer_of(k) <= step}
+        assert all(abs(a - b) < 1e-5 for point, expected in zip(page.evaluate('editorProbe.camera()'), view)
+                   for a, b in zip(point, expected))
+    for step in reversed(range(8)):
+        click(page.locator('#edAnimationPrev'))
+        expect(status).to_have_text(f'Warstwa {step + 1} z 9')
+        assert get_visible() == {k for k in original if layer_of(k) <= step}
+    click(page.locator('#edAnimationReset'))
+    assert not get_visible()
+    click(page.locator('#edAnimationPlay'))
+    expect(status).to_have_text('Warstwa 1 z 9')
+    click(page.locator('#edAnimationPlay'))
+    expect(page.locator('#edAnimationPlay')).to_have_text('Start')
+    frozen = status.inner_text()
+    page.wait_for_timeout(650)
+    expect(status).to_have_text(frozen)
+    click(canvas)
+    page.keyboard.press('Control+z')
+    assert get_world() == original
+    assert page.evaluate('editorProbe.history()') == history
+    assert download_pack() == pack
+    click(tab('build'))
+    assert get_visible() == set(original)
     page.unroute('**/assets/js/edytor.js')
 
 
