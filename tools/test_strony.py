@@ -988,31 +988,31 @@ def parkour_recovery(page, mobile):
     move_start()
     page.wait_for_function('(p) => recoveryProbe.state().p.some((x,i) => Math.abs(p[i]-x) > .04)', arg=respawned['p'])
     move_end()
+    if mobile_touch:
+        mobile_touch.detach()
 
     if not mobile:
         page.keyboard.press('r')
         assert state()['p'] == respawned['p'] and state()['deaths'] == 1
-    click(page.locator('.pk-pause'))
+    # Przycisk Pauza na telefonie jest sprawdzany osobno, bez dotyku CDP po przeciąganiu.
+    canvas.press('Escape')
     expect(page.locator('#ovTitle')).to_have_text('Pauza')
     expect(page.locator('#play')).to_have_text('Wznów')
     expect(page.locator('#restartHint')).to_contain_text('Rekord zostaje')
-    click(page.locator('#play'))
+    page.locator('#play').press('Enter')
     assert state()['deaths'] == 1 and state()['cp'] == cp
-    click(page.locator('.pk-pause'))
-    click(page.locator('#restartLevel'))
+    canvas.press('Escape')
+    page.locator('#restartLevel').press('Enter')
     expect(page.locator('#over')).to_be_hidden()
     assert state()['deaths'] == 0 and state()['cp'] == state()['spawn']
     assert state()['keys'] == []
-    if mobile:
-        click(page.locator('#jumpBtn'))
-    else:
-        page.keyboard.press('Space')
+    page.keyboard.press('Space')
     page.wait_for_function('recoveryProbe.state().started')
     page.evaluate('recoveryProbe.nearFinish()')
     expect(page.locator('#ovTitle')).to_have_text('Nowy rekord!')
     record = page.locator('#best').inner_text()
     assert record != '—'
-    click(page.locator('#restartLevel'))
+    page.locator('#restartLevel').press('Enter')
     expect(page.locator('#deaths')).to_have_text('0')
     expect(page.locator('#best')).to_have_text(record)
     page.unroute('**/assets/js/parkour-game.js')

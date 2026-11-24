@@ -53,8 +53,9 @@ tplSel.innerHTML += BUILDS.map(b => `<option value="${b.id}">${b.name}</option>`
 
 // ---------- scena ----------
 const stage = $('#stage');
+const pixelRatio = matchMedia('(pointer: coarse)').matches ? 1.25 : 2;
 const renderer = new THREE.WebGLRenderer({ antialias: (devicePixelRatio || 1) < 2, alpha: true });
-renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
+renderer.setPixelRatio(Math.min(devicePixelRatio || 1, pixelRatio));
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 stage.appendChild(renderer.domElement);
 $('#poster').remove();
