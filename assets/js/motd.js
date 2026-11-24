@@ -4,6 +4,7 @@
 // =========================================================
 import { store, copyText, award, sfx } from './core.js';
 import { download } from './export.js';
+import { blankIcon, COLORS as PAL, HEART, iconGallery, SIZE as N, validIcon } from './motd-ikony.js';
 
 const $ = (s) => document.querySelector(s);
 export const CODES = { '0': '#000000', '1': '#0000AA', '2': '#00AA00', '3': '#00AAAA', '4': '#AA0000', '5': '#AA00AA', '6': '#FFAA00', '7': '#AAAAAA', '8': '#555555', '9': '#5555FF', a: '#55FF55', b: '#55FFFF', c: '#FF5555', d: '#FF55FF', e: '#FFFF55', f: '#FFFFFF' };
@@ -73,10 +74,15 @@ fetch('data/testy.json', { cache: 'no-store' }).then(r => r.ok ? r.json() : {}).
 }).catch(() => {});
 
 // ---------- ikona 16×16 → 64×64 ----------
-const PAL = ['#ff3d3d', '#a3121a', '#ffc94a', '#2ee59d', '#14a46c', '#5cc8ff', '#2c3fa8', '#a06bff', '#ffffff', '#9daccc', '#4a5578', '#141e35', '#000000', '#b48a52', '#6b4f2c', null];
-const N = 16, pix = $('#pix'), px = pix.getContext('2d'), prev = $('#iconPrev'), pv = prev.getContext('2d');
-const HEART = ['................', '................', '...XX....XX.....', '..XXXX..XXXX....', '.XXXXXXXXXXXX...', '.XXXXXXXXXXXX...', '.XXXXXXXXXXXX...', '..XXXXXXXXXX....', '...XXXXXXXX.....', '....XXXXXX......', '.....XXXX.......', '......XX........', '................', '................', '................', '................'];
-let grid = store.get('motd:ikona') || HEART.map(r => [...r].map(c => c === 'X' ? 0 : 11));
+const pix = $('#pix'), px = pix.getContext('2d'), prev = $('#iconPrev'), pv = prev.getContext('2d');
+const copyIcon = icon => icon.map(row => [...row]);
+const sameIcon = (a, b) => !!b && a.every((row, y) => row.every((value, x) => value === b[y][x]));
+const existing = store.get('motd:ikona');
+let own = validIcon(existing) ? existing : null;
+const savedDraft = store.get('motd:szkic');
+let grid = copyIcon(validIcon(savedDraft) ? savedDraft : own || HEART.grid);
+let preview = null;
+const currentIcon = () => preview?.grid || grid;
 let color = 0, cursorX = 0, cursorY = 0;
 $('#ipal').innerHTML = PAL.map((c, i) => `<button type="button" role="radio" class="sw-btn" data-i="${i}" aria-checked="${i === color}" tabindex="${i === color ? 0 : -1}" aria-label="${c ? 'Kolor ' + c : 'Gumka'}" style="--c:${c || 'transparent'}">${c ? '' : '✕'}</button>`).join('');
 const palette = $('#ipal');
@@ -104,15 +110,15 @@ function describeCell() {
   $('#pixCell').textContent = `Kolumna ${cursorX + 1}, wiersz ${cursorY + 1}, ${fill}`;
 }
 function drawIcon() {
+  const image = currentIcon();
   const s = pix.width / N; px.clearRect(0, 0, pix.width, pix.height);
   for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
-    const c = PAL[grid[y][x]];
+    const c = PAL[image[y][x]];
     px.fillStyle = c || ((x + y) % 2 ? '#1b2440' : '#141e35'); px.fillRect(x * s, y * s, s, s);
   }
   px.strokeStyle = 'rgba(255,255,255,.06)'; for (let i = 0; i <= N; i++) { px.beginPath(); px.moveTo(i * s + .5, 0); px.lineTo(i * s + .5, pix.height); px.moveTo(0, i * s + .5); px.lineTo(pix.width, i * s + .5); px.stroke(); }
-  pv.clearRect(0, 0, 64, 64);
-  for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) { const c = PAL[grid[y][x]]; if (c) { pv.fillStyle = c; pv.fillRect(x * 4, y * 4, 4, 4); } }
-  if (document.activeElement === pix) {
+  drawPixels(pv, image, 4);
+  if (!preview && document.activeElement === pix) {
     px.lineWidth = 2;
     px.strokeStyle = '#0b1020';
     px.strokeRect(cursorX * s + 1, cursorY * s + 1, s - 2, s - 2);
@@ -120,7 +126,62 @@ function drawIcon() {
     px.strokeRect(cursorX * s + 3, cursorY * s + 3, s - 6, s - 6);
   }
 }
-const saveIcon = () => store.set('motd:ikona', grid);
+function drawPixels(ctx, image, scale) {
+  ctx.clearRect(0, 0, N * scale, N * scale);
+  image.forEach((row, y) => row.forEach((value, x) => {
+    const color = PAL[value];
+    if (color) { ctx.fillStyle = color; ctx.fillRect(x * scale, y * scale, scale, scale); }
+  }));
+}
+const saveDraft = () => store.set('motd:szkic', grid);
+const iconStatus = $('#iconStatus'), choices = $('#iconChoices');
+const savedIconBtn = $('#savedIcon'), editPattern = $('#editPattern'), returnDraft = $('#returnDraft');
+const defaultDraft = () => own || HEART.grid;
+function showPreview(icon) {
+  preview = icon;
+  editPattern.hidden = returnDraft.hidden = !preview;
+  $('#paintControls').hidden = !!preview;
+  pix.tabIndex = preview ? -1 : 0;
+  pix.classList.toggle('icon-readonly', !!preview);
+  savedIconBtn.hidden = !own;
+  for (const button of choices.children) button.setAttribute('aria-pressed', button.dataset.name === preview?.name);
+  iconStatus.textContent = preview ? preview.name + ' · podgląd wzoru' : '';
+  drawIcon();
+}
+$('#iconGallery').addEventListener('toggle', () => {
+  if (!$('#iconGallery').open || choices.childElementCount) return;
+  for (const icon of iconGallery()) {
+    const button = document.createElement('button');
+    button.type = 'button'; button.className = 'tab'; button.dataset.name = icon.name;
+    button.setAttribute('aria-pressed', icon.name === preview?.name);
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = N;
+    canvas.setAttribute('aria-hidden', 'true');
+    drawPixels(canvas.getContext('2d'), icon.grid, 1);
+    button.append(canvas, icon.name);
+    button.addEventListener('click', () => showPreview(icon));
+    choices.append(button);
+  }
+});
+$('#restoreHeart').addEventListener('click', () => showPreview(HEART));
+savedIconBtn.addEventListener('click', () => showPreview({ name: 'Moja ikona', grid: own }));
+returnDraft.addEventListener('click', () => { showPreview(null); pix.focus(); });
+editPattern.addEventListener('click', () => {
+  if (!preview) return;
+  if (!sameIcon(grid, defaultDraft()) && !sameIcon(grid, preview.grid) &&
+      !confirm('Wzór zastąpi bieżący szkic. Zapisana ikona zostanie. Otworzyć wzór do edycji?')) return;
+  grid = copyIcon(preview.grid);
+  saveDraft();
+  showPreview(null);
+  pix.focus();
+});
+$('#saveIcon').addEventListener('click', () => {
+  if (own && !sameIcon(grid, own) && !confirm('Zastąpić zapisaną ikonę bieżącym szkicem?')) return;
+  own = copyIcon(grid);
+  store.set('motd:ikona', own);
+  savedIconBtn.hidden = false;
+  iconStatus.textContent = 'Zapisano twoją ikonę w tej przeglądarce.';
+});
 let painting = false;
 function paint(e) {
   const r = pix.getBoundingClientRect(), x = Math.floor((e.clientX - r.left) / r.width * N), y = Math.floor((e.clientY - r.top) / r.height * N);
@@ -135,12 +196,16 @@ function paintCell() {
   drawIcon();
   sfx('tick');
 }
-pix.addEventListener('pointerdown', (e) => { painting = true; pix.setPointerCapture?.(e.pointerId); paint(e); });
+pix.addEventListener('pointerdown', (e) => {
+  if (preview || !e.isPrimary || e.button !== 0) return;
+  painting = true; pix.setPointerCapture?.(e.pointerId); paint(e);
+});
 pix.addEventListener('pointermove', (e) => { if (painting) paint(e); });
-pix.addEventListener('lostpointercapture', () => { painting = false; saveIcon(); });
+pix.addEventListener('lostpointercapture', () => { if (painting) saveDraft(); painting = false; });
 pix.addEventListener('focus', () => { drawIcon(); describeCell(); });
 pix.addEventListener('blur', drawIcon);
 pix.addEventListener('keydown', (event) => {
+  if (preview) return;
   const direction = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }[event.key];
   if (direction) {
     event.preventDefault();
@@ -150,14 +215,17 @@ pix.addEventListener('keydown', (event) => {
   } else if (event.key === ' ' || event.key === 'Enter') {
     event.preventDefault();
     paintCell();
-    saveIcon();
+    saveDraft();
   } else return;
   describeCell();
 });
-$('#clearIcon').addEventListener('click', () => { grid = Array.from({ length: N }, () => Array(N).fill(15)); drawIcon(); saveIcon(); });
-$('#fillIcon').addEventListener('click', () => { grid = grid.map(r => r.map(v => v === 15 ? color : v)); drawIcon(); saveIcon(); });
+$('#clearIcon').addEventListener('click', () => {
+  if (!sameIcon(grid, defaultDraft()) && !confirm('Wyczyścić bieżący szkic? Zapisana ikona zostanie.')) return;
+  grid = blankIcon(); drawIcon(); saveDraft();
+});
+$('#fillIcon').addEventListener('click', () => { grid = grid.map(r => r.map(v => v === 15 ? color : v)); drawIcon(); saveDraft(); });
 $('#dlIcon').addEventListener('click', () => {
   prev.toBlob((b) => { if (b) { download(b, 'server-icon.png'); award('motd:ikona', 20); } }, 'image/png');
 });
 
-toForm(); update(); drawIcon();
+toForm(); update(); showPreview(null);

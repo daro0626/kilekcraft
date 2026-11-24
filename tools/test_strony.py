@@ -424,6 +424,57 @@ def kolo_project(page):
     expect(page.locator('#name')).to_have_value('Zamek z mostem nad fosą')
 
 
+def motd_icons(page, mobile):
+    from struct import unpack
+    page.goto(f'{BASE}/motd.html')
+    page.evaluate("""() => {
+        localStorage.setItem('kc:motd:ikona', JSON.stringify(Array.from({length:16}, () => Array(16).fill(11))));
+        localStorage.removeItem('kc:motd:szkic');
+    }""")
+    page.reload()
+    read = lambda key: page.evaluate("key => JSON.parse(localStorage.getItem('kc:motd:' + key))", key)
+    click = lambda item: item.tap() if mobile else item.click()
+    saved = read('ikona')
+    click(page.locator('#iconGallery summary'))
+    choices = page.locator('#iconChoices button')
+    expect(choices).to_have_count(20)
+    click(page.get_by_role('button', name='Miecz', exact=True))
+    expect(page.locator('#iconStatus')).to_have_text('Miecz · podgląd wzoru')
+    assert read('ikona') == saved and read('szkic') is None
+    click(page.locator('#restoreHeart'))
+    expect(page.locator('#iconStatus')).to_have_text('Serce · podgląd wzoru')
+    expect(page.get_by_role('button', name='Serce', exact=True)).to_have_attribute('aria-pressed', 'true')
+    selected = page.locator('#iconPrev').evaluate("canvas => [...canvas.getContext('2d').getImageData(12,8,1,1).data]")
+    assert selected == [255, 61, 61, 255]
+    click(page.locator('#editPattern'))
+    canvas = page.locator('#pix')
+    expect(canvas).to_be_focused()
+    if mobile:
+        canvas.tap(position={'x': 6, 'y': 6})
+    else:
+        canvas.press('Space')
+    expect(page.locator('#paintControls')).to_be_visible()
+    page.wait_for_function("JSON.parse(localStorage.getItem('kc:motd:szkic'))[0][0] === 0")
+    draft = read('szkic')
+    assert read('ikona') == saved
+    click(page.get_by_role('button', name='Korona', exact=True))
+    page.once('dialog', lambda dialog: dialog.dismiss())
+    click(page.locator('#editPattern'))
+    assert read('szkic') == draft
+    click(page.locator('#returnDraft'))
+    page.reload()
+    assert read('szkic') == draft and read('ikona') == saved
+    page.once('dialog', lambda dialog: dialog.accept())
+    click(page.locator('#saveIcon'))
+    expect(page.locator('#iconStatus')).to_contain_text('Zapisano')
+    assert read('ikona') == draft
+    with page.expect_download() as downloaded:
+        click(page.locator('#dlIcon'))
+    assert downloaded.value.suggested_filename == 'server-icon.png'
+    data = Path(downloaded.value.path()).read_bytes()
+    assert data.startswith(b'\x89PNG\r\n\x1a\n') and unpack('>II', data[16:24]) == (64, 64)
+
+
 def engine_badges(page):
     report = page.request.get(f'{BASE}/data/testy.json').json()
     engines = report.get('silniki')
@@ -1358,6 +1409,7 @@ def run(browser, width, height):
         if name == 'motd':
             actual = page.evaluate('async s => (await import("./assets/js/motd.js")).motdProperty(s)', MOTD_SAMPLE)
             assert actual == motd_property(MOTD_SAMPLE), (actual, motd_property(MOTD_SAMPLE))
+            motd_icons(page, mobile)
         if name == 'komendy':
             command_tabs(page)
             engine_badges(page)
