@@ -54,6 +54,7 @@ Statusy: **OTWARTE** — niezaimplementowane; **CZĘŚCIOWO** — istnieje czę�
 **Stan kodu:** `docs/ZADANIA.md`: M1–M5 i M9 mają mapy możliwe do sprawdzenia w Minecrafcie; M6, M7, M8 i M10 zawierają dodatkowe mechaniki (ciemność, znikające bloki, rosnąca lawa), które **na razie działają tylko w przeglądarce**.
 **Wymagania:** dokończyć brakujące mechaniki datapacków i zweryfikować konkretną wersję gry (Vanilla/Paper). Unikać oznakowania «sprawdzone» dla mechaniki, której CI nie uruchomił.
 **Akceptacja:** test serwerowy każdej mechaniki, porównanie z opisem na stronie i ewentualny test manualny przed ogłoszeniem gotowości do grania.
+**Etap C4, gałąź `poprawka/zlecenie-39-mechaniki`:** eksport M6, M7, M8 i M10 zawiera rundę, stop, reset i sprzątanie. Pole musi być puste i wczytane. Bariera zatrzymuje lawę w obszarze gry. Test Playwright na obu ekranach pobiera plik i sprawdza funkcje, a test serwera używa tego samego eksportu. Do potwierdzenia na silnikach CI i w dłuższej grze użytkownika. Znacznik mechaniki odczytuje tylko rzeczywisty raport.
 
 ### KC-008 · P1 · DO TESTU — Datapacki: testy CI ≠ ręczne sprawdzenie budowli
 **Zgłoszenie:** czy datapack smoka i innych budowli naprawdę da się pobrać i wykonać na serwerze?

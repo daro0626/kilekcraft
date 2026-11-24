@@ -23,6 +23,11 @@ on:
       - assets/js/komendy.js
       - assets/js/export.js
       - assets/js/motd.js
+      - assets/js/komnaty-datapack.js
+      - assets/js/komnaty-gen.js
+      - assets/js/komnaty-mistrz.js
+      - tools/pakuj_komnaty.mjs
+      - tools/test_mechaniki.py
 
 permissions:
   contents: read
@@ -79,6 +84,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
       - name: Test komend
         env:
           TEST_VERSION: ${{ needs.prepare.outputs.version }}

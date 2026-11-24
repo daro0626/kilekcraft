@@ -34,15 +34,15 @@ export const MISTRZ = [
   { name: 'Ciemna krypta', mech: 'ciemność', cel: 'Znajdź drogę po małych platformach, widząc tylko kilka bloków.',
     zasada: 'Widzisz tylko na kilka bloków. Świecące platformy pokazują kierunek.',
     pulapka: 'Skok w ciemno = pustka.', tempo: '60–120 s',
-    gra: 'W grze ciemność trzeba włączyć komendą efektu. Mapę z blokami postawisz datapackiem, efekt wymaga osobnego testu.' },
+    gra: 'Funkcja rundy z datapacka nakłada efekt ciemności na osobę grającą. Sprawdź, czy nadal widzisz następny blok.' },
   { name: 'Kruszący się most', mech: 'kruszenie', cel: 'Przejdź po moście, który rozpada się pod stopami.',
     zasada: 'Popękany blok znika chwilę po tym, jak na niego wejdziesz, i wraca po 4 s. Nie zatrzymuj się.',
     pulapka: 'Boczna ścieżka prowadzi donikąd. Kto zawróci, spada.', tempo: '45–90 s',
-    gra: 'Tylko w przeglądarce. W grze kruszenie wymaga komend (bloki znikające pod graczem), których jeszcze nie przygotowaliśmy ani nie przetestowaliśmy.' },
+    gra: 'Funkcja rundy z datapacka kruszy popękane bloki pod stopami, a po chwili je odbudowuje.' },
   { name: 'Wznosząca się lawa', mech: 'lawa rośnie', cel: 'Wespnij się spiralą na szczyt, zanim dogoni cię lawa.',
     zasada: 'Po 4 s lawa zaczyna rosnąć o 1 blok co 1,1 s. Nie ma punktów kontrolnych.',
     pulapka: 'Lawa cię dogoni = cała wspinaczka od początku.', tempo: '25–35 s (przy 1 skoku na sekundę lawa cię nie dogoni)',
-    gra: 'Tylko w przeglądarce. W grze rosnąca lawa wymaga komend na czas, których jeszcze nie przygotowaliśmy ani nie przetestowaliśmy.' },
+    gra: 'Funkcja rundy z datapacka podnosi lawę w osłoniętej komnacie. Po zatrzymaniu rundy usuwa dodatkowe warstwy.' },
   { name: 'Żywioły', mech: 'lód, szlam, magma, miód', cel: 'Przejdź cztery części, każda z innym blokiem.',
     zasada: 'Lód: hamuj przed zakrętem. Szlam: daj się odbić. Magma: nie stój. Miód: skacz z kamienia.',
     pulapka: 'Każda część ma lawę pod spodem. Jeden punkt kontrolny w połowie.', tempo: '90–180 s',
@@ -50,7 +50,7 @@ export const MISTRZ = [
   { name: 'Finał: Wieża Kilka', mech: 'kruszenie, magma, lawa, mgła', cel: 'Wespnij się po kruszących się platformach, uciekając przed lawą we mgle.',
     zasada: 'Popękane platformy znikają, na magmie nie wolno stać, a lawa rośnie o 1 blok co 1,25 s. Widzisz na 14 bloków.',
     pulapka: 'Brak punktów kontrolnych. Każdy błąd = start od zera.', tempo: '30–45 s (na granicy lawy)',
-    gra: 'Tylko w przeglądarce (kruszenie i lawa wymagają komend). W grze postawisz samą wieżę i sprawdzisz skoki bez lawy.' },
+    gra: 'Funkcja rundy z datapacka łączy ciemność, kruszenie platform i rosnącą lawę. Magma zadaje obrażenia według zasad gry.' },
 ];
 
 const STONE = 'smooth_stone', ICE = 'packed_ice', HONEY = 'honey_block', SLIME = 'slime_block', MAGMA = 'magma_block', CRACK = 'cracked_bricks';

@@ -428,11 +428,15 @@ def main():
     fmt = pack_version(jar); print('Format datapacka z version.json:', fmt)
     metas = mcmeta_candidates(fmt)
     write_pack(wd, metas[0])
+    fixtures = []
+    if version == '26.3':
+        from test_mechaniki import install_mechanics
+        fixtures = install_mechanics(wd, wd / 'world/datapacks/kilekcraft_test', metas[0])
 
     pw = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(24))
     (wd / 'eula.txt').write_text('eula=true\n')
     (wd / 'server.properties').write_text('\n'.join([
-        'enable-rcon=true', f'rcon.password={pw}', 'rcon.port=25575', 'server-port=25566',
+        'enable-rcon=true', f'rcon.password={pw}', 'rcon.port=25575', 'server-port=25566', 'server-ip=127.0.0.1',
         'online-mode=false', 'level-type=minecraft\\:flat', 'generate-structures=false',
         'spawn-protection=0', 'max-players=2', 'view-distance=3', 'simulation-distance=3',
         'initial-enabled-packs=vanilla,file/kilekcraft_test',
@@ -522,6 +526,13 @@ def main():
             ensure_ascii=False, indent=2), encoding='utf-8')
     else:
         failed += 1
+    if fixtures:
+        from test_mechaniki import test_mechanics
+        verified, errors = test_mechanics(rcon, fixtures) if ok else ([], [{'komenda': 'datapack', 'odpowiedz': 'Próbny datapack nie przeszedł.'}])
+        results['komnaty_mechanika'] = {'ok': len(verified) == len(fixtures) and not errors, 'wersja': version,
+                                        'silnik': label, 'data': date.today().isoformat(), 'przetestowano': len(fixtures),
+                                        'zweryfikowane': verified, 'bledy': errors}
+        failed += not results['komnaty_mechanika']['ok']
     cids, cerrs, ctotal = test_cennik(rcon)
     print(f'Identyfikatory cennika: {len(cids)}/{ctotal}')
     results['cennik'] = {'ok': ctotal > 0 and not cerrs, 'wersja': version, 'silnik': label,
@@ -535,6 +546,8 @@ def main():
     out = {'_opis': 'Wyniki automatycznego testu komend. Plik nadpisuje tools/test_commands.py.',
            'serwer': label, 'data': date.today().isoformat(), 'wyniki': results, 'szczegoly': details}
     (a.report_dir / 'testy.json').write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding='utf-8')
+    if fixtures:
+        print('RAPORT_MECHANIKI ' + json.dumps(results['komnaty_mechanika'], ensure_ascii=False))
     print(f'\nZapisano data/testy.json. Błędów: {failed}')
     sys.exit(1 if failed else 0)
 
