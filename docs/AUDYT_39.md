@@ -37,6 +37,6 @@ Scenariusze wykonano w Chromium w rozmiarach 1366×820 i 390×844. Zrzuty pokazu
 
 ## Wydanie
 
-Audyt znalazł przycięty nagłówek na małym ekranie, uproszczone opisy checkpointów, brak nagłówka pierwszego poziomu na stronie głównej, zbyt szeroką deklarację sprawdzania oraz niestabilne wyszukiwanie paczki przez GitHub Pages. Rejestr zachowuje zgłoszenia KC-015–KC-019. Końcowe przebiegi Actions i numer wdrożenia są w opisie pull requestu etapu E.
+Audyt znalazł przycięty nagłówek na małym ekranie, uproszczone opisy checkpointów, brak nagłówka pierwszego poziomu na stronie głównej, zbyt szeroką deklarację sprawdzania oraz niestabilne wyszukiwanie paczki przez GitHub Pages. Rejestr zachowuje zgłoszenia KC-015–KC-020. Końcowe przebiegi Actions i numer wdrożenia są w opisie pull requestu etapu E.
 
 Przed szerokim udostępnieniem pozostały ocena Twierdzy, próby na fizycznym telefonie oraz próby całych budowli i przejść w kliencie Minecraft. Ocena tych punktów nie zmienia zakresu pokazanych testów CI.

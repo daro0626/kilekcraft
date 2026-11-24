@@ -1390,6 +1390,10 @@ def run(browser, width, height):
         smoke(page, name)
         if name == 'index':
             expect(page.get_by_role('heading', level=1, name='KILEKCRAFT')).to_be_visible()
+            if not mobile:
+                page.set_viewport_size({'width': 1120, 'height': height})
+                expect(page.locator('.menu-btn')).to_be_visible()
+                page.set_viewport_size({'width': width, 'height': height})
         if mobile:
             mobile_menu = page.locator('.menu-btn')
             in_view = """button => {

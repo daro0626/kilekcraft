@@ -161,26 +161,35 @@ blockTitle(tc, 'KILEKCRAFT', { colorAt: (i) => i < 5 ? '#e4e9f4' : '#ff3d3d' });
 document.getElementById('title').classList.add('ready');
 
 flapBoard(document.getElementById('flap'), [
-  'JAVA 26.3 · AKTUALNA',
+  'JAVA 26.3 · TESTY CI',
   'SERWER OD 0 ZŁ',
   'GAMERULE: NOWE NAZWY',
-  'WHITELIST DOMYŚLNIE ON',
+  'LISTA GOŚCI SERWERA',
   'KOMNATY 1–10',
   'ZDOBYWAJ POZIOMY',
   'WYŚCIG NAD LAWĄ',
-  '8 WIELKICH BUDOWLI',
+  '23 BUDOWLE W 3D',
 ]);
 
 // scena 3D ładowana dopiero, gdy jest widoczna
 const host = document.getElementById('hero3d');
-const io = new IntersectionObserver(async ([e]) => {
-  if (!e.isIntersecting) return; io.disconnect();
+async function loadHero() {
   const { createViewer } = await import('./assets/js/voxel.js');
   const { island } = await import('./assets/js/island.js');
   const v = await createViewer(host, island(), { autoRotate: !reduced, ghost: false, layerPlane: false, motes: !reduced, noZoom: true, zoom: .9 });
   if (!v) { host.querySelector('.poster').textContent = 'Twoja przeglądarka nie pokazuje 3D. Budowle nadal zobaczysz jako mapę warstw.'; return; }
   host.querySelector('.poster').remove();
   if (!reduced) v.animateBuild(3200);
+}
+const io = new IntersectionObserver(([entry]) => {
+  if (!entry.isIntersecting) return;
+  io.disconnect();
+  const idle = () => {
+    if ('requestIdleCallback' in window) requestIdleCallback(loadHero, { timeout: 1500 });
+    else setTimeout(loadHero, 0);
+  };
+  if (document.readyState === 'complete') idle();
+  else addEventListener('load', idle, { once: true });
 }, { rootMargin: '100px' });
 io.observe(host);
 </script>
