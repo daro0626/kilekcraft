@@ -120,6 +120,12 @@ Statusy: **OTWARTE** — niezaimplementowane; **CZĘŚCIOWO** — istnieje czę�
 ### KC-020 · P2 · DO TESTU — Tablica startowa podawała nieaktualną liczbę budowli
 **Etap E:** tablica pokazuje 23 budowle i wersję badanych serwerów. Usunięto uogólnienie o domyślnej liście gości. Liczbę zweryfikowano w definicji galerii, a wersję w raporcie CI. Odbiór opisu pozostaje do wykonania.
 
+### KC-021 · P1 · OTWARTE — Reset postępu bez kasowania projektów
+**Zgłoszenie (2026-11-24):** panel poziomu i odznak udostępnia «Eksportuj postęp» i «Importuj postęp», ale nie ma oczywistego «Resetuj postęp». Właściciel chce wrócić do stanu nowego gracza podczas testów, bez ręcznego usuwania wszystkich danych przeglądarki.
+**Stan kodu:** `assets/js/xp.js` ma tylko eksport/import; import zachowuje wyższy XP i lepsze rekordy. `assets/js/store.js` przechowuje klucze z prefiksem `kc:`, a dane edytora, innych gier i XP mogą współistnieć. Czyszczenie całej witryny z ustawień Chrome może usuwać też dane innych projektów pod tym samym pochodzeniem `daro0626.github.io`.
+**Wymagania:** w panelu dodać **Resetuj postęp** w czytelnym miejscu, z potwierdzeniem, wyszczególnieniem usuwanych danych i opcją **Najpierw pobierz kopię**. Reset powinien zerować poziom, odznaki, osiągnięcia i wyniki/rekordy gier (z jasnym zakresem), bez usuwania własnych budowli, ikon serwera, konfiguracji i innych prac użytkownika. Rozważyć osobną, wyraźnie nazwaną opcję «Usuń wszystkie dane KILEKCRAFT», ale nigdy bez osobnego ostrzeżenia. Nie stosować nieograniczonego `localStorage.clear()`. Po resecie UI musi natychmiast wyświetlać poziom 1, 0 XP i puste odznaki, bez pozostawienia starego stanu w module JS. Import kopii z powrotem powinien umożliwiać pełne odtworzenie zgodnie z opisem, jeśli backup to obiecuje — obecne scalanie tylko wyższych rekordów nie jest pełnym przywróceniem stanu.
+**Akceptacja:** desktop/mobile; reset z anulowaniem i potwierdzeniem; odświeżenie i ponowne otwarcie strony; zachowanie danych edytora i ikon; brak wpływu na inne aplikacje GitHub Pages na tym samym origin; prawidłowy eksport i import po resecie; testy Playwright dla poziomu 1 / 0 XP i rekordów.
+
 ## Zasady pracy Codexa i Claude
 
 1. **Jeden agent wykonawczy na dany zakres.** Nie uruchamiać równocześnie Claude i Codexa nad tym samym fragmentem; to marnuje limity i powoduje konflikty.
