@@ -47,7 +47,7 @@ Statusy: **OTWARTE** — niezaimplementowane; **CZĘŚCIOWO** — istnieje czę�
 **Stan kodu:** `assets/js/motd.js` ma tylko stały wzór `HEART` jako domyślny, a potem trwały zapis lokalny.
 **Wymagania:** galeria ~20 autorskich miniatur pixel art 16×16 (np. serce, miecz, kilof, skrzynia, tarcza, korona, ogień), przyciski «Przywróć serce», «Edytuj», «Zapisz moją ikonę», «Pobierz PNG». Zmiana szablonu nie niszczy własnej pracy bez potwierdzenia. Wszystkie eksportują się jako prawidłowe `server-icon.png` 64×64, bez kopiowania oficjalnych grafik Minecrafta.
 **Akceptacja:** przywracanie po wielu edycjach, zapis/odczyt, eksport PNG, mobile/klawiatura.
-**Etap C3, gałąź `poprawka/zlecenie-39-ikony`:** galeria 20 autorskich wzorów 16×16 z podglądem, przywróceniem serca i edycją. Zapisana ikona i szkic są oddzielne. Zastąpienie zmienionego szkicu lub zapisanej ikony wymaga potwierdzenia. Test desktop/mobile obejmuje edycję, odmowę, przywrócenie szkicu po odświeżeniu oraz eksport `server-icon.png` 64×64. Próbę wgrania własnej ikony na serwer pozostawiono użytkownikowi.
+**Etap C3, [PR #44](https://github.com/daro0626/kilekcraft/pull/44):** galeria 20 autorskich wzorów 16×16 z podglądem, przywróceniem serca i edycją. Zapisana ikona i szkic są oddzielne. Zastąpienie zmienionego szkicu lub zapisanej ikony wymaga potwierdzenia. Test desktop/mobile obejmuje edycję, odmowę, przywrócenie szkicu po odświeżeniu oraz eksport `server-icon.png` 64×64. Próbę wgrania własnej ikony na serwer pozostawiono użytkownikowi.
 
 ### KC-007 · P1 · CZĘŚCIOWO — Pełne mechaniki komnat w Minecrafcie
 **Zgłoszenie:** zawartość powinna działać również na rzeczywistym serwerze, nie tylko w grze przeglądarkowej.
